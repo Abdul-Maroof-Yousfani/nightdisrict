@@ -53,7 +53,8 @@ const usersSchema = new mongoose.Schema({
         exp_year : {type: String},
         CVCNumber : {type: Number, min:3},
         customerId : {type:String},
-        cardType: {type: String}
+        cardType: {type: String},
+        active: {type: Boolean , default: 'true'}
     }],
     paymentStatus:{
         type: String,
@@ -61,6 +62,10 @@ const usersSchema = new mongoose.Schema({
     },
     barInfo:{
         type: String
+    },
+    agree_checkbox:{
+        type: Boolean,
+        default: 'true'
     }
 });
 

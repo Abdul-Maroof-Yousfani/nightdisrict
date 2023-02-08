@@ -1,26 +1,44 @@
 import mongoose from 'mongoose';
 
 const menu = new mongoose.Schema({
+    barId: {
+        type: String
+    },
+    userType: {
+        type: String
+    },
     name: {
         type: String
     },
-    description:{
+    description: {
         type: [String]
     },
-    category:{
+    category: {
         type: String
     },
-    subCategory:{
+    subCategory: {
         type: String
     },
-    qtyPrice:{
+    image:{
+        type: String
+    },
+    galleryImages:[{
+        path: {type: String}
+    }],
+    qtyPrice: {
         type: Number
     },
-    shotPrice:{
+    shotPrice: {
         type: Number
     },
-    rocksPrice:{
+    rocksPrice: {
         type: Number
-    }
+    },
+    reviews: [{
+        id: {type: String}
+    }],
+    tipOnItem: [{
+        bartender: {type: String}
+    }]
 });
 export default mongoose.model('menu', menu);

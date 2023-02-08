@@ -1,57 +1,67 @@
 import mongoose from 'mongoose';
 
 const bar = new mongoose.Schema({
-    upload_logo:{
+    upload_logo: {
         type: String
     },
-    upload_coverPhoto:{
+    upload_coverPhoto: {
         type: String
     },
-    color:{
+    color: {
         type: String
     },
     barName: {
         type: String
     },
-    address:{
+    address: {
         type: String
     },
-    city:{
+    city: {
         type: String
     },
-    state:{
+    state: {
         type: String
     },
-    phone:{
+    phone: {
         type: Number
     },
-    url:{
+    url: {
         type: String
     },
-    upload_document:{
+    upload_document: {
         type: String
     },
-    barHours:[{
-        day: {type: String},
-        startTime: {type: String},
-        endTime: {type: String}
+    barHours: [{
+        day: { type: String },
+        startTime: { type: String },
+        endTime: { type: String }
     }],
-    barHashtag:[
+    barHashtag: [
         {
             type: String
         }
     ],
-    ownerAge:{
+    ownerAge: {
         type: Number
     },
-    drinkSize:{
+    drinkSize: {
         type: Number
     },
-    drinkShot:{
+    drinkShot: {
         type: Number
     },
-    rock_neat:{
+    rock_neat: {
         type: Number
-    }
+    },
+    active: {
+        type: Boolean,
+        default: 'true'
+    },
+    events: [
+        {
+            type: String,
+            ref: 'event'
+        }
+    ]
 });
 export default mongoose.model('bar', bar);
