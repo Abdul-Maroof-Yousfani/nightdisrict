@@ -1,7 +1,27 @@
 import SimpleSchema from 'simpl-schema';
 import Membership from '../models/membership.js';
 import Joi from 'joi';
+import membership from '../models/membership.js';
 
+
+const index = async(req,res) =>
+{
+    try
+    {   
+        let data = await Membership.find();
+        return res.send({
+            message:"success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).send({
+            message: error.message,
+            data : []
+        })
+    }
+}
 
 const createMembership = async(req,res) =>
 {
@@ -36,5 +56,6 @@ const createMembership = async(req,res) =>
 }
 
 export  default{
-    createMembership
+    createMembership,
+    index
 }

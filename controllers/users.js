@@ -16,6 +16,7 @@ const register = async (req, res) => {
         
         let role = req.body.role;
 
+
         let result = await Role.findOne({name: role});
         if(!result){
             return res.status(404).json({

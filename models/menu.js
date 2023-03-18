@@ -2,43 +2,57 @@ import mongoose from 'mongoose';
 
 const menu = new mongoose.Schema({
     barId: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId, ref: 'bars',
+        default : null
     },
-    userType: {
-        type: String
+    item : {
+        type: mongoose.Schema.Types.ObjectId, ref: 'supermenus',
+        default : null
     },
-    name: {
-        type: String
-    },
-    description: {
-        type: [String]
-    },
-    category: {
-        type: String
-    },
-    subCategory: {
-        type: String
-    },
-    image:{
-        type: String
-    },
-    galleryImages:[{
-        path: {type: String}
-    }],
-    qtyPrice: {
-        type: Number
-    },
-    shotPrice: {
-        type: Number
-    },
-    rocksPrice: {
-        type: Number
-    },
-    reviews: [{
-        id: {type: String}
-    }],
-    tipOnItem: [{
-        bartender: {type: String}
-    }]
+    variation : [
+        {
+            type :{
+                type : mongoose.Schema.Types.ObjectId, ref: 'pourtypes',
+                default : null
+            },
+            price : {
+                type : Number,
+                default : 0
+            }
+        }
+    ]
+    // name: {
+    //     type: String
+    // },
+    // description: {
+    //     type: [String]
+    // },
+    // category: {
+    //     type: String
+    // },
+    // subCategory: {
+    //     type: String
+    // },
+    // image:{
+    //     type: String
+    // },
+    // galleryImages:[{
+    //     path: {type: String}
+    // }],
+    // qtyPrice: {
+    //     type: Number
+    // },
+    // shotPrice: {
+    //     type: Number
+    // },
+    // rocksPrice: {
+    //     type: Number
+    // },
+    // reviews: [{
+    //     id: {type: String}
+    // }],
+    // tipOnItem: [{
+    //     bartender: {type: String}
+    // }]
 });
 export default mongoose.model('menu', menu);

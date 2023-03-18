@@ -8,6 +8,16 @@ import mongoose from "mongoose";
 import roles from "./routes/role.js";
 import fileUpload from "express-fileupload";
 
+import adminRoutes from "./routes/admin.js";
+import eventRoutes from "./routes/event.js";
+import promotionRoutes from "./routes/promotion.js";
+import teamRoute from "./routes/teammember.js";
+import inquiryRoute from "./routes/inquiry.js";
+import ratingRoute from "./routes/rating.js";
+import postRoute from './routes/post.js';
+
+
+
 
 dotenv.config();
 
@@ -29,6 +39,14 @@ app.use("/api/roles", roles);
 app.use("/api/menu" , menu);
 app.use("/api/membership", membership);
 app.use("/api/bar" , bar);
+app.use("/api/admin",adminRoutes);
+app.use("/api/event",eventRoutes);
+app.use('/api/promotion',promotionRoutes);
+app.use('/api/teammember',teamRoute);
+app.use('/api/inquiry',inquiryRoute)
+// app.use("/api/barowner",barownerRoutes);
+app.use('/api/rating',ratingRoute);
+app.use('/api/post',postRoute);
 
 app.get("/", (req, res) => res.send("Welcome to the Users API!"));
 app.all("*", (req, res) => res.status(404).send("You've tried reaching a route that doesn't exist."));

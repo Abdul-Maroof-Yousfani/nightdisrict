@@ -1,6 +1,6 @@
-import Bar from '../models/bar.js';
-import User from "../models/users.js";
-import Role from "../models/roles.js";
+import Bar from '../../models/bar.js';
+import User from "../../models/users.js";
+import Role from "../../models/roles.js";
 
 const barProfile = async (req,res) =>{
     try {
@@ -196,10 +196,29 @@ const detailInfo = async (req,res) =>{
             })
         }
     }
+
+
+    // Adding items to a Bar Menu
+
+    const addItem = async(req,res) =>
+    {
+        let {} = req.body;
+        try
+        {
+            console.log(req.body);
+            return res.json({data : req.body})
+        }
+        catch(error)
+        {
+
+        }
+
+    }
     
     export  default{
         barProfile,
         barInfo,
         detailInfo,
-        updateBarInfo
+        updateBarInfo,
+        addItem
     }
