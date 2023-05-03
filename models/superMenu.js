@@ -36,7 +36,22 @@ const superMenu = new mongoose.Schema({
     picture:{
         type: String,
         default : ""
-    }
+    },
+    pictures:[{
+        type : String,
+    },{
+        default : []
+    }],
+    categories:[{
+        type: mongoose.Schema.Types.ObjectId, ref: 'menuCategory'
+    },{
+        default : []
+    }],
+    subCategories:[{
+        type: mongoose.Schema.Types.ObjectId, ref: 'menuCategory'
+    },{
+        default : []
+    }],
     
-});
+},{timestamps:true});
 export default mongoose.model('superMenu', superMenu);

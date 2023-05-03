@@ -9,8 +9,11 @@ const store = async(req,res) =>
     {   
         const schema = Joi.object({
                 name : Joi.string().required(),
+                city : Joi.string().required(),
                 email : Joi.string().required(),
-                message : Joi.string().required()
+                phone : Joi.string().required(),
+                message : Joi.string().required(),
+                type : Joi.string()
          });
         const { error, value } = schema.validate(req.body);
         if(error) return res.status(400).json({
@@ -24,6 +27,7 @@ const store = async(req,res) =>
         data.save();
 
         res.json({
+            status : 200,
             message : "success",
             data
         })
@@ -31,6 +35,7 @@ const store = async(req,res) =>
     catch(error)
     {
         res.status(500).json({
+            status : 500,
             message : error.message,
             data : {}
         })

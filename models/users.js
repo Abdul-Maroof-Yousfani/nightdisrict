@@ -11,7 +11,8 @@ const usersSchema = new mongoose.Schema({
         type: String
     },
     profile_picture:{
-        type: String
+        type: String,
+        default : ""
     },
     username: {
         type: String,
@@ -44,7 +45,8 @@ const usersSchema = new mongoose.Schema({
         type: String
     },
     membership:{
-        type: String
+        type : mongoose.Types.ObjectId,
+        default : null
     },
     cardDetail:[{
         cardHolderName : {type: String},
@@ -61,12 +63,40 @@ const usersSchema = new mongoose.Schema({
         default: "Paid"
     },
     barInfo:{
-        type: String
+        type: mongoose.Types.ObjectId,
+        ref : "bars",
+        default : null
     },
     agree_checkbox:{
         type: Boolean,
         default: 'true'
+    },
+    currently_active_card  : {
+        type : mongoose.Types.ObjectId,
+        default : null
+    },
+    email_notification : {
+        type : Boolean,
+        default : false
+    },
+    overviewReport : {
+        type : Boolean,
+        default : false
+    },
+    otp:[{
+        code : {
+            type : String,
+            default : ""
+        },
+        isActive : {
+            type :Boolean,
+            default : true
+        }
+    },
+    {
+        default : []
     }
+    ]
 });
 
 

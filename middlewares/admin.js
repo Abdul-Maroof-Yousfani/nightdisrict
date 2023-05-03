@@ -1,4 +1,4 @@
-import helper from '../helper/helper.js';
+import helper from '../utils/helpers.js';
 import User from '../models/users.js';
 import JwtService from "../services/jwt.js";
 
@@ -11,15 +11,13 @@ const admin = async(req,res,next) =>
         const user = await User.findOne({email:req.user.email});
         const checkRole = await helper.checkRole(user.role);
         if(!checkRole) return res.json({error:"Invalid Role"})
-      
-        if(checkRole.name == 'Admin')
+        if(checkRole.name == 'superadmin' || checkRole.name == 'barowner')
         {
-            
             next();
         }
         else
         {
-            res.json({error:"This Feature is Available for Admins Only"})
+            res.json({error:"This Feature is Available for  Admins && Barowners Only"})
         }
     }
     catch(err)

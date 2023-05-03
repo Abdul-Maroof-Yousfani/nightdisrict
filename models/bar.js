@@ -2,56 +2,78 @@ import mongoose from 'mongoose';
 
 const bar = new mongoose.Schema({
     upload_logo: {
-        type: String
+        type: String,
+        default : ""
     },
     upload_coverPhoto: {
-        type: String
+        type: String,
+        default : ""
     },
     color: {
-        type: String
+        type: String,
+        default : ""
     },
     barName: {
-        type: String
+        type: String,
+        default : ""
     },
     address: {
-        type: String
+        type: String,
+        default : ""
     },
     city: {
-        type: String
+        type: String,
+        default : ""
     },
     state: {
-        type: String
+        type: String,
+        default : ""
     },
     phone: {
-        type: Number
+        type: Number,
+        default : 0
     },
     url: {
-        type: String
+        type: String,
+        default : ""
     },
     upload_document: {
-        type: String
+        type: String,
+        default : ""
     },
     barHours: [{
         day: { type: String },
         startTime: { type: String },
         endTime: { type: String }
-    }],
+    },
+    {
+        default : []
+    }
+
+    ],
     barHashtag: [
         {
             type: String
+        },
+        {
+            default : []
         }
     ],
     ownerAge: {
-        type: Number
+        type: Number,
+        default : 0
     },
     drinkSize: {
-        type: Number
+        type: Number,
+        default : 0
     },
     drinkShot: {
-        type: Number
+        type: Number,
+        default : 0
     },
     rock_neat: {
-        type: Number
+        type: Number,
+        default : 0
     },
     active: {
         type: Boolean,
@@ -61,7 +83,15 @@ const bar = new mongoose.Schema({
         {
             type: String,
             ref: 'event'
+        },
+        {
+            default : []
         }
-    ]
+    ],
+    owner : {
+        type :mongoose.Types.ObjectId,
+        ref : "bars",
+        default : null
+    }
 });
 export default mongoose.model('bar', bar);

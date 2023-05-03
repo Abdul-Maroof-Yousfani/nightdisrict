@@ -6,9 +6,41 @@ import membership from '../models/membership.js';
 
 const index = async(req,res) =>
 {
+    let {_id} = "";
     try
     {   
         let data = await Membership.find();
+       
+        return res.send({
+            message:"success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).send({
+            message: error.message,
+            data : []
+        })
+    }
+}
+const userMembership = async(req,res) =>
+{
+    try
+    {   
+        let data = await Membership.find().lean();
+        data = data.map((e) =>{
+                console.log(req.user.membership)
+                if(e._id.toString() == req.user.membership.toString())
+                {
+                    e.active = true
+                }
+                else
+                {
+                    e.active = false
+                }
+                return  e
+        })
         return res.send({
             message:"success",
             data
@@ -57,5 +89,6 @@ const createMembership = async(req,res) =>
 
 export  default{
     createMembership,
+    userMembership,
     index
 }

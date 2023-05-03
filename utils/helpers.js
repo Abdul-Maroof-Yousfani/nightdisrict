@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import nodemailer from "nodemailer";
+import roles from '../models/roles.js';
+import subscriptiontype from '../models/subscriptiontype.js';
 import User from '../models/users.js';
-
+import bar from '../models/bar.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -14,7 +16,21 @@ function validateUsername(username) {
     const valid = !!res;
     return valid;
 }
-
+const checkPaymentType = async(code) =>
+{
+    try
+    {
+        let payment = await subscriptiontype.findOne({code : code});
+        return payment;
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+          message : "",
+          data : {}
+        })
+    } 
+}
 function validateEmail(email) {
     let pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
     return pattern.test(email);
@@ -254,6 +270,47 @@ async function showMacroMonitor(userid) {
         console.log(err);
     }
 }
+const getRole = async(role) =>
+{
+    let data = await roles.findOne({name : role}).select('name');
+    return data
+}
+
+const checkRole = async(id) =>{
+
+    try
+    {
+        let data =  await roles.findOne({_id:id}).select('name');
+        return data
+    }
+    catch(error)
+    {
+        return error.message
+    }
+
+}
+
+const nearbyBars = async(longitude,latitude) =>{
+    try
+    {   
+        let data  = await bar.find({location: {
+
+            $near: {
+                $geometry: { type: "Point", coordinates: [longitude, latitude] },
+                $minDistance: 0,
+                $maxDistance: 10000
+            }
+        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1});
+
+        return data
+
+    }
+    catch(error)
+    {
+        console.log(error);
+    }
+
+}
 
 export default {
     validateUsername,
@@ -267,5 +324,11 @@ export default {
     paginate,
     sort,
     showMacroMonitor,
-    verifyAdminAuthToken
+    verifyAdminAuthToken,
+    checkPaymentType,
+    getRole,
+    nearbyBars,
+    checkRole
+
 }
+

@@ -17,6 +17,10 @@ const post = new mongoose.Schema({
     }
 
     ],
+    picture : {
+        type : String,
+        default : ""
+    },
     bar : {
         type : mongoose.Types.ObjectId,
         ref : 'bars',

@@ -11,10 +11,20 @@ router.put("/barInfo/:id" , helper.verifyAuthToken, Bar.barInfo);
 router.put("/detailInfo/:id" ,helper.verifyAuthToken, Bar.detailInfo);
 router.put("/allInfo/:id" ,helper.verifyAuthToken, Bar.updateBarInfo);
 
+router.post("/category" ,helper.verifyAuthToken, Bar.selectCategory);
+
 
 // Menus (Adding item to the Menu)
 
-router.put("/item" ,helper.verifyAuthToken, Bar.addItem)
+router.post("/item" ,helper.verifyAuthToken, Bar.addItem)
+
+
+
+// get orders based on Bar
+
+router.get("/orders",helper.verifyAuthToken,Bar.orders);
+
+
 
 
 

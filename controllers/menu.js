@@ -4,7 +4,6 @@ import Role from "../models/roles.js";
 import User from "../models/users.js";
 import Menu from '../models/menu.js';
 
-
 const createMenuCat = async (req, res) => {
     try {
 

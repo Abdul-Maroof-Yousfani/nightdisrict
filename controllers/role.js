@@ -34,7 +34,31 @@ const createRole = async(req,res) =>
     
     
 }
+const index = async(req,res) =>
+{
+    try
+    {
+        
+        let data = await Role.find({}).lean()
+        return res.send({
+            status : 200,
+            message:"Successfully Created",
+            data
+        })
+    }
+    catch(err)
+    {
+        return res.status(500).send({
+            status : 500,
+            message: err.message,
+            data : {}
+        })
+    }
+    
+    
+}
 
 export  default{
-    createRole
+    createRole,
+    index
 }

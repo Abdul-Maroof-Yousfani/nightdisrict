@@ -17,9 +17,21 @@ const barInquiries = new mongoose.Schema({
         type : mongoose.Types.ObjectId,
         default : null
     },
+    type : {
+        type : String,
+        default : ""
+    },
     picture : {
         type :String,
         default : ""
+    },
+    feedback:{
+        type : String,
+        default : ""
+    },
+    status:{
+        type : String,
+        default : 'created'
     }
 },
 {

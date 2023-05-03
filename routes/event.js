@@ -1,6 +1,9 @@
 import helper from '../utils/helpers.js'; 
 import express from 'express';
 import event from '../controllers/events.js';
+import admin from '../middlewares/admin.js';
+import auth from '../utils/helpers.js';
+
 const router = express.Router();
 
 
@@ -9,7 +12,9 @@ const router = express.Router();
 
 // Menus (Adding item to the Menu)
 
-router.post("/" , event.store);
+router.post("/" ,[auth.verifyAuthToken,admin], event.store);
+router.get("/" , event.index);
+router.get("/:_id" , event.view);
 
 
 

@@ -20,13 +20,22 @@ const promotion = new mongoose.Schema({
         type : Boolean,
         default : false
     },
+    category:{
+
+        type : mongoose.Types.ObjectId,
+        default : null
+    },
+    picture  :{
+        type : String,
+        default : ""
+    },
+    infinity:{
+        type:Boolean,
+        default:false
+    },
     menu : [
         {
             item:  {
-                type : mongoose.Types.ObjectId,
-                default : null
-            },
-            category:{
                 type : mongoose.Types.ObjectId,
                 default : null
             }
@@ -35,6 +44,12 @@ const promotion = new mongoose.Schema({
         {
             default : []
         }
-    ]
+    ],
+    bar:{
+
+        type : mongoose.Types.ObjectId,
+        ref : "bars",
+        default : null
+    },
 },{timestamps:true});
 export default mongoose.model('promotions', promotion);

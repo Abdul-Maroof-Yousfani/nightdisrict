@@ -1,8 +1,9 @@
 import express from 'express';
 const router = express.Router();
 import promotion from '../controllers/promotion.js';
-
-router.post('/', promotion.store);
+import helpers from '../utils/helpers.js';
+router.post('/', helpers.verifyAuthToken,  promotion.store);
+router.get('/', helpers.verifyAuthToken, promotion.index);
 
 
 

@@ -5,11 +5,19 @@ const event = new mongoose.Schema({
         type: String,
         default : ''
     },
+    description: {
+        type: String,
+        default : ''
+    },
     picture: {
         type: String,
         default : ""
     },
     date: {
+        type: Date,
+        default : Date.now()
+    },
+    enddate: {
         type: Date,
         default : Date.now()
     },
@@ -20,15 +28,16 @@ const event = new mongoose.Schema({
     },
     hashtags:[
         {
-            user:{
-                type : mongoose.Schema.Types.ObjectId,
-                ref :"hashtags",
-                default : []
-            },
+            type : mongoose.Schema.Types.ObjectId,
+            ref :"hashtags",
+            default : []
         },
         {default:[]}        
     ],
-  
+    stock : {
+        type : Number,
+        default : 0
+    },
     repeat : {
         type:Boolean,
         default : false
@@ -50,6 +59,11 @@ const event = new mongoose.Schema({
         ref : "users",
         default : null
     },
+    bar : {
+        type : mongoose.Types.ObjectId,
+        ref : "bars",
+        default : null
+    },
     dj:{
         
         type : mongoose.Schema.Types.ObjectId,
@@ -57,6 +71,28 @@ const event = new mongoose.Schema({
         default:null
         
     },
+    category : [
+        {
+            type : mongoose.Types.ObjectId,
+            ref : 'menucategories'
+        },
+        {
+            default : []
+        }
+    ],
+    venue : {
+        type :String,
+        default : ""
+    },
+
+    sold: {
+        type : Boolean,
+        default : false
+    },
     
+    
+},
+{
+    timestamps :true
 });
 export default mongoose.model('events', event);
