@@ -18,5 +18,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: |
-          cd ~/nightdistrict/nightdistrict/nightdistrict
+          cd ~/actions-runner/nightdistrict/nightdistrict/nightdistrict
           npm install
+          pm2 restart index
