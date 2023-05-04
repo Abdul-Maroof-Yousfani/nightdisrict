@@ -19,6 +19,7 @@ import orderRoute from './routes/order.js';
 import webRoute from './routes/web.js';
 import appRoute from './routes/app.js';
 import bartenderRoute from './routes/bartender.js';
+import orderSocket from './sockets/order.js';
 
 import path from 'node:path';
 import { dirname } from 'path';
@@ -75,7 +76,7 @@ app.use("/api/app",appRoute);
 
 
 
-
+orderSocket.initOrder();
 
 
 

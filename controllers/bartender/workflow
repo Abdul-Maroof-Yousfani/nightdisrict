@@ -3,9 +3,6 @@ Overall Workflow for a websocket
 
     -> Initiate webhook when bartender logs in
     -> Start Recieving new orders, completed orders and on prepare orders
-
     -> Customer Will Create an order on real time :
-
     -> On Realtime a bartender Should receive an Order for that specific Bar:
-
-    ->
+    -> Add a push notification, for mobile user
