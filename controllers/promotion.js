@@ -7,7 +7,7 @@ import fs from 'fs';
 
 const store = async(req,res) =>
 {
-    let {title,from,to,price,repeat,category,menu,infinity} = req.body;
+    let {title,from,to,price,repeat,category,menu,infinity,discount} = req.body;
     let imageNameOne,thumbPath = "";
     try
     {
@@ -19,7 +19,8 @@ const store = async(req,res) =>
             price: Joi.number(),
             repeat: Joi.boolean(),
             category : Joi.string().required(),
-            menu : Joi.any()
+            menu : Joi.any(),
+            discount : Joi.any()
             
          });
 
@@ -28,13 +29,35 @@ const store = async(req,res) =>
         
         if(error) return res.status(400).json({message : error.message , data : {}})
 
+        // check if end date or either infinity is defined
+        if(!infinity && !to)
+        {
+            return res.status(400).json({
+                status : 400,
+                message : 'please either set enddate or an infinity for the promotion',
+                data : {}
+            })
+        }
+        // if both are set in the fields
+        if(infinity && to)
+        {
+            return res.status(400).json({
+                status : 400,
+                message : 'please either set enddate or an infinity for the promotion',
+                data : {}
+            })
+        }
+
+
 
         //  check if Already Promotion is Availabe in with this time
-        
-        let checkDateRange = await promotion.findOne({
+        let query = {
             "from" : from,
             "to" : to
-        })
+        }
+        query = to?query:{ "from" : from, "infinity" : true }
+
+        let checkDateRange = await promotion.findOne(query)
         if(checkDateRange) return res.status(409).json({message : "Promotion Already Exist" , data : {}})
 
 

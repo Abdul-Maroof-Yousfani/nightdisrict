@@ -18,6 +18,7 @@ import postRoute from './routes/post.js';
 import orderRoute from './routes/order.js';
 import webRoute from './routes/web.js';
 import appRoute from './routes/app.js';
+import bartenderRoute from './routes/bartender.js';
 
 import path from 'node:path';
 import { dirname } from 'path';
@@ -60,7 +61,7 @@ app.use("/api/event",eventRoutes);
 app.use('/api/promotion',promotionRoutes);
 app.use('/api/teammember',teamRoute);
 app.use('/api/inquiry',inquiryRoute)
-// app.use("/api/barowner",barownerRoutes);
+app.use("/api/bartender",bartenderRoute);
 app.use('/api/rating',ratingRoute);
 app.use('/api/post',postRoute);
 

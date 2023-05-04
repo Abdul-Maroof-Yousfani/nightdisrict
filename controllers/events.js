@@ -90,16 +90,14 @@ const index = async(req,res) =>
 {
     let {live,today,upcomming}  = [];
     let date = new Date().toISOString();
-    console.log(date);
     try
     {
-        live = await event.find({
-            date: { $gte : date},
-            enddate: { $lte : date},
-        }).lean()
+        live = await event.find( { $and: [ { date: { $gte: date } }, { enddate: { $lte: date } } ] } ).lean()
         today = await event.find({
-            date: { $gte : date , $lte:date }
+            date: { $gte : date},
         }).lean()
+        
+        
         upcomming = await event.find({
             date: { $gte : date}
         }).lean()
