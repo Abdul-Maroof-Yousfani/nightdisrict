@@ -64,12 +64,17 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus : {
         type : String,
-        default : ""
+        default : "new"
     },
     customer: {
         type:mongoose.Schema.Types.ObjectId,
         ref : "users",
         default:null
+    },
+    bartender:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref : "users",
+        default:{}
     }
 
 },{timestamps:true})

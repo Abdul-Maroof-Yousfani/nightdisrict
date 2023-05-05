@@ -23,11 +23,71 @@ function initOrder() {
         socket.on('orders', async(response) =>{
             
             // this socket is responsible to fetch all orders that are new
-
-            let data = await order.find({}).lean()
+            try
+            {
+                let newOrder = await order.find({orderStatus:"new"}).lean()
+                let completed = await order.find({orderStatus:"completed"}).lean()
+                let delivered = await order.find({orderStatus:"delivered"}).lean()
+                let data = [ {new:newOrder,completed,delivered} ]
+                console.log(data);
+                socket.emit('data', data);
+            }
+            catch(error)
+            {
+                console.log(error)
+                socket.emit('error', error.messgae);
+            }   
+            
 
         })
-        
+
+        socket.on('prepare', async(response) =>{
+            
+            // this socket is responsible to fetch all orders that are new
+            try
+            {
+                let data = await order.find({orderStatus:"preparing"}).lean()
+                console.log(data);
+                socket.emit('data', data);
+            }
+            catch(error)
+            {
+                socket.emit('error', error.messgae);
+            }   
+            
+
+        })
+        socket.on('completed', async(response) =>{
+            
+            // this socket is responsible to fetch all orders that are new
+            try
+            {
+                let data = await order.find({orderStatus:"completed"}).lean()
+                console.log(data);
+                socket.emit('data', data);
+            }
+            catch(error)
+            {
+                socket.emit('error', error.messgae);
+            }   
+            
+
+        })
+        socket.on('delivered', async(response) =>{
+            
+            // this socket is responsible to fetch all orders that are new
+            try
+            {
+                let data = await order.find({orderStatus:"delivered"}).lean()
+                socket.emit('data', data);
+            }
+            catch(error)
+            {
+                socket.emit('error', error.messgae);
+            }   
+            
+
+        })
 
     });
 

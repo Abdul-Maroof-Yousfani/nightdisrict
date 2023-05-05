@@ -1,21 +1,18 @@
 import mongoose from "mongoose";
 const orderreserved = new mongoose.Schema({
-    order:{
+    orderid:{
         type: mongoose.Schema.Types.ObjectId,
-        ref : "orders",
-        default:{}
+        ref : "orders"
     },
     customer:{
         type: mongoose.Schema.Types.ObjectId,
-        ref : "users",
-        default:{}
+        ref : "users"
     },
     bar:{
         type: mongoose.Schema.Types.ObjectId,
-        ref : "bars",
-        default:{}
+        ref : "bars"
     },
-    status :{
+    orderStatus :{
         type : String,
         default : ""
     }
