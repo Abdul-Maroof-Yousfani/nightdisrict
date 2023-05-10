@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import order from "../../models/order.js";
 import orderreserved from "../../models/orderreserved.js";
+import menuCategory from "../../models/menuCategory.js";
+import users from '../../models/users.js';
 
 const orders = async(req,res) =>{
     try
@@ -109,32 +111,46 @@ const updateStatus = async(req,res) =>{
     }
 }
 
-const tips = async(req,res) =>{
+const tips = async(req,res) =>
+{
+    let totalEarning = 0;
     try
-    {   
+    {
+        let current = await order.find({"status" : "completed"}).select({"customer" : 1 , status : 1 , type : 1 , tip:1 , orderStatus :1 , orderNo : 1}).lean();
+        current  = await Promise.all((current.map(async(e) =>{
+            // add type
+            
+            let type = await menuCategory.findById({_id : e.type}).select({ "name" : 1 }).lean()
+           
+
+            // get order 
+            e.customer = await users.findOne({_id : e.customer}).select({"username" : 1 , "profile_picture" : 1 }).lean()
+            e.customer = e.customer? e.customer.username : {}
+            totalEarning = totalEarning +  e.tip
+            return e;
+
+        })))
+        return res.status(200).json({
+            status : 200,
+            message : 'success',
+            data: {totalEarning,data : current}
+        })
 
     }
     catch(error)
     {
-
+        return res.status(500).json({
+            status : 500,
+            message : "error",
+            data : []
+        })
     }
 }
-const reportOrder = async(req,res) =>{
-    try
-    {   
-        
-    }
-    catch(error)
-    {
-
-    }
-}
-
 
 export  default {
     orders,
     prepare,
     updateStatus,
-    tips,
-    reportOrder
+    tips
+    
 }
