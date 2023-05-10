@@ -109,9 +109,32 @@ const updateStatus = async(req,res) =>{
     }
 }
 
+const tips = async(req,res) =>{
+    try
+    {   
+
+    }
+    catch(error)
+    {
+
+    }
+}
+const reportOrder = async(req,res) =>{
+    try
+    {   
+        
+    }
+    catch(error)
+    {
+
+    }
+}
+
 
 export  default {
     orders,
     prepare,
-    updateStatus
+    updateStatus,
+    tips,
+    reportOrder
 }

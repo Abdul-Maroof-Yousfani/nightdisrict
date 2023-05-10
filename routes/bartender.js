@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/orders',helpers.verifyAuthToken,bartender.orders);
 router.post('/orders',helpers.verifyAuthToken,bartender.prepare);
 router.put('/status',helpers.verifyAuthToken,bartender.updateStatus);
+router.put('/tips',helpers.verifyAuthToken,bartender.tips);
 
 
 export default router;

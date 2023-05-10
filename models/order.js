@@ -3,16 +3,18 @@ const orderSchema = new mongoose.Schema({
     subscriptionType:{
         type: mongoose.Schema.Types.ObjectId,
         ref : "subscriptionTypes",
-        default:{}
     },
     type:{
         type: mongoose.Schema.Types.ObjectId,
         ref : "menucategories",
-        default:{}
     },
     orderNo:{
         type:String,
         default:""
+    },
+    bar:{
+        type : mongoose.Schema.Types.ObjectId,
+        ref:"bars",
     },
     items:[
         {
@@ -20,11 +22,11 @@ const orderSchema = new mongoose.Schema({
                 type : mongoose.Schema.Types.ObjectId,
                 default:null
             },
-            bar:{
+            variant:{
                 type : mongoose.Schema.Types.ObjectId,
-                ref:"bars",
                 default:null
             },
+
             price : {
                 type : Number,
                 default : 0
@@ -41,19 +43,11 @@ const orderSchema = new mongoose.Schema({
             },
             status : {
                 type : String,
-                default : "processing"
+                default : "new"
             }
         }
     ],
-    customer : {
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"users"
-    },
-    bartender : {
-        type:mongoose.Schema.Types.ObjectId,
-        ref : "users",
-        default : null
-    },
+    
     tip : {
         type:Number,
         default : 0
@@ -74,7 +68,6 @@ const orderSchema = new mongoose.Schema({
     bartender:{
         type: mongoose.Schema.Types.ObjectId,
         ref : "users",
-        default:{}
     }
 
 },{timestamps:true})

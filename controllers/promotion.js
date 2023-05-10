@@ -3,6 +3,7 @@ import menuCategory from "../models/menuCategory.js";
 import promotion from "../models/promotion.js";
 import superMenu from "../models/superMenu.js";
 import fs from 'fs';
+import menu from "../models/menu.js";
 
 
 const store = async(req,res) =>
@@ -104,19 +105,23 @@ const index = async(req,res) =>
 {
     try
     {
+        
         let data2 = await promotion.aggregate( [ { $group : { _id : "$category" } } ] )
 
         let data  = data2;
-
+   
         data = await Promise.all(data.map( async (e) =>{
            
             let cat = await menuCategory.findOne({
                             _id : e._id
                         }).lean()
-            e.thumbnail = cat.category_image?cat.category_image : ""
-            e.name = cat.name?cat.name : ""
-            e.menu = await promotion.find({category : e._id}).lean()
+            if(cat)
+            {
+                e.thumbnail = cat.category_image?cat.category_image : ""
+                e.name = cat.name?cat.name : ""
+            }
            
+            e.menu = await promotion.find({category : e._id}).lean()
             
             return e;
         }))
@@ -157,13 +162,48 @@ const index = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error)
         return res.status(500).json({
             message : "error",
             data : {}
         })
     }
 }
+const show = async(req,res) =>
+{
+    let {_id} = req.params;
+    try
+    {
+        let data = await promotion.findOne({_id}).lean();
+        if(!data) return res.status(404).json({status:404,message : "promotion not found", data : {}})
+        data.category = await menuCategory.findOne({_id:data.category}).select({_id : 1 , name:1});
+        data.category = data.category.name
+        data.menu = await Promise.all(data.menu.map(async(e) =>{
+            let menuName = await superMenu.findOne({item:e.item}).lean();
+            e.item = menuName.menu_name
+            e.picture = menuName.pictures
+            return e
+        }));
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data
+        })
+
+    }
+    catch(error)
+    {
+
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+
+    }
+}
 export default {
    store,
-   index
+   index,
+   show
 }

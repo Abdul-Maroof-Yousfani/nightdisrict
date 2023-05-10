@@ -29,7 +29,6 @@ function initOrder() {
                 let completed = await order.find({orderStatus:"completed"}).lean()
                 let delivered = await order.find({orderStatus:"delivered"}).lean()
                 let data = [ {new:newOrder,completed,delivered} ]
-                console.log(data);
                 socket.emit('data', data);
             }
             catch(error)

@@ -279,6 +279,7 @@ const detailInfo = async (req,res) =>{
     const addItem = async(req,res) =>
     {
         let { title,description,type,category,subcategory,variation} = req.body;
+      
         try
         {
             let schema = Joi.object({
@@ -299,34 +300,34 @@ const detailInfo = async (req,res) =>{
 
 
                 let mainMenu = new superMenu({
-                    bar : req.user.barInfo,
+                    barId : req.user.barInfo,
                     user : req.user._id,
                     menu_name : title,
                     description,
                     category,
-                    subcategory
+                    subCategory:subcategory
 
                 })
                 mainMenu = await mainMenu.save()
 
+
          
               
                 // then add item to the Bar
-
-                let data = new menu([
+                let data = new menu(
                     {
+                        "barId" : req.user.barInfo,
                         "item" : mainMenu._id,
                         "category" : category,
-                        "variation" : []
+                        "subCategory" : subcategory,
+                        variation 
                      }
-                ])
+                )
                 await data.save();
 
-                return res.json({message : "success",mainMenu})
+                return res.json({message : "success",data})
 
-            
-
-            }
+               }
             if(!menu)
             {
                 return res.status(400).json({status : 400, message : "Menu is required",data : {}}) 
@@ -385,6 +386,8 @@ const detailInfo = async (req,res) =>{
     }
 
     const orders = async(req,res) =>{
+        let totalPrice = 0
+
         try
         {
 
@@ -392,15 +395,19 @@ const detailInfo = async (req,res) =>{
             let current = await order.find({"status" : "processing"}).select({"items" : 1 , "customer" : 1 , status : 1 , type : 1}).lean();
             current  = await Promise.all((current.map(async(e) =>{
                 // add type
+               
                 let type = await menuCategory.findById({_id : e.type}).select({ "name" : 1 }).lean()
-                e.type = type.name
-                e.items = await Promise.all(e.items.map(async(item) =>{
+                if(type)
+                {
+                    e.type = type.name
+                    e.items = await Promise.all(e.items.map(async(item) =>{
                         let menu = await superMenu.findOne({ _id : item.item}).lean();
                         if(menu)
                         {
                             item.menu_name = menu.menu_name
                             item.description = menu.description
                             item.picture = menu.picture
+                            totalPrice = totalPrice + item.price
                             
                         }
                         // check type
@@ -412,6 +419,8 @@ const detailInfo = async (req,res) =>{
                         
                     }))
                 
+                }
+                
                 
                 // get order 
                 e.customer = await users.findOne({_id : e.customer}).select({"username" : 1 , "profile_picture" : 1 })
@@ -420,7 +429,7 @@ const detailInfo = async (req,res) =>{
 
                 }
                 e.estimatedTime = "";
-                e.totalPrice = 50
+                e.totalPrice = totalPrice
                 
                 return e;
 
@@ -449,13 +458,112 @@ const detailInfo = async (req,res) =>{
         }
     }
 
+    const tips = async(req,res) =>
+    {
+        let totalEarning = 0;
+        try
+        {
+            let current = await order.find({"status" : "completed"}).select({"customer" : 1 , status : 1 , type : 1 , tip:1 , orderStatus :1 , orderNo : 1}).lean();
+            current  = await Promise.all((current.map(async(e) =>{
+                // add type
+                
+                let type = await menuCategory.findById({_id : e.type}).select({ "name" : 1 }).lean()
+               
 
-    export  default{
-        barProfile,
-        barInfo,
-        detailInfo,
-        updateBarInfo,
-        addItem,
-        selectCategory,
-        orders
+                // get order 
+                e.customer = await users.findOne({_id : e.customer}).select({"username" : 1 , "profile_picture" : 1 }).lean()
+                e.customer = e.customer? e.customer.username : {}
+                totalEarning = totalEarning +  e.tip
+                return e;
+
+            })))
+            return res.status(200).json({
+                status : 200,
+                message : 'success',
+                data: {totalEarning,data : current}
+            })
+
+        }
+        catch(error)
+        {
+            return res.status(500).json({
+                status : 500,
+                message : "error",
+                data : []
+            })
+        }
     }
+
+const view = async(req,res) =>
+{
+    let {_id} = req.params;
+    let totalPrice = 0;
+    try
+    {
+
+        let data = await order.findOne({_id}).lean();
+        if(!data) return res.status(404).json({status:404,message : "success",data:{}})
+        
+        //  fetch items of the order
+
+        data.items = await Promise.all(data.items.map(async(item) =>{
+            let menu = await superMenu.findOne({ _id : item.item}).lean();
+            
+            if(menu)
+            {
+                item.menu_name = menu.menu_name
+                item.description = menu.description
+                item.picture = menu.picture
+                totalPrice = totalPrice + item.price
+                
+            }
+            // check type
+
+
+            return item;
+            
+        }))
+        
+        data.customer = await users.findOne({_id : data.customer}).select({"username" : 1 , "profile_picture" : 1 }).lean()
+        data.customer = data.customer? data.customer.username : {}
+
+        // set up order summary and totalPrices
+
+        data.paymentMethod = "credit card"
+        data.orderSummary = {
+            }
+        data.estimatedTime = "10 - 15 minutes";
+        data.totalPrice = totalPrice
+
+        return res.status(200).json({
+            status : 200,
+            message : 'success',
+            data
+        })
+        
+    }
+    catch(error)
+    {
+        console.log(error)
+        return res.status(500).json({
+            status : 500,
+            message : "failed",
+            data : {}
+        })
+    }
+
+}
+
+
+export  default{
+
+    barProfile,
+    barInfo,
+    detailInfo,
+    updateBarInfo,
+    addItem,
+    selectCategory,
+    orders,
+    view,
+    tips
+}

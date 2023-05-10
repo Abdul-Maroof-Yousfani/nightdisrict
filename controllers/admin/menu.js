@@ -265,7 +265,7 @@ const index = async(req,res) =>
 
 
 
-        let data = await superMenu.find({user : mongoose.Types.ObjectId('641d2816a266e71a5c95de1c')}).select({ "picture" : 0 , "bar" : 0, "userType" : 0, "category" : 0, "subCategory" : 0  , "createdAt" : 0 , "updatedAt" : 0 }).lean();
+        let data = await superMenu.find({}).select({ "picture" : 0 , "bar" : 0, "userType" : 0, "category" : 0, "subCategory" : 0  , "createdAt" : 0 , "updatedAt" : 0 }).lean();
         data = await Promise.all(data.map(async(e) =>{
             if(e.categories.length)
             {

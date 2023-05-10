@@ -33,7 +33,13 @@ const store = async(req,res) =>
         // if title already exists
 
         let checkTitle = await menuCategory.findOne({name});
-        if(checkTitle) return res.status(409).json({ message : "Title Already Exists" , data : {}})
+        if(checkTitle)
+        {
+            //  assign category to the Parent Category 
+
+            
+            return res.status(409).json({ message : "Title Already Exists" , data : {}})
+        } 
 
 
 

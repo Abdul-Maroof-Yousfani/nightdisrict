@@ -23,6 +23,9 @@ router.post("/item" ,helper.verifyAuthToken, Bar.addItem)
 // get orders based on Bar
 
 router.get("/orders",helper.verifyAuthToken,Bar.orders);
+router.get("/orders/:_id",helper.verifyAuthToken,Bar.view);
+
+router.get("/orders/tips",helper.verifyAuthToken,Bar.tips);
 
 
 

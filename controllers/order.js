@@ -7,13 +7,13 @@ import helpers from '../utils/helpers.js';
 import Joi from 'joi';
 import Payment from '../models/payments.js';
 import Order from '../models/order.js';
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import membership from '../models/membership.js';
 
 const store = async (req, res) => {
-    let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type} = req.body;
+    let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type,bar} = req.body;
     let paymentCode,cardId;
-    
+    let orderNo  = Math.floor(Math.random() * 10000000);
     try
     {
         const orderSchema = Joi.object({
@@ -21,6 +21,7 @@ const store = async (req, res) => {
             items: Joi.array().required(),
             price : Joi.string(),
             type : Joi.string(),
+            bar : Joi.string(),
             transactionId:Joi.string().required(),
             paymentStatus:Joi.string(),
             invoice_url:Joi.string(),
@@ -68,14 +69,15 @@ const store = async (req, res) => {
 
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
-
+    
         let orderData = await new Order(
             {subscriptionType,
-            orderNo : 455445,
+            orderNo,
             items,
             customer : req.user._id,
             tip,
-            type
+            type,
+            bar : mongoose.Types.ObjectId(bar)
 
         }
         );
@@ -139,6 +141,12 @@ const store = async (req, res) => {
     }
 }
 
+const show = async(req,res) =>
+{
+
+}
+
 export default {
     store,
+    show
 }

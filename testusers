@@ -1,0 +1,21 @@
+Admin
+
+admin@gmail.com
+123456789
+
+Barowner 
+id : 645b4718388640ed3e8ff682
+innovoclub@gmail.com
+123456789
+  -> Barowner employees  (Bartender)
+        ->  adam@night.com
+        ->  123456
+  -> Barowner employees  (Bouncer)
+        -> miles@night.com
+        -> 123456
+
+Mobile Application
+      -> User
+          -> rick@gmail.com
+          -> 123456789
+
