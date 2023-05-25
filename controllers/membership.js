@@ -4,63 +4,54 @@ import Joi from 'joi';
 import membership from '../models/membership.js';
 
 
-const index = async(req,res) =>
-{
-    let {_id} = "";
-    try
-    {   
+const index = async (req, res) => {
+    let { _id } = "";
+    try {
         let data = await Membership.find();
-       
+
         return res.send({
-            message:"success",
+            message: "success",
             data
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(500).send({
             message: error.message,
-            data : []
-        })
-    }
-}
-const userMembership = async(req,res) =>
-{
-    try
-    {   
-        let data = await Membership.find().lean();
-        data = data.map((e) =>{
-                console.log(req.user.membership)
-                if(e._id.toString() == req.user.membership.toString())
-                {
-                    e.active = true
-                }
-                else
-                {
-                    e.active = false
-                }
-                return  e
-        })
-        return res.send({
-            message:"success",
-            data
-        })
-    }
-    catch(error)
-    {
-        return res.status(500).send({
-            message: error.message,
-            data : []
+            data: []
         })
     }
 }
 
-const createMembership = async(req,res) =>
-{
-    try
-    {
-        let {name} = req.body;   
-        const membershipExists = await Membership.findOne({name});
+const userMembership = async (req, res) => {
+    try {
+        let data = await Membership.find().lean();
+        data = data.map((e) => {
+            console.log(req.user.membership)
+            if (e._id.toString() == req.user.membership.toString()) {
+                e.active = true
+            }
+            else {
+                e.active = false
+            }
+            return e
+        })
+        return res.send({
+            message: "success",
+            data
+        })
+    }
+    catch (error) {
+        return res.status(500).send({
+            message: error.message,
+            data: []
+        })
+    }
+}
+
+const createMembership = async (req, res) => {
+    try {
+        let { name } = req.body;
+        const membershipExists = await Membership.findOne({ name });
         if (membershipExists) {
             return res.status(409).json({
                 status: "error",
@@ -68,27 +59,75 @@ const createMembership = async(req,res) =>
                 data: null,
             });
         }
-        
+
         let membership = await Membership(req.body);
         membership.save();
-        return res.send({
-            message:"Successfully Created",
-            user:Membership
-        })
+        return res.status(200).json({
+            status: 200,
+            message: 'Membership successfully created',
+            data: membership
+        });
+    } catch (error) {
+        return res.status(200).json({
+            status: 500,
+            message: error.message,
+            data: []
+        });
     }
-    catch(err)
-    {
-        return res.send({
-            status: "error",
-            message: err.message,
-        })
-    }
-    
-    
 }
 
-export  default{
+const updateMembership = async (req, res) => {
+    try {
+        const MembershipData = await Membership.findById(req.body.id).lean();
+        if (!MembershipData) {
+            return res.status(200).json({
+                status: 404,
+                message: 'Membership not found',
+                data: []
+            });
+        }
+        await Membership.updateOne({ _id: req.body.id }, { $set: req.body });
+        const updated = await Membership.find({ status: 1 }).lean();
+        return res.status(200).json({
+            status: 200,
+            message: 'Membership successfully updated',
+            data: updated
+        });
+    } catch (error) {
+        return res.status(200).json({
+            status: 500,
+            message: error.message,
+            data: []
+        });
+    }
+}
+
+const deleteMembership = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const deletedStory = await Membership.findByIdAndDelete(id);
+        
+        if (deletedStory) {
+            const updated = await Membership.find({ status: 1 }).lean();
+            return res.status(200).json({
+                status: 200,
+                message: 'Membership successfully deleted',
+                data: updated
+            });
+        }
+    } catch (error) {
+        return res.status(200).json({
+            status: 500,
+            message: error.message,
+            data: []
+        });
+    }
+}
+
+export default {
     createMembership,
+    updateMembership,
     userMembership,
+    deleteMembership,
     index
 }

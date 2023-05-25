@@ -83,6 +83,11 @@ const usersSchema = new mongoose.Schema({
         type : Boolean,
         default : false
     },
+    status : {
+        type : Number,
+        default : 1
+        //1 active, 2 delete, 4 inactive
+    },
     otp:[{
         code : {
             type : String,
