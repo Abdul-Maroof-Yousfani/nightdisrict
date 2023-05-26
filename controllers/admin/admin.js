@@ -2,6 +2,9 @@ import bar from "../../models/bar.js";
 import inquiry from "../../models/inquiry.js";
 import users from "../../models/users.js";
 import commonHelper from "../../helpers/commonHelper.js";
+import menu from "../../models/menu.js";
+import menuCategory from "../../models/menuCategory.js";
+import pourtype from "../../models/pourtype.js";
 
 const inquiries = async (req, res) => {
     let Bar;
@@ -124,7 +127,44 @@ const blockOrUnBlockUser = async (req, res) => {
     }
 }
 
+const barOwnersDetails = async (req, res) => {
+    try {
+        let bars = await bar.find({ status: { $ne: 2 } }).select('barName upload_logo state city active').lean().exec();
+        bars = await Promise.all(bars.map(async (e) => {
+            e.menus = await menu.find({ barId: e._id }).select('item category variation').lean().exec();
+
+            e.menus = await Promise.all(e.menus.map(async (cat) => {
+                cat.category = await menuCategory.find({ _id: cat.category }).select('name description category_image').lean().exec();
+                return cat;
+            }));
+
+            e.menus = await Promise.all(e.menus.map(async (varr) => {
+                varr.variation = await Promise.all(varr.variation.map(async (v) => {
+                    [v.variant] = await pourtype.find({ _id: v.variant }).select('name description category_image').lean().exec();
+                    return v;
+                }));
+                return varr;
+            }));
+
+            return e; // Return the modified 'e' object
+        }));
+
+        return res.status(200).json({
+            status: 200,
+            message: "success",
+            data: bars
+        });
+    } catch (error) {
+        return res.status(200).json({
+            status: 500,
+            message: error.message,
+            data: []
+        });
+    }
+}
+
 export default {
+    barOwnersDetails,
     inquiries,
     updateInquiry,
     getUserActivities,

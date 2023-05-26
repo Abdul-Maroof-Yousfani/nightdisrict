@@ -11,7 +11,7 @@ import users from '../controllers/users.js';
 import bar from '../controllers/barowner/bar.js';
 import admin from '../controllers/admin/admin.js';
 const router = express.Router();
-
+router.get('/users/barOwnersDetails', helpers.verifyAuthToken, admin.barOwnersDetails)
 router.post("/category",category.store);
 router.put("/category/:_id",category.update);
 router.get("/category",category.index);
@@ -56,6 +56,7 @@ router.get('/bar/inquiries',helpers.verifyAuthToken,admin.inquiries)
 router.put('/bar/inquiries/:_id',helpers.verifyAuthToken,admin.updateInquiry)
 
 //user activities
+
 
 router.get('/users/getUserActivities',helpers.verifyAuthToken,admin.getUserActivities)
 router.put('/users/blockOrUnBlockUser',helpers.verifyAuthToken,admin.blockOrUnBlockUser)

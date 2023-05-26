@@ -1,26 +1,26 @@
 import mongoose from 'mongoose';
 
 const usersSchema = new mongoose.Schema({
-    firstname:{
+    firstname: {
         type: String
     },
-    lastname:{
+    lastname: {
         type: String
     },
-    about:{
+    about: {
         type: String
     },
-    profile_picture:{
+    profile_picture: {
         type: String,
-        default : ""
+        default: ""
     },
     username: {
         type: String,
-        required: [true, "Username is required"], 
+        required: [true, "Username is required"],
     },
     password: {
         type: String,
-        min: [8,"Password must be 8 characters"],
+        min: [8, "Password must be 8 characters"],
         required: true
     },
     dateofbirth: {
@@ -41,76 +41,76 @@ const usersSchema = new mongoose.Schema({
         type: String,
         expires: '60',
     },
-    role:{
+    role: {
         type: String
     },
-    membership:{
-        type : mongoose.Types.ObjectId,
-        default : null
+    membership: {
+        type: mongoose.Types.ObjectId,
+        default: null
     },
-    cardDetail:[{
-        cardHolderName : {type: String},
-        cardNumber : {type: Number,min: 12},
-        exp_month : {type: String},
-        exp_year : {type: String},
-        CVCNumber : {type: Number, min:3},
-        customerId : {type:String},
-        cardType: {type: String},
-        active: {type: Boolean , default: 'true'}
+    cardDetail: [{
+        cardHolderName: { type: String },
+        cardNumber: { type: Number, min: 12 },
+        exp_month: { type: String },
+        exp_year: { type: String },
+        CVCNumber: { type: Number, min: 3 },
+        customerId: { type: String },
+        cardType: { type: String },
+        active: { type: Boolean, default: 'true' }
     }],
-    paymentStatus:{
+    paymentStatus: {
         type: String,
         default: "Paid"
     },
-    barInfo:{
+    barInfo: {
         type: mongoose.Types.ObjectId,
-        ref : "bars",
-        default : null
+        ref: "bars",
+        default: null
     },
-    agree_checkbox:{
+    agree_checkbox: {
         type: Boolean,
         default: 'true'
     },
-    currently_active_card  : {
-        type : mongoose.Types.ObjectId,
-        default : null
+    currently_active_card: {
+        type: mongoose.Types.ObjectId,
+        default: null
     },
-    email_notification : {
-        type : Boolean,
-        default : false
+    email_notification: {
+        type: Boolean,
+        default: false
     },
-    overviewReport : {
-        type : Boolean,
-        default : false
+    overviewReport: {
+        type: Boolean,
+        default: false
     },
-    status : {
-        type : Number,
-        default : 1
+    status: {
+        type: Number,
+        default: 1
         //1 active, 2 delete, 4 inactive
     },
-    otp:[{
-        code : {
-            type : String,
-            default : ""
+    otp: [{
+        code: {
+            type: String,
+            default: ""
         },
-        isActive : {
-            type :Boolean,
-            default : true
+        isActive: {
+            type: Boolean,
+            default: true
         }
     },
     {
-        default : []
+        default: []
     }
     ]
 });
 
 
 usersSchema.set('toJSON', {
-    transform: function(doc, ret, options) {
-      delete ret.password;
-      delete ret.__v;
-      return ret;
+    transform: function (doc, ret, options) {
+        delete ret.password;
+        delete ret.__v;
+        return ret;
     }
-  });
+});
 
-export default mongoose.model('users',usersSchema);
+export default mongoose.model('users', usersSchema);
