@@ -17,6 +17,7 @@ router.post("/category" ,helper.verifyAuthToken, Bar.selectCategory);
 // Menus (Adding item to the Menu)
 
 router.post("/item" ,helper.verifyAuthToken, Bar.addItem)
+router.get("/item/:bar" , Bar.items)
 
 
 

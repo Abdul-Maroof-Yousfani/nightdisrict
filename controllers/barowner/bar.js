@@ -9,6 +9,7 @@ import Joi from 'joi';
 import menu from '../../models/menu.js';
 import order from '../../models/order.js';
 import users from '../../models/users.js';
+import pourtype from '../../models/pourtype.js';
 
 
 
@@ -531,10 +532,50 @@ const view = async (req, res) => {
     }
 
 }
+const items = async(req,res) =>
+{
+    let {bar}  = req.params;
+    try
+    {   
+        let data = await menu.find({barId : bar}).lean()
+        data = await Promise.all(data.map(async(e) =>{
+            e.item = await superMenu.findOne({_id : e.item}).select({menu_name:1,pictures:1,description:1}).lean()
+            e.category = await menuCategory.findOne({_id : e.category}).select({name :1})
 
+            e.variation = await Promise.all(e.variation.map( async (v) =>{
+                v.variant = await pourtype.findOne({_id : v.variant}).select({name:1})
+                return v
+            }))
+            return e;
+         
+        })) 
+        if(!data)
+        {
+            return res.status(404).json({
+                status : 404,
+                message : "Not Found",
+                data: []
+            })
+        }   
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : []
+        })
+    }
+
+}
 
 export default {
-
+    items,
     barProfile,
     barInfo,
     detailInfo,
