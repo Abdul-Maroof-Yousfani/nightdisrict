@@ -62,7 +62,7 @@ const barProfile = async (req, res) => {
 const barInfo = async (req, res) => {
     let body = req.body;
 
-
+    console.log(req.body);
     try {
         let barId = req.params.id;
 
@@ -112,6 +112,7 @@ const barInfo = async (req, res) => {
         })
 
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: "error",
             data: error.message

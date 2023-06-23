@@ -141,9 +141,9 @@ const update = async(req,res) =>
   try
   {
       const schema = Joi.object({
-          menu_name: Joi.string().required(),
-          description: Joi.string().required(),
-          categories: Joi.string().required(),
+          menu_name: Joi.string(),
+          description: Joi.string(),
+          categories: Joi.string(),
           // subCategory: Joi.string().required(),
        });
       const { error, value } = schema.validate(req.body);
@@ -166,13 +166,13 @@ const update = async(req,res) =>
 
       if (req.files) {
           let pictures = req.files.pictures;
+    
           if(pictures)
           {
             pictures.map((e) =>{
 
       
               let image = e;
-        
               const dirOne = "/public/menu";
                 fileName = `${Date.now()}_` + image.name;
                 imageNameOne = `${dirOne}/${fileName}`;
@@ -236,8 +236,8 @@ const update = async(req,res) =>
           user:req.user._id
         }
 
-      });
-      await data.save();
+      },{new:true});
+      // await data.save();
 
       return res.json({
           message : "success",
