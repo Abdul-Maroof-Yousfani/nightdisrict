@@ -173,7 +173,7 @@ const update = async(req,res) =>
 
       
               let image = e;
-              const dirOne = "/public/menu";
+              const dirOne = "public/menu";
                 fileName = `${Date.now()}_` + image.name;
                 imageNameOne = `${dirOne}/${fileName}`;
                 if (!fs.existsSync(dirOne)) {
@@ -194,7 +194,7 @@ const update = async(req,res) =>
             })
           }
           
-          
+          req.body.pictures = menuPictures;
         }
 
       //  add categories
@@ -213,29 +213,20 @@ const update = async(req,res) =>
             
           })
 
+          req.body.subCategories = childCategory
 
 
-
-
-          //  get sub categories
-
-          
           
       }
 
-      
 
+      // update data
+
+      req.body.user  = req.user._id;
+     
       //  add sub categories
-      let data = await  superMenu.findByIdAndUpdate({_id},{
-        $set:{
-          menu_name,
-          description,
-          categories : category,
-          subCategories : childCategory,
-          pictures : menuPictures,
-          user:req.user._id
-        }
-
+      let data = await  superMenu.findByIdAndUpdate({_id : mongoose.Types.ObjectId(_id)},{
+        $set: req.body
       },{new:true});
       // await data.save();
 
