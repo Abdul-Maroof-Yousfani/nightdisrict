@@ -127,6 +127,14 @@ const confirm = async(req,res) => {
                     })
                     
                 }
+                else
+
+                {
+                    logs.push({
+                        "product" : e.productid,
+                        "status" : promiseData2.payload.message
+                    })
+                }
 
         }))
 
