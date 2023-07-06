@@ -1,5 +1,5 @@
 import express from 'express';
-import inApp from '../controllers/inApp.js';
+import inApp from '../controllers/inapp.js';
 const router = express.Router();
 
 // 
