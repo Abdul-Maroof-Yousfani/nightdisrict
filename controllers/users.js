@@ -148,7 +148,16 @@ const login = async (req, res) => {
                 trace: `{username: ${username}, password: ${password}}`
             });
         }
-        
+
+        // check if bar is not banned from the Admin
+
+        if(!user.status) return res.status(403).json({
+            status : 403,
+            message : "Your Account is deactivated, please contact the Administration, to reactive the account",
+            data : {}
+        })
+
+
         const isPassword = await bcrypt.compare(password, user.password);
         if (isPassword) {
             

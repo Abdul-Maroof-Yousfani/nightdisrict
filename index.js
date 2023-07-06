@@ -20,6 +20,7 @@ import webRoute from './routes/web.js';
 import appRoute from './routes/app.js';
 import bartenderRoute from './routes/bartender.js';
 import orderSocket from './sockets/order.js';
+import inApp from './routes/inapp.js';
 
 import path from 'node:path';
 import { dirname } from 'path';
@@ -65,6 +66,7 @@ app.use('/api/inquiry',inquiryRoute)
 app.use("/api/bartender",bartenderRoute);
 app.use('/api/rating',ratingRoute);
 app.use('/api/post',postRoute);
+app.use('/api/inApp',inApp)
 
 app.use('/api/order',orderRoute);
 app.use('/api/web',webRoute);

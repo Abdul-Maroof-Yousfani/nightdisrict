@@ -10,6 +10,8 @@ import menu from '../../models/menu.js';
 import order from '../../models/order.js';
 import users from '../../models/users.js';
 import pourtype from '../../models/pourtype.js';
+import helpers from '../../utils/helpers.js';
+
 
 
 
@@ -61,10 +63,27 @@ const barProfile = async (req, res) => {
 
 const barInfo = async (req, res) => {
     let body = req.body;
+    let barId = req.params.id;
+    let userId = req.user._id;
 
-    console.log(req.body);
+
+
     try {
-        let barId = req.params.id;
+
+        // Joi Validation
+
+        let schema = Joi.object({
+            barName: Joi.string().required(),
+            address: Joi.string().required(),
+            city: Joi.string().required(),
+            state: Joi.string().required(),
+            phone: Joi.number().required(),
+            url: Joi.string(),
+        });
+        const { error, value } = schema.validate(req.body);
+        if (error) return res.status(400).json({ message: error.message, data: {} })
+
+
 
         // check if Bar exists
 
@@ -72,16 +91,28 @@ const barInfo = async (req, res) => {
         if (!checkBar) return res.status(404).json({ message: "Record not found", data: {} })
 
 
-        let userId = req.user._id;
+
+
         let result = await User.findById({ _id: userId });
         let checkRole = await Role.findById({ _id: result.role });
 
         let doc;
 
 
-
         if (req.files) {
             doc = req.files.upload_document;
+
+
+            if(!helpers.fileValidation(doc,/(\.pdf|\.docx)$/i))
+            {
+                return res.status(400).json({
+                    status : 400,
+                    message : "File Must of Type PDF / DOCX",
+                    data : {}
+                })
+            }
+
+
 
             let fileName = `public/bar/${Date.now()}-${doc.name.replace(/ /g, '-').toLowerCase()}`;
             await doc.mv(fileName);
@@ -172,10 +203,22 @@ const updateBarInfo = async (req, res) => {
 
         if (req.files) {
             let logo = req.files.upload_logo;
+            
+
+   
 
 
             if (logo) {
                 let fileName = `public/bar/${Date.now()}-${logo.name.replace(/ /g, '-').toLowerCase()}`;
+
+                if(!helpers.fileValidation(logo,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
+                {
+                    return res.status(400).json({
+                        status : 400,
+                        message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
+                        data : {}
+                    })
+                }
 
                 await logo.mv(fileName);
 
@@ -189,6 +232,15 @@ const updateBarInfo = async (req, res) => {
             if (coverPhoto) {
                 let newFileName = `public/bar/${Date.now()}-${coverPhoto.name.replace(/ /g, '-').toLowerCase()}`;
 
+                if(!helpers.fileValidation(coverPhoto,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
+                {
+                    return res.status(400).json({
+                        status : 400,
+                        message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
+                        data : {}
+                    })
+                }
+
                 await coverPhoto.mv(newFileName);
 
                 coverPhoto = newFileName.replace("public", "");
@@ -201,6 +253,16 @@ const updateBarInfo = async (req, res) => {
 
             if (doc) {
                 let docfileName = `public/bar/${Date.now()}-${doc.name.replace(/ /g, '-').toLowerCase()}`;
+
+                if(!helpers.fileValidation(doc,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
+                {
+                    return res.status(400).json({
+                        status : 400,
+                        message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
+                        data : {}
+                    })
+                }
+
                 await doc.mv(docfileName);
 
                 doc = docfileName.replace("public", "");

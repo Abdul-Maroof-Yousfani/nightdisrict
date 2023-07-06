@@ -24,6 +24,22 @@ function pagination(page, limit, records) {
     return results;
 }
 
+const fileValidation = (file) =>{
+    try
+    {   
+        let allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+        if(!allowedExtensions.exec(filePath)){
+            return false;
+        }
+        return true;
+    }
+    catch(error)
+    {
+        return false;
+    }
+}
+
 export default {
-    pagination
+    pagination,
+    fileValidation
 }

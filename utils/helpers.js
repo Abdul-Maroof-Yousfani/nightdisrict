@@ -16,6 +16,22 @@ function validateUsername(username) {
     const valid = !!res;
     return valid;
 }
+
+const fileValidation = (file, allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i) =>{
+    let allow = false;
+    try
+    {   
+        
+        if(allowedExtensions.exec(file.name)){
+            allow = true;
+        }
+        return allow;
+    }
+    catch(error)
+    {
+        return false;
+    }
+}
 const checkPaymentType = async(code) =>
 {
     try
@@ -328,7 +344,8 @@ export default {
     checkPaymentType,
     getRole,
     nearbyBars,
-    checkRole
+    checkRole,
+    fileValidation
 
 }
 
