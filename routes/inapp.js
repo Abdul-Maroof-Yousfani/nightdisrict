@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 router.post("/acknowledge",inApp.acknowledge);
-router.post("/confirm",inApp.confirm);
+router.get("/confirm",inApp.confirm);
 
 
 
