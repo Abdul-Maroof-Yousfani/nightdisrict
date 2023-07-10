@@ -27,6 +27,10 @@ const inAppSchema = new mongoose.Schema({
     },
     updated:{
         type : Date
+    },
+    packageName:{
+        type : String,
+        default : ""
     }
     
 },

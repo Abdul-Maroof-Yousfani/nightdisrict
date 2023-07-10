@@ -40,7 +40,7 @@ const acknowledge = async(req,res) =>
        
 
         const receipt = {
-            packageName: "com.fitechno.photorecovery",
+            packageName: req.body.packageName,
             productId: req.body.productid,
             purchaseToken: req.body.purchaseToken
             
@@ -92,7 +92,7 @@ const confirm = async(req,res) => {
 
         await Promise.all(data.map(async(e) =>{
             let receipt = {
-                packageName: "com.fitechno.photorecovery",
+                packageName: e.packageName,
                 productId: e.productid,
                 purchaseToken: e.purchaseToken,
                 developerPayload: ""
