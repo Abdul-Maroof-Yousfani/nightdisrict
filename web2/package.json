@@ -1,0 +1,39 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "array-join": "^2.5.1",
+    "axios": "^0.22.0",
+    "axios-cookiejar-support": "^4.0.3",
+    "bcrypt": "^5.0.1",
+    "bluebird": "^3.7.2",
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "imap": "^0.8.19",
+    "joi": "^17.4.2",
+    "jsonwebtoken": "^8.5.1",
+    "mailparser": "^3.5.0",
+    "mongoose": "^6.0.6",
+    "multer": "^1.4.3",
+    "node-cron": "^3.0.2",
+    "nodemailer": "^6.8.0",
+    "simpl-schema": "^1.12.3",
+    "socket.io": "^4.5.1",
+    "tough-cookie": "^4.1.0",
+    "underscore": "^1.13.4",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
