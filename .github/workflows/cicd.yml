@@ -21,3 +21,4 @@ jobs:
           cd ~/actions-runner/nightdisrict/nightdisrict/nightdisrict
           npm install
           pm2 restart index
+     
