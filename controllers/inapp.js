@@ -4,6 +4,7 @@ import Verifier from "google-play-billing-validator";
 import inapp from "../models/inapp.js";
 
 import admin from 'firebase-admin';
+import automationlogs from "../models/automationlogs.js";
 
 
 admin.initializeApp({
@@ -86,6 +87,12 @@ const confirm = async(req,res) => {
     {
         let logs = [];
 
+        let inAppLogs = new automationlogs({
+            status : "success"
+        });
+
+        await inAppLogs.save();
+
         let data = await inapp.find({
             isConfirm : false
         })
@@ -97,6 +104,9 @@ const confirm = async(req,res) => {
                 purchaseToken: e.purchaseToken,
                 developerPayload: ""
             };
+
+            
+            
 
             let promiseData2 = await verifier.verifyINAPP(receipt)
                 if(promiseData2.payload.code == 204)
@@ -138,6 +148,8 @@ const confirm = async(req,res) => {
 
         }))
 
+       
+
         return res.json({
             logs
         })
@@ -145,7 +157,6 @@ const confirm = async(req,res) => {
     }
     catch(error)
     {
-        console.log(error)
         return res.status(500).json({
             status : 500,
             message : error,
