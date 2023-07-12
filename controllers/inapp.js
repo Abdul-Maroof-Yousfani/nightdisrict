@@ -36,8 +36,7 @@ const acknowledge = async(req,res) =>
             data : {}
         })
 
-        let data = new inapp(req.body)
-        data = await data.save()
+
        
 
         const receipt = {
@@ -51,6 +50,10 @@ const acknowledge = async(req,res) =>
         let promiseData = await verifier.verifyINAPP(receipt)
         if(promiseData.isSuccessful)
         {
+
+            let data = new inapp(req.body)
+            data = await data.save()
+
             await inapp.findByIdAndUpdate({
                 _id : data._id,
             },{
