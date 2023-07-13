@@ -5,6 +5,10 @@ const inAppSchema = new mongoose.Schema({
         type: String,
         default : ''
     },
+    project_id : {
+        type : String,
+        default : ""
+    },
     purchaseToken: {
         type: String,
         default : ''

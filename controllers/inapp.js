@@ -5,36 +5,50 @@ import inapp from "../models/inapp.js";
 
 import admin from 'firebase-admin';
 import automationlogs from "../models/automationlogs.js";
+import ServiceAccount from "../models/serviceAccount.js";
 
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
-const options = {
-    email: serviceAccount.client_email,
-    key: serviceAccount.private_key
-  };
 
-const verifier = new Verifier(options);
 
 
 const acknowledge = async(req,res) =>
 {   
     try
     {  
-        const verifier = new Verifier(options);
 
         //  create a record and update Verification status
         let checkData = await inapp.findOne({
             productid : req.body.productid,
             purchaseToken : req.body.purchaseToken
         })
-        if(checkData) return res.status(409).json({
-            status : 409,
-            message : "Already Applied",
-            data : {}
+        // if(checkData) return res.status(409).json({
+        //     status : 409,
+        //     message : "Already Applied",
+        //     data : {}
+        // })
+
+
+        // get service account based on project id
+
+        let serviceAccount = await ServiceAccount.findOne({
+            product_id : req.body.project_id
         })
+
+   
+
+        // options
+
+        let options = {
+            email: serviceAccount.client_email,
+            key: serviceAccount.private_key
+          };
+        
+        const verifier = new Verifier(options);
+
 
 
        
@@ -48,6 +62,7 @@ const acknowledge = async(req,res) =>
 
 
         let promiseData = await verifier.verifyINAPP(receipt)
+ 
         if(promiseData.isSuccessful)
         {
 
@@ -101,12 +116,30 @@ const confirm = async(req,res) => {
         })
 
         await Promise.all(data.map(async(e) =>{
+            
+            
+            
             let receipt = {
                 packageName: e.packageName,
                 productId: e.productid,
                 purchaseToken: e.purchaseToken,
                 developerPayload: ""
             };
+
+            let serviceAccount = await ServiceAccount.findOne({
+                product_id : e.project_id
+            })
+    
+       
+    
+            // options
+    
+            let options = {
+                email: serviceAccount.client_email,
+                key: serviceAccount.private_key
+              };
+            
+            const verifier = new Verifier(options);
 
             
             
@@ -168,8 +201,90 @@ const confirm = async(req,res) => {
     }
 }
 
+const view = async(req,res) =>{
+    try
+    {
+        let data = await inapp.findOne({
+            productid : req.body.productid,
+            purchaseToken : req.body.purchaseToken
+        })
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
+const service = async(req,res) =>
+{
+    try
+    {   
+        let data = await ServiceAccount.findOne({
+            private_key_id : req.body.private_key_id
+        })
+        if(data) return res.status(409).json({
+            status : 409,
+            message : "Service Account Already Exist",
+            data : {}
+        })
+
+        data = new ServiceAccount(req.body);
+        data = await data.save();
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 200,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
+const listServiceAccounts = async(req,res) =>
+{
+    try
+    {   
+        let data = await ServiceAccount.find({
+        })
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 200,
+            message : error.message,
+            data : {}
+        })
+    }
+}
 
 export  default{
     acknowledge,
-    confirm
+    confirm,
+    view,
+    service,
+    listServiceAccounts
 }
