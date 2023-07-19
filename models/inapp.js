@@ -35,6 +35,14 @@ const inAppSchema = new mongoose.Schema({
     packageName:{
         type : String,
         default : ""
+    },
+    title : {
+        type :String,
+        default : ""
+    },
+    description : {
+        type : String,
+        default : ""
     }
     
 },

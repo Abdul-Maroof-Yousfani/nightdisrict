@@ -160,8 +160,8 @@ const confirm = async(req,res) => {
 
                     const payload = {
                         notification: {
-                            title: "In App Purchase",
-                            body: promiseData2.payload.message,
+                            title: e.title,
+                            body: e.description,
                         },
                     };
 

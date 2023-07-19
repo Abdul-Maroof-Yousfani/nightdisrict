@@ -51,7 +51,6 @@ const io = new Server(expressServer, {
 });
 
 io.use(socketTokenVerification.socketProtected).on("connection", socket => {
-    console.log(socket.user);
     socket.emailList = new Set();
 
     let imap = new Imap({
