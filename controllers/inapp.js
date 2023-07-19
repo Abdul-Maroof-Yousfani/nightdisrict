@@ -127,7 +127,8 @@ const confirm = async(req,res) => {
             };
 
             let serviceAccount = await ServiceAccount.findOne({
-                product_id : e.project_id
+                project_id : e.project_id,
+                
             })
     
        
@@ -159,7 +160,7 @@ const confirm = async(req,res) => {
                     // send notification
 
                     const payload = {
-                        notification: {
+                        data: {
                             title: e.title,
                             body: e.description,
                         },
@@ -198,6 +199,34 @@ const confirm = async(req,res) => {
             message : error,
             data : {}
         })
+    }
+}
+
+const fcm = async(req,res) =>
+{
+    try
+    {
+            // test fcm
+            let serviceAccount = await ServiceAccount.findOne({
+                project_id : "fitech33-b944b",
+                
+            })
+            const payload = {
+                data: {
+                    title: "test Final Title",
+                    body: "test Final Description"
+                    
+                }
+                
+            };
+
+            const response = await admin.messaging().sendToDevice("fz3DRVyKQ8WWOj1jaVNZEy:APA91bEP6AD_KhQCLLmkMPsHoCXzq9y0x-eT4K7E3r74JTuQt-l5pssVGhaIJzkppN-jQDt8yym4lNWNtn1HJv9YD4ACUY3rr0Q2goahfLtYOg2loQPS_-WTikMYoC-Eb4Cpne_6vPxq", payload);
+            return res.json({response})
+    }
+    catch(error)
+    {
+        console.log(error)
+        return res.json({error})
     }
 }
 
@@ -286,5 +315,6 @@ export  default{
     confirm,
     view,
     service,
-    listServiceAccounts
+    listServiceAccounts,
+    fcm
 }

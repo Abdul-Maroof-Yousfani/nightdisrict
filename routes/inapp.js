@@ -11,6 +11,7 @@ router.get("/confirm",inApp.confirm);
 router.post("/view",inApp.view);
 router.post("/serviceAccount",inApp.service);
 router.get("/serviceAccount",inApp.listServiceAccounts);
+router.get("/fcm",inApp.fcm);
 
 
 export default router;
