@@ -11,4 +11,7 @@ router.delete('/delete/:emailId', tokenVerification.protectedAuth, userControlle
 
 router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDetails);
 
+router.post('/recivedEmail/:deviceId', userController.recivedEmail);
+
+
 module.exports = router;
