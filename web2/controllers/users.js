@@ -206,11 +206,38 @@ const recivedEmail = async (req, res) => {
     }
 };
 
+const trackUser = async (req, res) => {
+    try {
+        // Find user 
+        const checkUserStaus = await User.findOne({ deviceId: req.params.deviceId }).lean();
+        // Check User Status 
+        if (!checkUserStaus.Premium == false) {
+            helper.isUserSubscriptionExpired(checkUserStaus)
+        }
+
+        return res.status(200).json({
+            message: "your mail box",
+            data:
+                [{ mailBox: checkUserStaus.email }],
+            paymentStatus: checkUserStaus.paymentStatus
+
+        })
+
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            status: 'error',
+            message: error.message,
+        });
+    }
+}
 
 
 module.exports = {
     createEmail,
     deleteEmail,
     getUserDetails,
-    recivedEmail
+    recivedEmail,
+    trackUser
 }; 

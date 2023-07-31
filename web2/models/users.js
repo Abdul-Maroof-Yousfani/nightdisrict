@@ -15,6 +15,20 @@ const usersSchema = new mongoose.Schema({
     },
     password: {
         type: String,
+    },
+    Premium: {
+        type : Boolean,
+        default: false
+    },
+    subscriptionId : {
+        default : "",
+    },
+    expireAt : {
+        default: ""
+    },
+    paymentStatus : {
+        type: String,
+        default: "unpaid"
     }
 });
 

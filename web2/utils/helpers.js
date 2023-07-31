@@ -113,6 +113,27 @@ async function deleteMailAfterTwoHours(data) {
 
 }
 
+async function isUserSubscriptionExpired(deviceId) {
+    try {
+      const user = await User.findOne({ deviceId }).lean();
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      // If the user is not a premium user or there is no expireAt, consider it as not expired
+      if (!user.Premium || !user.expireAt) {
+        return false;
+      }
+  
+      // Check if the user's premium subscription has expired
+      const currentDate = new Date();
+      return currentDate > user.expireAt;
+    } catch (error) {
+      console.log('Error:', error);
+      throw new Error('Error checking user subscription expiry');
+    }
+  }
+
 module.exports = {
     sendResetPasswordEmail,
     validateUsername,
@@ -120,5 +141,6 @@ module.exports = {
     verifyToken,
     regexSearch,
     createEmail,
-    deleteMailAfterTwoHours
+    deleteMailAfterTwoHours,
+    isUserSubscriptionExpired
 }

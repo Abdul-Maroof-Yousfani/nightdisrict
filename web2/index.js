@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require('dotenv');
 
 const usersRoutes = require("./routes/users.js");
+const subscriptionRoutes = require("./routes/subscription.js");
 const SimpleSchema = require('simpl-schema');
 const mongoose = require("mongoose");
 const helpers = require("./utils/helpers.js");
@@ -34,6 +35,7 @@ app.use(express.json());
 app.use(cors())
 
 app.use("/api/emails", usersRoutes);
+app.use("/api/subscription", subscriptionRoutes);
 
 app.get("/", (req, res) => res.send("Welcome to the Users API!"));
 app.all("*", (req, res) => res.status(404).send("You've tried reaching a route that doesn't exist."));

@@ -13,5 +13,8 @@ router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDe
 
 router.post('/recivedEmail/:deviceId', userController.recivedEmail);
 
+router.get('/trackUser/:deviceId', userController.trackUser);
+
+
 
 module.exports = router;
