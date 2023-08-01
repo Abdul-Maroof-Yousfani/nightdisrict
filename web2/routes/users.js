@@ -11,10 +11,11 @@ router.delete('/delete/:emailId', tokenVerification.protectedAuth, userControlle
 
 router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDetails);
 
-router.post('/recivedEmail/:deviceId', userController.recivedEmail);
+router.post('/recivedEmail/:id', userController.recivedEmail);
 
-router.get('/trackUser/:deviceId', userController.trackUser);
+router.post('/trackUser/:deviceId', userController.trackUser);
 
+router.post('/createOrder', userController.createOrder);
 
 
 module.exports = router;

@@ -30,6 +30,7 @@ const usersSchema = new mongoose.Schema({
         type: String,
         default: "unpaid"
     }
-});
+}, {timestamps: true}
+);
 
 module.exports = mongoose.model('users', usersSchema);

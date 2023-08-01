@@ -2,10 +2,12 @@ const jwt = require('jsonwebtoken');
 const helper = require('../utils/helpers.js');
 const socketHandler = require('../utils/SocketHandler.js');
 const User = require('../models/users.js');
+const Order = require('../models/order.js');
 const SimpleSchema = require('simpl-schema');
 const Imap = require('imap');
 const MailParser = require('mailparser').MailParser;
 const Promise = require('bluebird');
+const mongoose = require('mongoose');
 
 
 const createEmail = async (req, res) => {
@@ -94,8 +96,7 @@ const getUserDetails = async (req, res) => {
 const recivedEmail = async (req, res) => {
     try {
         const body = req.params;
-        const checkUser = await User.findOne({ deviceId: body.deviceId }).lean();
-
+        const checkUser = await User.findOne({ _id: body.id }).lean();
         if (!checkUser) {
             return res.status(404).json({
                 status: "error",
@@ -210,6 +211,40 @@ const trackUser = async (req, res) => {
     try {
         // Find user 
         const checkUserStaus = await User.findOne({ deviceId: req.params.deviceId }).lean();
+        if (!checkUserStaus) {
+            const body = req.body,
+                validationSchema = new SimpleSchema({
+                    deviceId: String,
+                    fcmToken: {
+                        type: String,
+                        optional: true
+                    }
+                }).newContext();
+
+            if (!validationSchema.validate(body)) return res.status(400).json({
+                status: "error",
+                message: "Please fill all the required fields to continue.",
+                trace: validationSchema.validationErrors()
+            });
+
+            const inserted = await new User(body).save();
+
+            const email = await helper.createEmail();
+            inserted.email = email.email;
+            inserted.password = email.password;
+            inserted.save();
+
+            const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
+
+            // function for cron job to delete this created email after 2 hours
+            helper.deleteMailAfterTwoHours(inserted);
+
+            return res.json({
+                status: "success",
+                message: "New temporary email has been generated!",
+                data: { ...inserted._doc, token }
+            });
+        }
         // Check User Status 
         if (!checkUserStaus.Premium == false) {
             helper.isUserSubscriptionExpired(checkUserStaus)
@@ -217,10 +252,18 @@ const trackUser = async (req, res) => {
 
         return res.status(200).json({
             message: "your mail box",
-            data:
-                [{ mailBox: checkUserStaus.email }],
-            paymentStatus: checkUserStaus.paymentStatus
+            data: {
+                paymentStatus: checkUserStaus.paymentStatus,
+                isPremiun: checkUserStaus.Premium,
+                isPaid: checkUserStaus.paymentStatus,
+                mailBox: [
+                    {
+                        email: checkUserStaus.email,
+                        id: checkUserStaus._id
+                    },
 
+                ]
+            }
         })
 
 
@@ -233,11 +276,39 @@ const trackUser = async (req, res) => {
     }
 }
 
+const createOrder = async (req, res) => {
+    try {
+      const { paymentType, orderNo, items, userId, cardId } = req.body;
+  
+      const order = new Order({
+        paymentType,
+        orderNo,
+        items,
+        userId,
+        cardId
+      });
+  
+      const createdOrder = await order.save();
+  
+      return res.json({
+        status: 'success',
+        message: 'Order created successfully',
+        data: createdOrder
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 'error',
+        message: 'Unexpected error',
+        trace: error.message
+      });
+    }
+  };
 
 module.exports = {
     createEmail,
     deleteEmail,
     getUserDetails,
     recivedEmail,
-    trackUser
+    trackUser,
+    createOrder
 }; 
