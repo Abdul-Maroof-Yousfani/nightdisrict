@@ -15,10 +15,7 @@ const usersSchema = new mongoose.Schema({
     password: {
         type: String,
     },
-    premium: {
-        type : Boolean,
-        default: false
-    },
+
     subscriptionId : {
         default : "",
     },

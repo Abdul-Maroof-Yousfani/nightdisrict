@@ -3,6 +3,7 @@ const helper = require('../utils/helpers.js');
 const socketHandler = require('../utils/SocketHandler.js');
 const User = require('../models/users.js');
 const Order = require('../models/order.js');
+const Device = require('../models/device.js');
 const Payment = require('../models/payment.js');
 const SimpleSchema = require('simpl-schema');
 const Imap = require('imap');
@@ -22,7 +23,7 @@ const createEmail = async (req, res) => {
             });
         }
 
-        const existingUser = await User.findOne({ deviceId }).lean();
+        const existingUser = await Device.findOne({ deviceId }).lean();
 
         if (existingUser) {
             if (!existingUser.premium && !premium) {
@@ -42,9 +43,14 @@ const createEmail = async (req, res) => {
             password: email.password,
             premium: premium || false
         };
-
+        const forDevice = {
+            deviceId,
+            premium: premium
+        }
+        const forinserted = await new Device(forDevice).save();
         const inserted = await new User(userObject).save();
         const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
+
 
         // Function for cron job to delete this created email after 2 hours
         helper.deleteMailAfterTwoHours(inserted);
@@ -124,9 +130,9 @@ const recivedEmail = async (req, res) => {
         });
 
         Promise.promisifyAll(imap);
+        const dataList = [];
         const emailList = await new Promise((resolve, reject) => {
             imap.once("ready", () => {
-                const emailList = [];
                 imap.openBox("INBOX", false, function (err, mailBox) {
                     if (err) {
                         console.log('[ERROR]', err);
@@ -177,7 +183,8 @@ const recivedEmail = async (req, res) => {
 
                                 parser.on('end', () => {
                                     mail.Read_Status = 0; // Unread status, you can change this as needed
-                                    emailList.push(mail);
+                                    dataList.push(mail);
+                                    console.log(dataList);
                                 });
                             });
 
@@ -189,9 +196,8 @@ const recivedEmail = async (req, res) => {
                             f.once("end", function () {
                                 console.log("Done fetching all unseen messages.");
                                 imap.end();
-                                resolve(emailList);
+                                resolve(dataList);
                             });
-                            console.log(emailList);
                         }
                     });
                 });
@@ -207,7 +213,7 @@ const recivedEmail = async (req, res) => {
 
         return res.json({
             status: 'success',
-            Emails: emailList,
+            Emails: dataList,
         });
     } catch (error) {
         console.log("Error:", error);
@@ -221,62 +227,73 @@ const recivedEmail = async (req, res) => {
 const trackUser = async (req, res) => {
     try {
         // Find user 
-        const checkUserStaus = await User.findOne({ deviceId: req.params.deviceId }).lean();
-        if (!checkUserStaus) {
-            const body = req.body,
-                validationSchema = new SimpleSchema({
-                    deviceId: String,
-                    fcmToken: {
-                        type: String,
-                        optional: true
-                    }
-                }).newContext();
+        const { deviceId, fcmToken, premium } = req.body;
 
-            if (!validationSchema.validate(body)) return res.status(400).json({
+        if (!deviceId) {
+            return res.status(400).json({
                 status: "error",
-                message: "Please fill all the required fields to continue.",
-                trace: validationSchema.validationErrors()
-            });
-
-            const inserted = await new User(body).save();
-
-            const email = await helper.createEmail();
-            inserted.email = email.email;
-            inserted.password = email.password;
-            inserted.save();
-
-            const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
-
-            // function for cron job to delete this created email after 2 hours
-            helper.deleteMailAfterTwoHours(inserted);
-
-            return res.json({
-                status: "success",
-                message: "New temporary email has been generated!",
-                data: { ...inserted._doc, token }
+                message: "deviceId is required.",
             });
         }
-        // Check User Status 
-        if (!checkUserStaus.Premium == false) {
-            helper.isUserSubscriptionExpired(checkUserStaus)
+
+        const existingUser = await Device.findOne({ deviceId }).lean();
+
+        if (existingUser) {
+            if (!existingUser.premium && !premium) {
+                return res.status(403).json({
+                    status: "error",
+                    message: "User already exists and is not a premium user. Only one email allowed.",
+                    data: {
+                        paymentStatus: existingUser.paymentStatus,
+                        isPremiun: existingUser.Premium,
+                        isPaid: existingUser.paymentStatus,
+                        mailBox: [
+                            {
+                                email: existingUser.email,
+                                id: existingUser._id
+                            },
+
+                        ]
+                    }
+                });
+            }
         }
 
-        return res.status(200).json({
-            message: "your mail box",
+        const email = await helper.createEmail();
+        const userObject = {
+            deviceId,
+            fcmToken,
+            email: email.email,
+            password: email.password,
+        };
+        const forDevice = {
+            deviceId,
+            premium: premium 
+
+        }
+        const forinserted = await new Device(forDevice).save();
+        const inserted = await new User(userObject).save();
+        const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
+
+
+        // Function for cron job to delete this created email after 2 hours
+        helper.deleteMailAfterTwoHours(inserted);
+
+        return res.json({
+            status: "success",
+            message: "New temporary email has been generated!",
             data: {
-                paymentStatus: checkUserStaus.paymentStatus,
-                isPremiun: checkUserStaus.Premium,
-                isPaid: checkUserStaus.paymentStatus,
+                paymentStatus: inserted.paymentStatus,
+                isPaid: inserted.paymentStatus,
                 mailBox: [
                     {
-                        email: checkUserStaus.email,
-                        id: checkUserStaus._id
+                        email: inserted.email,
+                        id: inserted._id
                     },
 
                 ]
             }
-        })
-
+        });
 
     } catch (error) {
         console.log(error);
@@ -352,7 +369,7 @@ const createPayment = async (req, res) => {
         // Save the payment document to the database
         const savedPayment = await newPayment.save();
 
-        const updateUSer = await User.findOneAndUpdate(
+        const updateUSer = await Device.findOneAndUpdate(
             { deviceId: body.deviceId },
             { $set: { premium: true } },
             { new: true }

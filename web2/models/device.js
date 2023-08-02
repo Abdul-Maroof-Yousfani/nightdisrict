@@ -6,7 +6,11 @@ const deviceSchema = new mongoose.Schema({
     },
     expireAt: {
         type: Date
-    }
+    },
+    premium: {
+        type : Boolean,
+        default: false
+    },
 }, { timestamps: true }
 );
 
