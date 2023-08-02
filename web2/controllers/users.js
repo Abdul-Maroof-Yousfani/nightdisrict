@@ -3,6 +3,7 @@ const helper = require('../utils/helpers.js');
 const socketHandler = require('../utils/SocketHandler.js');
 const User = require('../models/users.js');
 const Order = require('../models/order.js');
+const Payment = require('../models/payment.js');
 const SimpleSchema = require('simpl-schema');
 const Imap = require('imap');
 const MailParser = require('mailparser').MailParser;
@@ -61,7 +62,6 @@ const createEmail = async (req, res) => {
         });
     }
 };
-
 
 const deleteEmail = async (req, res) => {
     const emailId = req.params.emailId;
@@ -289,14 +289,12 @@ const trackUser = async (req, res) => {
 
 const createOrder = async (req, res) => {
     try {
-        const { paymentType, orderNo, items, userId, cardId } = req.body;
+        const { orderNo, items, deviceId } = req.body;
 
         const order = new Order({
-            paymentType,
             orderNo,
             items,
-            userId,
-            cardId
+            deviceId,
         });
 
         const createdOrder = await order.save();
@@ -315,11 +313,70 @@ const createOrder = async (req, res) => {
     }
 };
 
+const createPayment = async (req, res) => {
+    try {
+        const body = req.body;
+        const paymentSchema = new SimpleSchema({
+            order: {
+                type: String,
+            },
+            deviceId: {
+                type: String,
+            },
+            amountPaid: {
+                type: Number,
+            },
+            paymentStatus: {
+                type: String,
+            }
+        }).newContext();
+
+        if (!paymentSchema.validate(body)) {
+            return res.status(400).json({
+                status: "error",
+                message: "Validation errors in the request body.",
+                errors: paymentSchema.validationErrors()
+            });
+        }
+
+        const { order, deviceId, amountPaid, paymentStatus } = body;
+
+        // Create a new payment document
+        const newPayment = new Payment({
+            order,
+            deviceId,
+            amountPaid,
+            paymentStatus
+        });
+
+        // Save the payment document to the database
+        const savedPayment = await newPayment.save();
+
+        const updateUSer = await User.findOneAndUpdate(
+            { deviceId: body.deviceId },
+            { $set: { premium: true } },
+            { new: true }
+        ).lean();
+        return res.status(200).json({
+            status: "success",
+            message: "Payment created successfully!",
+            data: savedPayment
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Unexpected error",
+            trace: error.message
+        });
+    }
+};
+
 module.exports = {
     createEmail,
     deleteEmail,
     getUserDetails,
     recivedEmail,
     trackUser,
-    createOrder
+    createOrder,
+    createPayment
 }; 

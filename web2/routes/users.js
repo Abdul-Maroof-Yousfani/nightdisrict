@@ -17,5 +17,6 @@ router.post('/trackUser/:deviceId', userController.trackUser);
 
 router.post('/createOrder', userController.createOrder);
 
+router.post('/createPayment', userController.createPayment);
 
 module.exports = router;
