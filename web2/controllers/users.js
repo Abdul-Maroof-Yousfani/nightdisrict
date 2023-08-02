@@ -11,46 +11,57 @@ const mongoose = require('mongoose');
 
 
 const createEmail = async (req, res) => {
-    const body = req.body,
-        validationSchema = new SimpleSchema({
-            deviceId: String,
-            fcmToken: {
-                type: String,
-                optional: true
+    try {
+        const { deviceId, fcmToken, premium } = req.body;
+
+        if (!deviceId) {
+            return res.status(400).json({
+                status: "error",
+                message: "deviceId is required.",
+            });
+        }
+
+        const existingUser = await User.findOne({ deviceId }).lean();
+
+        if (existingUser) {
+            if (!existingUser.premium && !premium) {
+                return res.status(403).json({
+                    status: "error",
+                    message: "User already exists and is not a premium user. Only one email allowed.",
+                    data: { ...existingUser }
+                });
             }
-        }).newContext();
+        }
 
-    if (!validationSchema.validate(body)) return res.status(400).json({
-        status: "error",
-        message: "Please fill all the required fields to continue.",
-        trace: validationSchema.validationErrors()
-    });
+        const email = await helper.createEmail();
+        const userObject = {
+            deviceId,
+            fcmToken,
+            email: email.email,
+            password: email.password,
+            premium: premium || false
+        };
 
-    const deviceExists = await User.findOne({ deviceId: body.deviceId }).lean();
-    if (deviceExists) return res.status(402).json({
-        status: "error",
-        message: "A device with same Id already exists!",
-        trace: deviceExists
-    })
+        const inserted = await new User(userObject).save();
+        const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
 
-    const inserted = await new User(body).save();
+        // Function for cron job to delete this created email after 2 hours
+        helper.deleteMailAfterTwoHours(inserted);
 
-    const email = await helper.createEmail();
-    inserted.email = email.email;
-    inserted.password = email.password;
-    inserted.save();
+        return res.json({
+            status: "success",
+            message: "New temporary email has been generated!",
+            data: { ...inserted._doc, token }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Unexpected error",
+            trace: error.message
+        });
+    }
+};
 
-    const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
-
-    // function for cron job to delete this created email after 2 hours
-    helper.deleteMailAfterTwoHours(inserted);
-
-    return res.json({
-        status: "success",
-        message: "New temporary email has been generated!",
-        data: { ...inserted._doc, token }
-    });
-}
 
 const deleteEmail = async (req, res) => {
     const emailId = req.params.emailId;
@@ -96,7 +107,7 @@ const getUserDetails = async (req, res) => {
 const recivedEmail = async (req, res) => {
     try {
         const body = req.params;
-        const checkUser = await User.findOne({ _id: body.id }).lean();
+        const checkUser = await User.findOne({ id: body }).lean();
         if (!checkUser) {
             return res.status(404).json({
                 status: "error",
@@ -278,31 +289,31 @@ const trackUser = async (req, res) => {
 
 const createOrder = async (req, res) => {
     try {
-      const { paymentType, orderNo, items, userId, cardId } = req.body;
-  
-      const order = new Order({
-        paymentType,
-        orderNo,
-        items,
-        userId,
-        cardId
-      });
-  
-      const createdOrder = await order.save();
-  
-      return res.json({
-        status: 'success',
-        message: 'Order created successfully',
-        data: createdOrder
-      });
+        const { paymentType, orderNo, items, userId, cardId } = req.body;
+
+        const order = new Order({
+            paymentType,
+            orderNo,
+            items,
+            userId,
+            cardId
+        });
+
+        const createdOrder = await order.save();
+
+        return res.json({
+            status: 'success',
+            message: 'Order created successfully',
+            data: createdOrder
+        });
     } catch (error) {
-      return res.status(500).json({
-        status: 'error',
-        message: 'Unexpected error',
-        trace: error.message
-      });
+        return res.status(500).json({
+            status: 'error',
+            message: 'Unexpected error',
+            trace: error.message
+        });
     }
-  };
+};
 
 module.exports = {
     createEmail,

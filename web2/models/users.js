@@ -4,7 +4,6 @@ const usersSchema = new mongoose.Schema({
     deviceId: {
         type: String,
         required: true,
-        unique: true
     },
     fcmToken: {
         type: String
@@ -16,7 +15,7 @@ const usersSchema = new mongoose.Schema({
     password: {
         type: String,
     },
-    Premium: {
+    premium: {
         type : Boolean,
         default: false
     },
