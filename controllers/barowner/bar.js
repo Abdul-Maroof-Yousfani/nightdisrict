@@ -133,7 +133,10 @@ const barInfo = async (req, res) => {
                 state: body.state,
                 phone: body.phone,
                 url: body.url,
-                upload_document: req.body.upload_document
+                upload_document: req.body.upload_document,
+                color:body.color,
+                longitude : body.longitude,
+                latitude : body.latitude
             }
         }, { new: true });
 
