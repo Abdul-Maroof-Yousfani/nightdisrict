@@ -43,6 +43,18 @@ const inAppSchema = new mongoose.Schema({
     description : {
         type : String,
         default : ""
+    },
+    isVerify : {
+        type : Boolean,
+        default : false
+    },
+    price : {
+        type : Number,
+        default : 0
+    },
+    orderid : {
+        type : String,
+        default : ""
     }
     
 },

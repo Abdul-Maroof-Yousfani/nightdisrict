@@ -79,6 +79,7 @@ const barInfo = async (req, res) => {
             state: Joi.string().required(),
             phone: Joi.number().required(),
             url: Joi.string(),
+            color: Joi.string(),
         });
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(400).json({ message: error.message, data: {} })

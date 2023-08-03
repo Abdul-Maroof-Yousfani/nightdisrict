@@ -6,6 +6,8 @@ import inapp from "../models/inapp.js";
 import admin from 'firebase-admin';
 import automationlogs from "../models/automationlogs.js";
 import ServiceAccount from "../models/serviceAccount.js";
+import { getAnalytics, logEvent } from "@firebase/analytics";
+
 
 
 admin.initializeApp({
@@ -73,7 +75,9 @@ const acknowledge = async(req,res) =>
                 _id : data._id,
             },{
                 $set : {
-                    isAcknowledged : true
+                    isAcknowledged : true,
+                    isVerify : true
+
                 }
             })
         }
@@ -103,7 +107,10 @@ const acknowledge = async(req,res) =>
 const confirm = async(req,res) => {
     try
     {
+        let start = new Date();
+        start.setUTCHours(0,0,0,0);
         let logs = [];
+
 
         let inAppLogs = new automationlogs({
             status : "success"
@@ -112,8 +119,12 @@ const confirm = async(req,res) => {
         await inAppLogs.save();
 
         let data = await inapp.find({
-            isConfirm : false
+            isConfirm : false,
+            createdAt: {$gte: start},
         })
+
+   
+     
 
         await Promise.all(data.map(async(e) =>{
             
@@ -148,6 +159,10 @@ const confirm = async(req,res) => {
             let promiseData2 = await verifier.verifyINAPP(receipt)
                 if(promiseData2.payload.code == 204)
                 {
+
+
+
+
                     await inapp.findByIdAndUpdate({_id:e._id},{
                         $set : {
                             isConfirm : true,
@@ -157,7 +172,17 @@ const confirm = async(req,res) => {
                         new:true
                     })
 
+                    //  Add a Log
+
+                    let log = await admin.analytics().logEvent('purchase', {
+                        userId: "GPA.3390-0391-9810-37378",
+                        productId  : e.productid,
+                        price : 100
+                      });
+
                     // send notification
+
+                    console.log(log)
 
                     const payload = {
                         data: {
@@ -194,6 +219,7 @@ const confirm = async(req,res) => {
     }
     catch(error)
     {
+        console.log(error)
         return res.status(500).json({
             status : 500,
             message : error,
@@ -307,6 +333,17 @@ const listServiceAccounts = async(req,res) =>
             message : error.message,
             data : {}
         })
+    }
+}
+
+const verifyIApp2 = async(req,res) =>{
+    try
+    {
+
+    }
+    catch(error)
+    {
+
     }
 }
 
