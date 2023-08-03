@@ -112,12 +112,13 @@ const getUserDetails = async (req, res) => {
 
 const recivedEmail = async (req, res) => {
     try {
-        const body = req.params;
-        const checkUser = await User.findOne({ id: body }).lean();
+        const { id } = req.params;
+        const checkUser = await User.findOne({ id }).lean();
+
         if (!checkUser) {
             return res.status(404).json({
                 status: "error",
-                message: "Please add a Device Id",
+                message: "User not found. Please provide a valid Device Id.",
             });
         }
 
@@ -129,97 +130,111 @@ const recivedEmail = async (req, res) => {
             tls: false
         });
 
-        Promise.promisifyAll(imap);
         const dataList = [];
-        const emailList = await new Promise((resolve, reject) => {
+
+        imap.once("error", function (err) {
+            console.log("[CONNECTION ERROR]", err.stack);
+            return res.status(500).json({
+                status: 'error',
+                message: 'Error connecting to the mail server.',
+            });
+        });
+
+        imap.once("end", function () {
+            console.log("Connection ended.");
+
+            // Send the response after all emails are fetched and processed
+            return res.json({
+                status: 'success',
+                Emails: dataList,
+            });
+        });
+
+        await new Promise((resolve, reject) => {
             imap.once("ready", () => {
                 imap.openBox("INBOX", false, function (err, mailBox) {
                     if (err) {
                         console.log('[ERROR]', err);
+                        imap.end();
                         reject(err);
                     }
+
                     imap.search(["UNSEEN"], function (err, results) {
-                        if (!results || !results.length) {
-                            console.log("No unread mails");
+                        if (err) {
+                            console.log("Error fetching messages:", err);
                             imap.end();
-                            resolve([]);
-                        } else {
-                            let f = imap.fetch(results, { bodies: "" });
-                            f.on("message", (msg, seqno) => {
-                                const mail = { Attachments: [] };
-
-                                var parser = new MailParser();
-                                parser.on("headers", (headers) => {
-                                    mail.Created_At = headers.get("date");
-                                    mail.Mail_id = seqno;
-                                    mail.Mail_Address = headers.get("to");
-                                    mail.Mail_From = headers.get("from").text;
-                                });
-
-                                parser.on('data', data => {
-                                    if (data.type === 'text') {
-                                        mail.Mail_Text = data.text;
-                                    }
-
-                                    if (data.type === 'attachment') {
-                                        let bufs = [];
-                                        data.content.on('data', function (d) { bufs.push(d); });
-                                        data.content.on('end', function () {
-                                            let buffer = Buffer.concat(bufs);
-                                            mail.Attachments.push({ filename: data.filename, content: buffer });
-                                            data.release();
-                                        })
-                                    }
-                                });
-
-                                msg.on("body", function (stream) {
-                                    stream.on("data", function (chunk) {
-                                        parser.write(chunk.toString("utf8"));
-                                    });
-                                });
-                                msg.once("end", function () {
-                                    parser.end();
-                                });
-
-                                parser.on('end', () => {
-                                    mail.Read_Status = 0; // Unread status, you can change this as needed
-                                    dataList.push(mail);
-                                    console.log(dataList);
-                                });
-                            });
-
-                            f.once("error", function (err) {
-                                console.log("Error fetching messages:", err);
-                                reject(err);
-                            });
-
-                            f.once("end", function () {
-                                console.log("Done fetching all unseen messages.");
-                                imap.end();
-                                resolve(dataList);
-                            });
+                            reject(err);
                         }
+
+                        const f = imap.fetch(results, { bodies: "" });
+
+                        f.on("message", (msg, seqno) => {
+                            const mail = { Attachments: [] };
+
+                            const parser = new MailParser();
+                            parser.on("headers", (headers) => {
+                                mail.Created_At = headers.get("date");
+                                mail.Mail_id = seqno;
+                                mail.Mail_Address = headers.get("to");
+                                mail.Mail_From = headers.get("from").text;
+                            });
+
+                            parser.on('data', data => {
+                                if (data.type === 'text') {
+                                    mail.Mail_Text = data.text;
+                                }
+
+                                if (data.type === 'attachment') {
+                                    const bufs = [];
+                                    data.content.on('data', function (d) { bufs.push(d); });
+                                    data.content.on('end', function () {
+                                        const buffer = Buffer.concat(bufs);
+                                        mail.Attachments.push({ filename: data.filename, content: buffer });
+                                        data.release();
+                                    });
+                                }
+                            });
+
+                            msg.on("body", function (stream) {
+                                stream.on("data", function (chunk) {
+                                    parser.write(chunk.toString("utf8"));
+                                });
+                            });
+                            msg.once("end", function () {
+                                parser.end();
+                            });
+
+                            parser.on('end', () => {
+                                mail.Read_Status = 0; // Unread status, you can change this as needed
+                                dataList.push(mail);
+                                console.log(dataList);
+                            });
+                        });
+
+                        f.once("error", function (err) {
+                            console.log("Error fetching messages:", err);
+                            f.removeAllListeners('end');
+                            f.removeAllListeners('message');
+                            imap.end();
+                            reject(err);
+                        });
+
+                        f.once("end", function () {
+                            console.log("Done fetching all unseen messages.");
+                            imap.end();
+                            resolve();
+                        });
                     });
                 });
             });
 
-            imap.once("error", function (err) {
-                console.log("[CONNECTION ERROR]", err.stack);
-                reject(err);
-            });
-
             imap.connect();
-        });
-
-        return res.json({
-            status: 'success',
-            Emails: dataList,
         });
     } catch (error) {
         console.log("Error:", error);
         return res.status(500).json({
             status: 'error',
-            message: 'Internal server error',
+            message: 'Internal server error.',
         });
     }
 };
@@ -268,7 +283,7 @@ const trackUser = async (req, res) => {
         };
         const forDevice = {
             deviceId,
-            premium: premium 
+            premium: premium
 
         }
         const forinserted = await new Device(forDevice).save();
