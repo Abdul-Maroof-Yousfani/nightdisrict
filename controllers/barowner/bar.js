@@ -79,6 +79,8 @@ const barInfo = async (req, res) => {
             state: Joi.string().required(),
             phone: Joi.number().required(),
             url: Joi.string(),
+            longitude: Joi.string(),
+            latitude: Joi.string(),
             color: Joi.string(),
         });
         const { error, value } = schema.validate(req.body);
