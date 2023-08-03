@@ -260,11 +260,11 @@ const updateBarInfo = async (req, res) => {
             if (doc) {
                 let docfileName = `public/bar/${Date.now()}-${doc.name.replace(/ /g, '-').toLowerCase()}`;
 
-                if(!helpers.fileValidation(doc,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
+                if(!helpers.fileValidation(doc,/(\.pdf|\.docx)$/i))
                 {
                     return res.status(400).json({
                         status : 400,
-                        message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
+                        message : "File Must of Type PDF / DOCX",
                         data : {}
                     })
                 }
