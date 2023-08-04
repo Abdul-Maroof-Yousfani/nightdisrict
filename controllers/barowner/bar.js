@@ -217,14 +217,14 @@ const updateBarInfo = async (req, res) => {
             if (logo) {
                 let fileName = `public/bar/${Date.now()}-${logo.name.replace(/ /g, '-').toLowerCase()}`;
 
-                if(!helpers.fileValidation(logo,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
-                {
-                    return res.status(400).json({
-                        status : 400,
-                        message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
-                        data : {}
-                    })
-                }
+                // if(!helpers.fileValidation(logo,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
+                // {
+                //     return res.status(400).json({
+                //         status : 400,
+                //         message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
+                //         data : {}
+                //     })
+                // }
 
                 await logo.mv(fileName);
 
@@ -238,14 +238,14 @@ const updateBarInfo = async (req, res) => {
             if (coverPhoto) {
                 let newFileName = `public/bar/${Date.now()}-${coverPhoto.name.replace(/ /g, '-').toLowerCase()}`;
 
-                if(!helpers.fileValidation(coverPhoto,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
-                {
-                    return res.status(400).json({
-                        status : 400,
-                        message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
-                        data : {}
-                    })
-                }
+                // if(!helpers.fileValidation(coverPhoto,/(\.jpg|\.jpeg|\.png|\.gif)$/i))
+                // {
+                //     return res.status(400).json({
+                //         status : 400,
+                //         message : "Please upload file having extensions .jpeg/.jpg/.png/.gif only.",
+                //         data : {}
+                //     })
+                // }
 
                 await coverPhoto.mv(newFileName);
 
@@ -260,14 +260,14 @@ const updateBarInfo = async (req, res) => {
             if (doc) {
                 let docfileName = `public/bar/${Date.now()}-${doc.name.replace(/ /g, '-').toLowerCase()}`;
 
-                if(!helpers.fileValidation(doc,/(\.pdf|\.docx)$/i))
-                {
-                    return res.status(400).json({
-                        status : 400,
-                        message : "File Must of Type PDF / DOCX",
-                        data : {}
-                    })
-                }
+                // if(!helpers.fileValidation(doc,/(\.pdf|\.docx)$/i))
+                // {
+                //     return res.status(400).json({
+                //         status : 400,
+                //         message : "File Must of Type PDF / DOCX",
+                //         data : {}
+                //     })
+                // }
 
                 await doc.mv(docfileName);
 
