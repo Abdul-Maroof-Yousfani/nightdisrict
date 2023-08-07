@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/', userController.createEmail);
 
-router.delete('/delete/:emailId', tokenVerification.protectedAuth, userController.deleteEmail);
+router.delete('/delete/:emailId', userController.deleteEmail);
 
 router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDetails);
 
@@ -20,5 +20,9 @@ router.post('/createOrder', userController.createOrder);
 router.post('/createPayment', userController.createPayment);
 
 router.delete('/deleteEmail', userController.deleteEmails);
+
+router.post('/recivedEmail', userController.recivedEmailDuplicate);
+
+router.put('/updateStatus', userController.updateReadStatus)
 
 module.exports = router;

@@ -236,7 +236,7 @@ const recivedEmail = async (req, res) => {
                             parser.on('end', () => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
                                 dataList.push(mail);
-                                console.log(dataList);
+                                console.log(mail);
                             });
                         });
 
@@ -456,6 +456,49 @@ const deleteEmails = async (req, res) => {
     await helper.deleteMailAfterThreeDays(deleteEmail)
 }
 
+const recivedEmailDuplicate = async (req, res) => {
+    try {
+        const { mailAddressValue } = req.body;
+
+        const foundMails = await threadMails.find({
+            'Mail_Address.value': mailAddressValue,
+        });
+
+        console.log('Found mails:', foundMails);
+        res.json(foundMails);
+    } catch (error) {
+        console.error('Error finding mails:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+const updateReadStatus = async (req, res) => {
+    try {
+        let { id , deviceId} = req.body
+        const findEmail = await threadMails.findOneAndUpdate(
+            { _id: id },
+            { $set: { Read_Status: 1 } },
+            { new: true }
+        ).lean();
+
+        if (!findEmail) return res.status(404).json({
+            status: "Error",
+            message: "Please Enter a Valid Id ! User not found aganist this ID "
+        })
+
+        return res.status(200).json({
+            status: "Success",
+            message: "SuccessFully Email status"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Unexpected error",
+            trace: error.message
+        });
+    }
+}
+
 module.exports = {
     createEmail,
     deleteEmail,
@@ -464,5 +507,7 @@ module.exports = {
     trackUser,
     createOrder,
     createPayment,
-    deleteEmails
+    deleteEmails,
+    recivedEmailDuplicate,
+    updateReadStatus
 }; 
