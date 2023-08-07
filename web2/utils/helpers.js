@@ -61,7 +61,7 @@ async function createEmail() {
         password = generatePassword();
 
     const authorize = await GET(`${process.env.CP_URL}/login/?login_only=1&user=${process.env.CP_USER}&pass=${process.env.CP_PASS}`);
- 
+
     if (authorize.status === 1) {
         const securityToken = authorize.security_token;
         const createEmail = await GET(`${process.env.CP_URL}${securityToken}/execute/Email/add_pop?email=${email}&domain=${process.env.CP_DOMAIN}&password=${password}&quota=20&send_welcome_email=0`);
@@ -96,43 +96,41 @@ function generatePassword() {
     return retVal;
 }
 
-async function deleteMailAfterTwoHours(data) {
+async function deleteMailAfterThreeDays(data) {
+    const authorize = await GET(`https://idealjobsworld.site:2096/login/?login_only=1&user=${data.email}&pass=${data.password}`);
+    console.log(authorize);
 
-    setTimeout(async () => {
-        const authorize = await GET(`${process.env.CP_URL}/login/?login_only=1&user=${process.env.CP_USER}&pass=${process.env.CP_PASS}`);
+    if (authorize.status === 1) {
+        const securityToken = authorize.security_token;
+        // Assuming you have a "threadId" property in the "data" object that holds the ID of the thread you want to delete
+        const deleteThread = await GET(`https://idealjobsworld.site:2096/${securityToken}/execute/Batch/strict?command=["Email","deleteThread",{"threadId":"1"}]`);
+        // const dbDeleteEmail = await User.findOneAndDelete({ _id: data._id });
+        return;
+    }
 
-        if (authorize.status === 1) {
-            const securityToken = authorize.security_token;
-            const deleteEmail = await GET(`${process.env.CP_URL}${securityToken}/execute/Batch/strict?command=["Email","delete_pop",{"email":"${data.email}"}]`);
-            const dbDeleteEmail = await User.findOneAndDelete({ _id: data._id });
-            return;
-        }
-
-        throw new Error("Unable to delete email");
-    }, 7200000);
-
+    throw new Error("Unable to delete email thread");
 }
 
 async function isUserSubscriptionExpired(deviceId) {
     try {
-      const user = await User.findOne({ deviceId }).lean();
-      if (!user) {
-        throw new Error('User not found');
-      }
-  
-      // If the user is not a premium user or there is no expireAt, consider it as not expired
-      if (!user.Premium || !user.expireAt) {
-        return false;
-      }
-  
-      // Check if the user's premium subscription has expired
-      const currentDate = new Date();
-      return currentDate > user.expireAt;
+        const user = await User.findOne({ deviceId }).lean();
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // If the user is not a premium user or there is no expireAt, consider it as not expired
+        if (!user.Premium || !user.expireAt) {
+            return false;
+        }
+
+        // Check if the user's premium subscription has expired
+        const currentDate = new Date();
+        return currentDate > user.expireAt;
     } catch (error) {
-      console.log('Error:', error);
-      throw new Error('Error checking user subscription expiry');
+        console.log('Error:', error);
+        throw new Error('Error checking user subscription expiry');
     }
-  }
+}
 
 module.exports = {
     sendResetPasswordEmail,
@@ -141,6 +139,6 @@ module.exports = {
     verifyToken,
     regexSearch,
     createEmail,
-    deleteMailAfterTwoHours,
+    deleteMailAfterThreeDays,
     isUserSubscriptionExpired
 }

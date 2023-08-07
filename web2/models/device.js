@@ -3,14 +3,25 @@ const mongoose = require('mongoose');
 const deviceSchema = new mongoose.Schema({
     deviceId: {
         type: String,
+        unique: true
     },
     expireAt: {
-        type: Date
+        type: Date,
+        default: new Date
     },
     premium: {
-        type : Boolean,
+        type: Boolean,
         default: false
     },
+    paymentStatus: {
+        type: String,
+        default: "unpaid"
+    },
+    mailBox: [
+        {
+            email: String,
+        }
+    ]
 }, { timestamps: true }
 );
 

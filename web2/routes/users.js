@@ -13,10 +13,12 @@ router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDe
 
 router.post('/recivedEmail/:id', userController.recivedEmail);
 
-router.post('/trackUser/:deviceId', userController.trackUser);
+router.post('/trackUser', userController.trackUser);
 
 router.post('/createOrder', userController.createOrder);
 
 router.post('/createPayment', userController.createPayment);
+
+router.delete('/deleteEmail', userController.deleteEmails);
 
 module.exports = router;

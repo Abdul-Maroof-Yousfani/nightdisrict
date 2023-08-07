@@ -19,9 +19,6 @@ const usersSchema = new mongoose.Schema({
     subscriptionId : {
         default : "",
     },
-    expireAt : {
-        default: ""
-    },
     paymentStatus : {
         type: String,
         default: "unpaid"

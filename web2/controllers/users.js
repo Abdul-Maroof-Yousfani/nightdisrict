@@ -4,13 +4,13 @@ const socketHandler = require('../utils/SocketHandler.js');
 const User = require('../models/users.js');
 const Order = require('../models/order.js');
 const Device = require('../models/device.js');
+const threadMails = require('../models/threadMails.js');
 const Payment = require('../models/payment.js');
 const SimpleSchema = require('simpl-schema');
 const Imap = require('imap');
 const MailParser = require('mailparser').MailParser;
 const Promise = require('bluebird');
 const mongoose = require('mongoose');
-
 
 const createEmail = async (req, res) => {
     try {
@@ -24,7 +24,6 @@ const createEmail = async (req, res) => {
         }
 
         const existingUser = await Device.findOne({ deviceId }).lean();
-
         if (existingUser) {
             if (!existingUser.premium && !premium) {
                 return res.status(403).json({
@@ -45,15 +44,26 @@ const createEmail = async (req, res) => {
         };
         const forDevice = {
             deviceId,
-            premium: premium
+            premium: premium,
+            mailBox: [
+                {
+                    email: email.email,
+                }
+            ]
+
         }
-        const forinserted = await new Device(forDevice).save();
+        if (existingUser) {
+            await Device.findOneAndUpdate({ deviceId: deviceId }, { $push: { mailBox: email } })
+        }
+        else {
+            const forinserted = await new Device(forDevice).save();
+        }
         const inserted = await new User(userObject).save();
         const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
 
 
         // Function for cron job to delete this created email after 2 hours
-        helper.deleteMailAfterTwoHours(inserted);
+        // helper.deleteMailAfterThreeDays(inserted);
 
         return res.json({
             status: "success",
@@ -113,8 +123,7 @@ const getUserDetails = async (req, res) => {
 const recivedEmail = async (req, res) => {
     try {
         const { id } = req.params;
-        const checkUser = await User.findOne({ id }).lean();
-
+        const checkUser = await User.findById({ _id: id }).lean();
         if (!checkUser) {
             return res.status(404).json({
                 status: "error",
@@ -143,10 +152,20 @@ const recivedEmail = async (req, res) => {
         imap.once("end", function () {
             console.log("Connection ended.");
 
-            // Send the response after all emails are fetched and processed
-            return res.json({
-                status: 'success',
-                Emails: dataList,
+            // Save all the fetched emails to the database
+            threadMails.insertMany(dataList, (err, savedMails) => {
+                if (err) {
+                    console.log("Error saving mail data:", err);
+                    return res.status(500).json({
+                        status: 'error',
+                        message: 'Error saving mail data.',
+                    });
+                }
+                console.log("Emails saved:", savedMails);
+                return res.json({
+                    status: 'success',
+                    Emails: savedMails,
+                });
             });
         });
 
@@ -166,6 +185,14 @@ const recivedEmail = async (req, res) => {
                             reject(err);
                         }
 
+                        if (results.length === 0) {
+                            // No unread mails, end the connection and resolve the promise
+                            console.log("No unread mails");
+                            imap.end();
+                            resolve();
+                            return;
+                        }
+
                         const f = imap.fetch(results, { bodies: "" });
 
                         f.on("message", (msg, seqno) => {
@@ -173,9 +200,11 @@ const recivedEmail = async (req, res) => {
 
                             const parser = new MailParser();
                             parser.on("headers", (headers) => {
+                                // Extract the email address from headers
+                                const mailAddress = headers.get('to').value.map((addr) => addr.address);
                                 mail.Created_At = headers.get("date");
                                 mail.Mail_id = seqno;
-                                mail.Mail_Address = headers.get("to");
+                                mail.Mail_Address = { value: mailAddress };
                                 mail.Mail_From = headers.get("from").text;
                             });
 
@@ -251,30 +280,28 @@ const trackUser = async (req, res) => {
             });
         }
 
-        const existingUser = await Device.findOne({ deviceId }).lean();
+        const existingUser = await Device.findOne({ deviceId: deviceId }).lean();
+
 
         if (existingUser) {
-            if (!existingUser.premium && !premium) {
-                return res.status(403).json({
-                    status: "error",
-                    message: "User already exists and is not a premium user. Only one email allowed.",
-                    data: {
-                        paymentStatus: existingUser.paymentStatus,
-                        isPremiun: existingUser.Premium,
-                        isPaid: existingUser.paymentStatus,
-                        mailBox: [
-                            {
-                                email: existingUser.email,
-                                id: existingUser._id
-                            },
 
-                        ]
-                    }
-                });
-            }
+            // already exist
+
+            // helper to create similar response, what you have when a new user is created
+
+            return res.status(403).json({
+                status: "error",
+                message: "User already exists.",
+                data: {
+                    paymentStatus: existingUser.paymentStatus,
+                    isPremiun: existingUser.premium,
+                    mailBox: existingUser.mailBox
+                }
+            });
         }
 
         const email = await helper.createEmail();
+        console.log(email);
         const userObject = {
             deviceId,
             fcmToken,
@@ -283,16 +310,23 @@ const trackUser = async (req, res) => {
         };
         const forDevice = {
             deviceId,
-            premium: premium
+            premium: premium,
+            mailBox: [
+                {
+                    email: email.email,
+                }
+            ]
 
         }
-        const forinserted = await new Device(forDevice).save();
+        if (!existingUser) {
+            const forinserted = await new Device(forDevice).save();
+        }
         const inserted = await new User(userObject).save();
         const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
 
 
         // Function for cron job to delete this created email after 2 hours
-        helper.deleteMailAfterTwoHours(inserted);
+        helper.deleteMailAfterThreeDays(inserted);
 
         return res.json({
             status: "success",
@@ -300,6 +334,7 @@ const trackUser = async (req, res) => {
             data: {
                 paymentStatus: inserted.paymentStatus,
                 isPaid: inserted.paymentStatus,
+                isPremiun: false,
                 mailBox: [
                     {
                         email: inserted.email,
@@ -383,12 +418,22 @@ const createPayment = async (req, res) => {
 
         // Save the payment document to the database
         const savedPayment = await newPayment.save();
-
-        const updateUSer = await Device.findOneAndUpdate(
+        var timeObject = new Date();
+        timeObject.setTime(timeObject.getTime() + 1000 * 60)
+        await Device.findOneAndUpdate(
             { deviceId: body.deviceId },
-            { $set: { premium: true } },
+            { $set: { premium: true, paymentStatus: "paid", expireAt: timeObject } },
             { new: true }
         ).lean();
+
+        await User.findOneAndUpdate(
+            { deviceId: body.deviceId },
+            { $set: { premium: true, paymentStatus: "paid" } },
+            { new: true }
+        ).lean();
+
+
+
         return res.status(200).json({
             status: "success",
             message: "Payment created successfully!",
@@ -403,6 +448,14 @@ const createPayment = async (req, res) => {
     }
 };
 
+const deleteEmails = async (req, res) => {
+    console.log("taha");
+    const { id } = req.body;
+    const deleteEmail = await threadMails.findOne({ _id: id })
+    console.log(deleteEmail);
+    await helper.deleteMailAfterThreeDays(deleteEmail)
+}
+
 module.exports = {
     createEmail,
     deleteEmail,
@@ -410,5 +463,6 @@ module.exports = {
     recivedEmail,
     trackUser,
     createOrder,
-    createPayment
+    createPayment,
+    deleteEmails
 }; 
