@@ -4,6 +4,8 @@ import Joi from 'joi';
 import users from '../models/users.js';
 import hashtag from '../models/hashtag.js';
 import fs from 'fs';
+import bar from '../models/bar.js';
+import helpers from '../utils/helpers.js';
 const store = async(req,res) =>
 {   
     let imageNameOne,thumbPath = "";
@@ -31,6 +33,14 @@ const store = async(req,res) =>
 
         // add Auth Token in Events
         req.body.bar = req.user.barInfo
+
+        // get bar coordinates and location
+
+        let bardata = await bar.findById({_id : req.body.bar});
+        req.body.address = bardata.address
+        req.body.location = bardata.location
+
+
 
         if(req.body.hashtags)
         {
@@ -165,8 +175,46 @@ const view = async(req,res) =>
     }
 }
 
+const nearby = async(req,res) =>{
+    let {longitude,latitude}  = req.body;
+    try
+    {   
+        let data  = await event.find({location: {
+
+            $near: {
+                $geometry: { type: "Point", coordinates: [longitude, latitude] },
+                $minDistance: 0,
+                $maxDistance: 10000
+            }
+        }});
+        // convert data to a proper event Page
+
+        data = await Promise.all(data.map( async (e) => {
+                e = await helpers.getEventById(e)
+                return e;
+        } ))
+        
+
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data
+        })
+
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 200,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 export  default{
     store,
     index,
-    view
+    view,
+    nearby
 }

@@ -4,6 +4,7 @@ import app from '../controllers/app.js';
 import helpers from '../utils/helpers.js';
 import bar from '../controllers/barowner/bar.js';
 import users from '../controllers/users.js';
+import events from '../controllers/events.js';
 
 const router = express.Router();
 
@@ -24,6 +25,12 @@ router.get('/bar/:id',helpers.verifyAuthToken, bar.show)
 
 
 router.put("/user",helpers.verifyAuthToken , users.profile)
+
+
+
+// near by events
+
+router.post('/events',helpers.verifyAuthToken, events.nearby);
 
 
 

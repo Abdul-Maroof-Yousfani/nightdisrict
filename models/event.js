@@ -89,10 +89,27 @@ const event = new mongoose.Schema({
         type : Boolean,
         default : false
     },
+    address : {
+        type : String,
+        default : ""
+    },
+    location:{
+        type:{
+            type:String,
+            enum:['Point'],
+            default:"Point"
+        },
+        coordinates:{
+            type:[Number],
+            default : [0,0]
+        },
+    },
     
     
 },
 {
     timestamps :true
 });
+
+event.index({location:"2dsphere"});
 export default mongoose.model('events', event);

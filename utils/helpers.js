@@ -9,6 +9,7 @@ import menuCategory from '../models/menuCategory.js';
 import menu from '../models/menu.js';
 import superMenu from '../models/superMenu.js';
 import promotion from '../models/promotion.js';
+import hashtag from '../models/hashtag.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -333,6 +334,32 @@ const nearbyBars = async(longitude,latitude) =>{
 }
 
 
+// Events
+
+const getEventById = async(event) =>{
+
+    try
+    {   
+        console.log("EVENTS");
+        console.log(event);
+        // get hastags from the Event
+        event.hashtags = await Promise(event.hashtags.map(async(e) =>{
+            // get hastaps
+            await hashtag.findOne({
+                _id : e
+            })
+            return e
+        }))
+        console.log(event.hashtags)
+    }
+    catch(error)
+    {
+
+    }
+
+}
+
+
 // Writing Code Related To Menu and Categories Setup
 
 // get item details
@@ -397,6 +424,8 @@ const getMenuByBarId = async(bar) =>{
 
     }
 }
+
+
 
 
 const favouriteDrinks = async(bar) =>
@@ -493,7 +522,8 @@ export default {
     nearbyBars,
     checkRole,
     fileValidation,
-    getBarById
+    getBarById,
+    getEventById
 
 }
 

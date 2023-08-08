@@ -469,12 +469,13 @@ const activities = async(req,res) =>{
 }
 const profile = async(req,res) =>{
     let {_id} = req.user
+    let {longitude,latitude} =  req.body;
     try
     {
         const schema = Joi.object({
             password: Joi.string(),
             phone: Joi.string(),
-            lontitude: Joi.string(),
+            longitude  : Joi.string(),
             address: Joi.string(),
             latitude: Joi.string(),
         });
@@ -520,7 +521,19 @@ const profile = async(req,res) =>{
             req.body.password = await bcrypt.hash(req.body.password, 10);
         }
 
-   
+
+        // setup location
+
+        if(longitude && latitude)
+        {
+            let location = {
+                type : "Point",
+                coordinates:[longitude,latitude]
+            }
+            req.body.location = location
+        }
+
+     
 
         data = await User.findByIdAndUpdate({
             _id
@@ -528,9 +541,9 @@ const profile = async(req,res) =>{
             new:true
         })
 
-        return res.status(404).json({
-            status : 404,
-            message : "User not found",
+        return res.status(200).json({
+            status : 200,
+            message : "success",
             data 
         })
 
