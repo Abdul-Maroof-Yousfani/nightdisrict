@@ -92,6 +92,22 @@ const bar = new mongoose.Schema({
         type :mongoose.Types.ObjectId,
         ref : "bars",
         default : null
-    }
+    },
+    location:{
+        type:{
+            type:String,
+            enum:['Point'],
+            default:"Point"
+        },
+        coordinates:{
+            type:[Number],
+            default : [0,0]
+        },
+    },
+},
+{   
+    timestamps : true
 });
+
+bar.index({location:"2dsphere"});
 export default mongoose.model('bar', bar);

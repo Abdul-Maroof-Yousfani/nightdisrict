@@ -29,6 +29,9 @@ router.get("/orders/:_id",helper.verifyAuthToken,Bar.view);
 router.get("/orders/tips",helper.verifyAuthToken,Bar.tips);
 
 
+router.get("/:id",helper.verifyAuthToken,Bar.show)
+
+
 
 
 

@@ -65,6 +65,7 @@ const barInfo = async (req, res) => {
     let body = req.body;
     let barId = req.params.id;
     let userId = req.user._id;
+    let {longitude,latitude} = req.body;
 
 
 
@@ -83,9 +84,36 @@ const barInfo = async (req, res) => {
             latitude: Joi.string(),
             color: Joi.string(),
         });
+
+       
+
+
+
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(400).json({ message: error.message, data: {} })
 
+
+        // add location here
+
+        if(longitude && latitude)
+        {
+            let location = {
+                type : "Point",
+                coordinates:[longitude,latitude]
+            }
+            body.location = location
+        }
+        else
+
+        {
+            body.location = {
+                type : "Point",
+                coordinates:[0,0]
+    
+            }  
+        }
+
+     
 
 
         // check if Bar exists
@@ -136,7 +164,8 @@ const barInfo = async (req, res) => {
                 upload_document: req.body.upload_document,
                 color:body.color,
                 longitude : body.longitude,
-                latitude : body.latitude
+                latitude : body.latitude,
+                location : body.location
             }
         }, { new: true });
 
@@ -200,6 +229,7 @@ const detailInfo = async (req, res) => {
 const updateBarInfo = async (req, res) => {
     let body = req.body;
     let barId = req.params.id;
+    let {longitude,latitude} = req.body
     try {
         let userId = req.user._id;
         let result = await User.findById({ _id: userId });
@@ -325,6 +355,29 @@ const updateBarInfo = async (req, res) => {
         //     endTime: body.endTime
         // }
 
+        // updateing Coordinates here
+
+        // add location here
+
+        if(longitude && latitude)
+        {
+            let location = {
+                type : "Point",
+                coordinates:[longitude,latitude]
+            }
+            body.location = location
+        }
+        else
+
+        {
+            body.location = {
+                type : "Point",
+                coordinates:[0,0]
+    
+            }  
+        }
+
+
         let barInfo = await Bar.findByIdAndUpdate({ _id: barId }, { $set: body }, { new: true });
         return res.status(200).json({
             status: "success",
@@ -353,7 +406,7 @@ const addItem = async (req, res) => {
             description: Joi.string(),
             type: Joi.string(),
             category: Joi.string(),
-            subcategory: Joi.string(),
+            subCategory: Joi.string(),
             variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
@@ -369,13 +422,13 @@ const addItem = async (req, res) => {
                 menu_name: title,
                 description,
                 category,
-                subCategory: subcategory
+                subcategory
 
             })
             mainMenu = await mainMenu.save()
 
 
-
+            
 
             // then add item to the Bar
             let data = new menu(
@@ -395,6 +448,7 @@ const addItem = async (req, res) => {
         if (!menu) {
             return res.status(400).json({ status: 400, message: "Menu is required", data: {} })
         }
+        console.log(req.body.menu);
         let data = await menu.insertMany(req.body.menu)
         // await data.save()
 
@@ -643,6 +697,34 @@ const items = async(req,res) =>
 
 }
 
+const show = async(req,res) =>{
+    let {id}  = req.params;
+
+    try
+    {
+        // get complete bar details from the bar Helper
+
+
+        let data = await helpers.getBarById(id)
+
+        return res.status(200).json({
+            status : 200,
+            message  : "success",
+            data
+        })
+
+     }
+    catch(error)
+    {
+
+        return res.status(500).json({
+            status : 500,
+            message  : error.message,
+            data  : {}
+        })
+    }
+}
+
 export default {
     items,
     barProfile,
@@ -653,5 +735,6 @@ export default {
     selectCategory,
     orders,
     view,
-    tips
+    tips,
+    show
 }

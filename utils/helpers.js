@@ -4,6 +4,11 @@ import roles from '../models/roles.js';
 import subscriptiontype from '../models/subscriptiontype.js';
 import User from '../models/users.js';
 import bar from '../models/bar.js';
+import event from '../models/event.js';
+import menuCategory from '../models/menuCategory.js';
+import menu from '../models/menu.js';
+import superMenu from '../models/superMenu.js';
+import promotion from '../models/promotion.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -317,7 +322,6 @@ const nearbyBars = async(longitude,latitude) =>{
                 $maxDistance: 10000
             }
         }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1});
-
         return data
 
     }
@@ -327,6 +331,149 @@ const nearbyBars = async(longitude,latitude) =>{
     }
 
 }
+
+
+// Writing Code Related To Menu and Categories Setup
+
+// get item details
+
+const item = async(item) => {
+    try
+    {
+        let data = await superMenu.findOne({
+            _id : item._id
+        })
+        return data
+    }
+    catch(error)
+    {
+        
+        return error.message
+    }
+}
+
+const getMenuByBarId = async(bar) =>{
+    try
+    {
+        
+        let data = await menuCategory.find({}).limit(4).lean();
+        // get subcategories and items
+
+        await Promise.all(data.map( async (e) =>{
+            // add sub categories
+            let sub = await menuCategory.find({parent : e._id}).lean()
+            e.categories = sub
+            if(sub.length)
+            {
+                
+                e.categories = await Promise.all(e.categories.map( async (subCategory) =>{
+                    let items = await menu.find({
+                        subCategory : subCategory._id,
+                        barId : bar
+                    })
+
+                    subCategory.items = items;
+
+                    return subCategory
+                    
+                }))
+            }
+
+            return e
+            
+
+        }))
+
+
+        return data;
+        // data = await Promise.all(data.map( async (e) =>{
+        //         console.log(e);
+        //         retur
+        // }))
+        
+    }
+    catch(error)
+    {
+
+    }
+}
+
+
+const favouriteDrinks = async(bar) =>
+{
+    try
+    {
+        let data = await menu({}).limit(4);
+        return data
+    }
+    catch(error)
+    {
+        return error
+    }
+}
+const promotions = async(bar) => {
+    try
+    {
+        let data = await promotion.find({
+            bar : bar
+        })
+        return data;
+    }
+    catch(error)
+    {
+        return error;
+    }
+}
+
+const getBarById = async(id,loggedInUser="") =>{
+    let events = []
+    let menus = []
+    let favDrinks = [];
+    let promos = [];
+    try
+    {
+        // 
+        let data = await bar.findById({_id : id}).lean()
+        data.rating  = 5;
+        data.rating  = 5;
+
+        // get followers
+
+        data.followers = []
+
+
+        // get events
+        events = await event.find({bar : data._id}).sort({ _id: -1 }).limit(4)
+        data.events = events
+
+        
+
+        // get Menu
+
+        menus = await getMenuByBarId(data._id)
+        data.menus = menus
+        // 
+
+        // house of Favourites
+        favDrinks =   await favouriteDrinks(data._id);
+        data.favDrinks = favDrinks
+
+        // promotions for the bar
+
+        promos = await promotions(data._id);
+        data.promotions = promos
+
+      
+        return data;
+    }   
+    catch(error)
+    {
+        return error;
+    }
+}
+
+
+// Ending Code for Menu
 
 export default {
     validateUsername,
@@ -345,7 +492,8 @@ export default {
     getRole,
     nearbyBars,
     checkRole,
-    fileValidation
+    fileValidation,
+    getBarById
 
 }
 

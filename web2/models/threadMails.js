@@ -9,7 +9,7 @@ const threadMailsSchema = new mongoose.Schema({
         text: { type: String }
     },
     Mail_From: { type: String },
-    mail_Text: { type: String },
+    Mail_Text: { type: String },
     Read_Status: { type: Number }
 }, { timestamps: true });
 

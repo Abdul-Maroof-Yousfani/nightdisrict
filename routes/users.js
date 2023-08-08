@@ -18,6 +18,11 @@ router.post("/verify-otp" ,userController.verifyOtp);
 router.post("/change-password" ,userController.changePassword);
 
 
+// update profile
+
+router.post('/:id',userController.profile);
+
+
 
 // List oF DJ
 router.get("/type/:type" , userController.userByType);

@@ -155,13 +155,11 @@ const recivedEmail = async (req, res) => {
             // Save all the fetched emails to the database
             threadMails.insertMany(dataList, (err, savedMails) => {
                 if (err) {
-                    console.log("Error saving mail data:", err);
                     return res.status(500).json({
                         status: 'error',
-                        message: 'Error saving mail data.',
+                        message: err.message,
                     });
                 }
-                console.log("Emails saved:", savedMails);
                 return res.json({
                     status: 'success',
                     Emails: savedMails,
@@ -200,16 +198,22 @@ const recivedEmail = async (req, res) => {
 
                             const parser = new MailParser();
                             parser.on("headers", (headers) => {
+                                console.log("CHECK MAIKL TEXT")
+                                console.log(headers.get('return-path').length)
+                                console.log(headers.get('return-path')[headers.get('return-path').length-1]);
                                 // Extract the email address from headers
                                 const mailAddress = headers.get('to').value.map((addr) => addr.address);
+                                // const body = headers.get('return-path').value.map((returnPath) => console.log(returnPath));
                                 mail.Created_At = headers.get("date");
                                 mail.Mail_id = seqno;
                                 mail.Mail_Address = { value: mailAddress };
                                 mail.Mail_From = headers.get("from").text;
+
                             });
 
                             parser.on('data', data => {
                                 if (data.type === 'text') {
+                         
                                     mail.Mail_Text = data.text;
                                 }
 
@@ -218,7 +222,7 @@ const recivedEmail = async (req, res) => {
                                     data.content.on('data', function (d) { bufs.push(d); });
                                     data.content.on('end', function () {
                                         const buffer = Buffer.concat(bufs);
-                                        mail.Attachments.push({ filename: data.filename, content: buffer });
+                                        // mail.Attachments.push({ filename: data.filename, content: buffer });
                                         data.release();
                                     });
                                 }
@@ -233,10 +237,17 @@ const recivedEmail = async (req, res) => {
                                 parser.end();
                             });
 
-                            parser.on('end', () => {
+                            parser.on('end', async() => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
-                                dataList.push(mail);
-                                console.log(mail);
+                                let checkMail = await threadMails.findOne({
+                                    Mail_id : mail.Mail_id
+                                })
+                                console.log(checkMail)
+                                if(!checkMail)
+                                {
+                                    dataList.push(mail);
+
+                                }
                             });
                         });
 

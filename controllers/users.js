@@ -218,14 +218,7 @@ const selectMembership = async (req,res) =>{
             owner : userId
         }).save()
         
-        // create an account of Bar
-
-        // let Bar = 
-        // // Bar = await Bar.save()
-
         let result = await User.findByIdAndUpdate({_id : userId} , {$set:{membership:mongoose.Types.ObjectId(req.body.membership) , barInfo:barID._id}},{new:true});
-
-        
 
         return res.status(200).json({
             status: "success",
@@ -474,6 +467,84 @@ const activities = async(req,res) =>{
         })
     }
 }
+const profile = async(req,res) =>{
+    let {_id} = req.user
+    try
+    {
+        const schema = Joi.object({
+            password: Joi.string(),
+            phone: Joi.string(),
+            lontitude: Joi.string(),
+            address: Joi.string(),
+            latitude: Joi.string(),
+        });
+        const { error, value } = schema.validate(req.body);
+
+        if(error) return res.status(400).json({
+              status: 400,
+              message: error.message,
+              data: {}
+        })
+        
+        
+    
+        let data = await User.findById({
+            _id : req.user._id
+        })
+
+    
+
+        if(!data) return res.status(404).json({
+            status : 404,
+            message : "User not found",
+            data  : {}
+        })
+
+        // checking if user has uploaded profile picture
+        
+        if(req.files)
+        {
+            let file = req.files.profile_picture;
+            let fileName = `public/profiles/${Date.now()}-${file.name.replace(/ /g, '-').toLowerCase()}`;
+            file.mv(fileName, async (err) => {
+                if (err) return res.status(400).json({ message: err.message });
+            });
+            fileName = fileName.replace("public", "");
+            req.body.profile_picture = fileName;
+        }
+        
+        // update user password if added
+
+        if(req.body.password)
+        {
+            req.body.password = await bcrypt.hash(req.body.password, 10);
+        }
+
+   
+
+        data = await User.findByIdAndUpdate({
+            _id
+        },{$set: req.body},{
+            new:true
+        })
+
+        return res.status(404).json({
+            status : 404,
+            message : "User not found",
+            data 
+        })
+
+
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : []
+        })
+    }
+}
 export default{
     home,
     register,
@@ -485,5 +556,6 @@ export default{
     forgetPassword,
     verifyOtp,
     changePassword,
-    activities
+    activities,
+    profile
 };
