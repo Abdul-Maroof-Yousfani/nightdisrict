@@ -237,7 +237,7 @@ const recivedEmail = async (req, res) => {
                                         let date = Date.now() + '.jpg';
                                         fs.writeFileSync(`public/attachment/${date}`, attachmentString)
                                         console.log(attachmentString)
-                                        const fileUrl = `https://example.com/attachment/${date}`;
+                                        const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
 
                                         // Add the file URL to your mail object
                                         mail.Attachments.push(fileUrl);
