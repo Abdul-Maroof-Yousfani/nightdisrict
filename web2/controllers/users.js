@@ -1,3 +1,4 @@
+const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const helper = require('../utils/helpers.js');
 const socketHandler = require('../utils/SocketHandler.js');
@@ -130,7 +131,10 @@ const recivedEmail = async (req, res) => {
                 message: "User not found. Please provide a valid Device Id.",
             });
         }
-
+        // find user with empty user
+        // make a loap
+        // send email for every user
+        // check 
         const imap = new Imap({
             user: checkUser.email,
             password: checkUser.password,
@@ -200,7 +204,7 @@ const recivedEmail = async (req, res) => {
                             parser.on("headers", (headers) => {
                                 console.log("CHECK MAIKL TEXT")
                                 console.log(headers.get('return-path').length)
-                                console.log(headers.get('return-path')[headers.get('return-path').length-1]);
+                                console.log(headers.get('return-path')[headers.get('return-path').length - 1]);
                                 // Extract the email address from headers
                                 const mailAddress = headers.get('to').value.map((addr) => addr.address);
                                 // const body = headers.get('return-path').value.map((returnPath) => console.log(returnPath));
@@ -213,17 +217,35 @@ const recivedEmail = async (req, res) => {
 
                             parser.on('data', data => {
                                 if (data.type === 'text') {
-                         
+
                                     mail.Mail_Text = data.text;
                                 }
 
                                 if (data.type === 'attachment') {
                                     const bufs = [];
-                                    data.content.on('data', function (d) { bufs.push(d); });
+
+                                    // Listen for the 'data' event to gather attachment chunks
+                                    data.content.on('data', function (chunk) {
+                                        bufs.push(chunk);
+                                    });
+
+                                    // Listen for the 'end' event when all attachment data is received
                                     data.content.on('end', function () {
                                         const buffer = Buffer.concat(bufs);
-                                        // mail.Attachments.push({ filename: data.filename, content: buffer });
+                                        let attachmentString = buffer.toString('base64'); // Convert buffer to base64 string
+                                        attachmentString = Buffer.from(attachmentString, "base64");
+                                        let date = Date.now() + '.jpg';
+                                        fs.writeFileSync(`public/attachment/${date}`, attachmentString)
+                                        console.log(attachmentString)
+                                        const fileUrl = `https://example.com/attachment/${date}`;
+
+                                        // Add the file URL to your mail object
+                                        mail.Attachments.push(fileUrl);
+
+                                        // Release the attachment data resources
                                         data.release();
+
+                                        console.log('File URL:', fileUrl);
                                     });
                                 }
                             });
@@ -237,14 +259,13 @@ const recivedEmail = async (req, res) => {
                                 parser.end();
                             });
 
-                            parser.on('end', async() => {
+                            parser.on('end', async () => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
                                 let checkMail = await threadMails.findOne({
-                                    Mail_id : mail.Mail_id
+                                    Mail_id: mail.Mail_id
                                 })
                                 console.log(checkMail)
-                                if(!checkMail)
-                                {
+                                if (!checkMail) {
                                     dataList.push(mail);
 
                                 }
@@ -485,7 +506,7 @@ const recivedEmailDuplicate = async (req, res) => {
 
 const updateReadStatus = async (req, res) => {
     try {
-        let { id , deviceId} = req.body
+        let { id, deviceId } = req.body
         const findEmail = await threadMails.findOneAndUpdate(
             { _id: id },
             { $set: { Read_Status: 1 } },
