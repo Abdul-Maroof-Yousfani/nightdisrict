@@ -27,8 +27,8 @@ const createEmail = async (req, res) => {
         const existingUser = await Device.findOne({ deviceId }).lean();
         if (existingUser) {
             if (!existingUser.premium && !premium) {
-                return res.status(403).json({
-                    status: "error",
+                return res.status(200).json({
+                    status: "Success",
                     message: "User already exists and is not a premium user. Only one email allowed.",
                     data: { ...existingUser }
                 });
@@ -46,6 +46,7 @@ const createEmail = async (req, res) => {
         const forDevice = {
             deviceId,
             premium: premium,
+            emailId: email._id,
             mailBox: [
                 {
                     email: email.email,
@@ -202,7 +203,6 @@ const recivedEmail = async (req, res) => {
 
                             const parser = new MailParser();
                             parser.on("headers", (headers) => {
-                                console.log("CHECK MAIKL TEXT")
                                 console.log(headers.get('return-path').length)
                                 console.log(headers.get('return-path')[headers.get('return-path').length - 1]);
                                 // Extract the email address from headers
@@ -212,7 +212,6 @@ const recivedEmail = async (req, res) => {
                                 mail.Mail_id = seqno;
                                 mail.Mail_Address = { value: mailAddress };
                                 mail.Mail_From = headers.get("from").text;
-
                             });
 
                             parser.on('data', data => {
@@ -236,7 +235,6 @@ const recivedEmail = async (req, res) => {
                                         attachmentString = Buffer.from(attachmentString, "base64");
                                         let date = Date.now() + '.jpg';
                                         fs.writeFileSync(`public/attachment/${date}`, attachmentString)
-                                        console.log(attachmentString)
                                         const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
 
                                         // Add the file URL to your mail object
@@ -244,8 +242,6 @@ const recivedEmail = async (req, res) => {
 
                                         // Release the attachment data resources
                                         data.release();
-
-                                        console.log('File URL:', fileUrl);
                                     });
                                 }
                             });
@@ -258,13 +254,12 @@ const recivedEmail = async (req, res) => {
                             msg.once("end", function () {
                                 parser.end();
                             });
-
+                            console.log(dataList);
                             parser.on('end', async () => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
                                 let checkMail = await threadMails.findOne({
                                     Mail_id: mail.Mail_id
                                 })
-                                console.log(checkMail)
                                 if (!checkMail) {
                                     dataList.push(mail);
 
@@ -321,9 +316,9 @@ const trackUser = async (req, res) => {
 
             // helper to create similar response, what you have when a new user is created
 
-            return res.status(403).json({
-                status: "error",
-                message: "User already exists.",
+            return res.status(200).json({
+                status: "Success",
+                message: "Success",
                 data: {
                     paymentStatus: existingUser.paymentStatus,
                     isPremiun: existingUser.premium,
@@ -343,6 +338,7 @@ const trackUser = async (req, res) => {
         const forDevice = {
             deviceId,
             premium: premium,
+            emailId: email._id,
             mailBox: [
                 {
                     email: email.email,
@@ -367,6 +363,7 @@ const trackUser = async (req, res) => {
                 paymentStatus: inserted.paymentStatus,
                 isPaid: inserted.paymentStatus,
                 isPremiun: false,
+                _id: inserted._id,
                 mailBox: [
                     {
                         email: inserted.email,
@@ -496,8 +493,18 @@ const recivedEmailDuplicate = async (req, res) => {
             'Mail_Address.value': mailAddressValue,
         });
 
-        console.log('Found mails:', foundMails);
-        res.json(foundMails);
+        if (!foundMails) return res.status(404).json({
+            status: "error",
+            message: "Email not found in threadMail Database"
+        })
+
+        return res.status(200).json({
+            status: "success",
+            message: "success",
+            data: foundMails
+        })
+
+
     } catch (error) {
         console.error('Error finding mails:', error);
         res.status(500).json({ error: 'Internal server error' });

@@ -9,6 +9,9 @@ const deviceSchema = new mongoose.Schema({
         type: Date,
         default: new Date
     },
+    emailID: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
     premium: {
         type: Boolean,
         default: false
@@ -21,7 +24,7 @@ const deviceSchema = new mongoose.Schema({
         {
             email: String,
         }
-    ]
+    ],
 }, { timestamps: true }
 );
 
