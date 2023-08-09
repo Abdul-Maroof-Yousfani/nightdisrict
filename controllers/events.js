@@ -6,6 +6,7 @@ import hashtag from '../models/hashtag.js';
 import fs from 'fs';
 import bar from '../models/bar.js';
 import helpers from '../utils/helpers.js';
+import menuCategory from '../models/menuCategory.js';
 const store = async(req,res) =>
 {   
     let imageNameOne,thumbPath = "";
@@ -186,11 +187,22 @@ const nearby = async(req,res) =>{
                 $minDistance: 0,
                 $maxDistance: 10000
             }
-        }});
+        }}).lean();
         // convert data to a proper event Page
 
         data = await Promise.all(data.map( async (e) => {
-                e = await helpers.getEventById(e)
+                // get hastags
+                e.hashtags = await Promise.all(e.hashtags.map( async( hash) =>{
+                    return await hashtag.findById({_id : hash},{name : 1})
+                }))
+                // get dj from the Event
+                e.dj = await users.findById({_id : e.dj},{username : 1})
+
+                // get Category for  the Event
+                e.category = await Promise.all(e.category.map( async( cat) =>{
+                    console.log(cat)
+                    return await menuCategory.findById({_id : cat},{name : 1})
+                }))
                 return e;
         } ))
         

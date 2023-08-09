@@ -93,6 +93,16 @@ const event = new mongoose.Schema({
         type : String,
         default : ""
     },
+    participants : [{
+
+        user : {
+            type : mongoose.Types.ObjectId,
+            ref : "users",
+            default : null
+        }
+        
+    }],
+
     location:{
         type:{
             type:String,

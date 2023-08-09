@@ -90,8 +90,13 @@ const mapView = async(req,res) =>
 
     try
     {
-        let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
-        console.log(bars);
+        let events = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
+        events = await Promise.all(events.map( async (e) =>{
+            console.log(e)
+        }))
+        
+
+        
 
 
         // // get Events with respect to Bar
@@ -150,6 +155,7 @@ const mapView = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error)
         return res.status(500).json({
             status : 500,
             message : error.message,

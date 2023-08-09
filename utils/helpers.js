@@ -336,40 +336,54 @@ const nearbyBars = async(longitude,latitude) =>{
 
 // Events
 
-const getEventById = async(event) =>{
-
+const getHastags = async(_id) =>{
     try
-    {   
-        console.log("EVENTS");
-        console.log(event);
-        // get hastags from the Event
-        event.hashtags = await Promise(event.hashtags.map(async(e) =>{
-            // get hastaps
-            await hashtag.findOne({
-                _id : e
-            })
-            return e
-        }))
-        console.log(event.hashtags)
+    {
+        let hastag = await hashtag.findOne({_id});
+        return hastag
     }
     catch(error)
     {
-
+        return error
     }
-
 }
+
+// const getEventById = async(event) =>{
+
+//     try
+//     {   
+
+//     }
+//     catch(error)
+//     {
+
+//     }
+
+// }
 
 
 // Writing Code Related To Menu and Categories Setup
 
 // get item details
 
-const item = async(item) => {
+const getItemById = async(id) => {
     try
     {
         let data = await superMenu.findOne({
-            _id : item._id
-        })
+            _id : id
+        }).lean()
+        // update category and Subcateogry
+        if(data.category)
+        {
+            data.category = await menuCategory.findOne({_id :data.category })
+        }
+        
+        if(data.subCategory)
+        {
+            data.subCategory = await menuCategory.findOne({_id :data.subCategory })
+        }
+        
+        console.log(data)
         return data
     }
     catch(error)
@@ -432,7 +446,7 @@ const favouriteDrinks = async(bar) =>
 {
     try
     {
-        let data = await menu({}).limit(4);
+        let data = await menu.find({}).limit(4);
         return data
     }
     catch(error)
@@ -463,8 +477,6 @@ const getBarById = async(id,loggedInUser="") =>{
     {
         // 
         let data = await bar.findById({_id : id}).lean()
-        data.rating  = 5;
-        data.rating  = 5;
 
         // get followers
 
@@ -523,7 +535,8 @@ export default {
     checkRole,
     fileValidation,
     getBarById,
-    getEventById
+    getHastags,
+    getItemById
 
 }
 

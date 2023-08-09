@@ -460,6 +460,37 @@ const addItem = async (req, res) => {
 
 }
 
+
+const favouriteitem  = async(req,res) =>
+{
+    let {item,bar} = req.body;
+    try
+    {
+        console.log(req.body);
+        return;
+
+        let itemCheck = await menu.findById({
+            _id : id,
+            barId : bar 
+            
+        })
+
+        if(!itemCheck) return res.status(404).json({ status : 404 , message : "Item not found" , data :{}  })
+
+        // now add Favourite item to the favourite
+
+
+    }
+    catch(error)
+    {
+
+    }
+}
+
+
+// Ending Item Section
+
+
 //  search categories
 
 const selectCategory = async (req, res) => {
@@ -736,5 +767,6 @@ export default {
     orders,
     view,
     tips,
-    show
+    show,
+    favouriteitem
 }

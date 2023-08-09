@@ -5,6 +5,9 @@ const deviceSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    fcmToken: {
+        type: String,
+    },
     expireAt: {
         type: Date,
         default: new Date

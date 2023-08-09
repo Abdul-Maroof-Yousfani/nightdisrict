@@ -19,6 +19,8 @@ router.post("/category" ,helper.verifyAuthToken, Bar.selectCategory);
 router.post("/item" ,helper.verifyAuthToken, Bar.addItem)
 router.get("/item/:bar" , Bar.items)
 
+// Ending Menu Code
+
 
 
 // get orders based on Bar

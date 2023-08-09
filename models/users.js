@@ -58,6 +58,32 @@ const usersSchema = new mongoose.Schema({
         cardType: { type: String },
         active: { type: Boolean, default: 'true' }
     }],
+    favouriteBars: [{
+        bar: {
+            type: mongoose.Types.ObjectId,
+            default: null
+        }
+    },
+    {
+        default: []
+    }
+    ],
+    favouriteDrinks: [{
+        bar: {
+            type: mongoose.Types.ObjectId,
+            default: null,
+            ref : "bars"
+        },
+        item:{
+            type: mongoose.Types.ObjectId,
+            default: null,
+            ref : "supermenus"
+        }
+    },
+    {
+        default: []
+    }
+    ],
     paymentStatus: {
         type: String,
         default: "Paid"

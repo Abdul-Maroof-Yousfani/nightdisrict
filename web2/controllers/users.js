@@ -155,21 +155,22 @@ const recivedEmail = async (req, res) => {
         });
 
         imap.once("end", function () {
-            console.log("Connection ended.");
+            console.log(dataList)
+            console.log("Connection is Ending NOW!");
 
-            // Save all the fetched emails to the database
-            threadMails.insertMany(dataList, (err, savedMails) => {
-                if (err) {
-                    return res.status(500).json({
-                        status: 'error',
-                        message: err.message,
-                    });
-                }
-                return res.json({
-                    status: 'success',
-                    Emails: savedMails,
-                });
-            });
+            // // Save all the fetched emails to the database
+            // threadMails.insertMany(dataList, (err, savedMails) => {
+            //     if (err) {
+            //         return res.status(500).json({
+            //             status: 'error',
+            //             message: err.message,
+            //         });
+            //     }
+            //     return res.json({
+            //         status: 'success',
+            //         Emails: savedMails,
+            //     });
+            // });
         });
 
         await new Promise((resolve, reject) => {
@@ -187,6 +188,7 @@ const recivedEmail = async (req, res) => {
                             imap.end();
                             reject(err);
                         }
+         
 
                         if (results.length === 0) {
                             // No unread mails, end the connection and resolve the promise
@@ -196,15 +198,15 @@ const recivedEmail = async (req, res) => {
                             return;
                         }
 
-                        const f = imap.fetch(results, { bodies: "" });
+      
 
+                        const f = imap.fetch(results, { bodies: "" });
                         f.on("message", (msg, seqno) => {
+                           
                             const mail = { Attachments: [] };
 
                             const parser = new MailParser();
                             parser.on("headers", (headers) => {
-                                console.log(headers.get('return-path').length)
-                                console.log(headers.get('return-path')[headers.get('return-path').length - 1]);
                                 // Extract the email address from headers
                                 const mailAddress = headers.get('to').value.map((addr) => addr.address);
                                 // const body = headers.get('return-path').value.map((returnPath) => console.log(returnPath));
@@ -212,6 +214,7 @@ const recivedEmail = async (req, res) => {
                                 mail.Mail_id = seqno;
                                 mail.Mail_Address = { value: mailAddress };
                                 mail.Mail_From = headers.get("from").text;
+                                mail.Message_ID = headers.get('message-id');
                             });
 
                             parser.on('data', data => {
@@ -254,9 +257,9 @@ const recivedEmail = async (req, res) => {
                             msg.once("end", function () {
                                 parser.end();
                             });
-                            console.log(dataList);
                             parser.on('end', async () => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
+                                console.log(dataList);
                                 let checkMail = await threadMails.findOne({
                                     Mail_id: mail.Mail_id
                                 })
@@ -328,7 +331,6 @@ const trackUser = async (req, res) => {
         }
 
         const email = await helper.createEmail();
-        console.log(email);
         const userObject = {
             deviceId,
             fcmToken,
@@ -338,6 +340,7 @@ const trackUser = async (req, res) => {
         const forDevice = {
             deviceId,
             premium: premium,
+            fcmToken,
             emailId: email._id,
             mailBox: [
                 {

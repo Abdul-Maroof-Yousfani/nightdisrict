@@ -34,4 +34,14 @@ router.post('/events',helpers.verifyAuthToken, events.nearby);
 
 
 
+
+// Setting Bar and Drinks As Favourite
+
+
+router.post('/favourite',helpers.verifyAuthToken, users.favourite)
+router.get('/favourite/bars',helpers.verifyAuthToken, users.favouritebars)
+router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
+
+
+
 export default router;

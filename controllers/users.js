@@ -9,6 +9,7 @@ import mongoose from 'mongoose';
 import Joi from 'joi';
 import bar from '../models/bar.js';
 import helpers from '../utils/helpers.js';
+import users from '../models/users.js';
 
 const home = (req, res) => {
     res.send('Hello From Home');
@@ -558,6 +559,133 @@ const profile = async(req,res) =>{
         })
     }
 }
+
+const favourite = async(req,res) =>
+{
+    let {bar,type,item} = req.body;
+    try
+    {
+         //  add bar to the Favourites
+        let data = await users.findById({
+            _id : req.user._id
+        })
+        if(!data)  return res.status(404).json({
+            status : 404,
+            message : "user not found",
+            data : {}
+        })
+
+        if(type == "drink")
+        {
+            data = await users.findByIdAndUpdate({_id : req.user._id},{
+                $push: { "favouriteDrinks" : { "bar" : bar , item : item } } 
+            },{new:true})
+        }
+        else if(type == "bar")
+        {
+            data = await users.findByIdAndUpdate({_id : req.user._id},{
+                $push: { "favouriteBars" : { bar} } 
+            },{new:true})
+        }
+
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data 
+        })
+    }
+    catch(error)
+    {
+        console.log(error.message);
+        return res.status(500).json({
+            status : 500,
+            message :error.message,
+            data  : {}
+        })
+    }
+}
+
+const favouritebars = async(req,res) =>{
+    let {bar,type} = req.body;
+    let barData = []
+    try
+    {
+        //  add bar to the Favourites
+        let data = await users.findById({
+            _id : req.user._id
+        },{favouriteBars: 1})
+
+        if(!data) return res.status(404).json({
+            status : 404,
+            message : "not found",
+            data : {}
+        })
+        
+        data.favouriteBars = await Promise.all(data.favouriteBars.map( async (e) =>{
+            let details =  await helpers.getBarById(e.bar)
+            barData.push(details)
+
+        }))
+        
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data  : barData
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message :error.message,
+            data  : {}
+        })
+    }
+}
+const favouriteDrinks = async(req,res) =>{
+    let barData = []
+    try
+    {
+        //  add bar to the Favourites
+        let data = await users.findById({
+            _id : req.user._id
+        },{favouriteDrinks: 1}).lean()
+
+        if(!data) return res.status(404).json({
+            status : 404,
+            message : "not found",
+            data : {}
+        })
+
+      
+        data.favouriteDrinks = await Promise.all(data.favouriteDrinks.map( async (e) =>{
+
+            let barDetails = await bar.findById({_id : e.bar})
+
+            let itemData = await helpers.getItemById(e.item)
+            itemData.barname = barDetails.barName
+            itemData.logo =  barDetails.upload_logo
+            
+            barData.push(itemData)
+
+        }))
+        
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data  : barData
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message :error.message,
+            data  : {}
+        })
+    }
+}
+
 export default{
     home,
     register,
@@ -570,5 +698,8 @@ export default{
     verifyOtp,
     changePassword,
     activities,
-    profile
+    profile,
+    favourite,
+    favouritebars,
+    favouriteDrinks
 };
