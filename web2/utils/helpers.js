@@ -132,6 +132,34 @@ async function isUserSubscriptionExpired(deviceId) {
     }
 }
 
+function pagination(records, page = 1, limit = 10) {
+    page = isNaN(parseInt(page)) ? 1 : parseInt(page),
+        limit = isNaN(parseInt(limit)) ? 1 : parseInt(limit);
+
+    const results = {};
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    if (endIndex < records.length) {
+        results.next = {
+            page: page + 1,
+            limit: limit
+        }
+    }
+    if (startIndex > 0) {
+        results.previous = {
+            page: page - 1,
+            limit: limit
+        }
+    }
+    results.totalPages = {
+        page: Math.ceil(records.length / limit),
+        limit: limit,
+        totalRecords: records.length
+    }
+
+    results.result = records.slice(startIndex, endIndex);
+    return results;
+}
 module.exports = {
     sendResetPasswordEmail,
     validateUsername,
@@ -140,5 +168,6 @@ module.exports = {
     regexSearch,
     createEmail,
     deleteMailAfterThreeDays,
-    isUserSubscriptionExpired
+    isUserSubscriptionExpired,
+    pagination
 }
