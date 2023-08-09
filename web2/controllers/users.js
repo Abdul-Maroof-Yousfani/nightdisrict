@@ -325,6 +325,7 @@ const trackUser = async (req, res) => {
                 data: {
                     paymentStatus: existingUser.paymentStatus,
                     isPremiun: existingUser.premium,
+                    _id: existingUser._id,
                     mailBox: existingUser.mailBox
                 }
             });
