@@ -7,6 +7,7 @@ import fs from 'fs';
 import bar from '../models/bar.js';
 import helpers from '../utils/helpers.js';
 import menuCategory from '../models/menuCategory.js';
+import ticket from '../models/ticket.js';
 const store = async(req,res) =>
 {   
     let imageNameOne,thumbPath = "";
@@ -224,9 +225,42 @@ const nearby = async(req,res) =>{
     }
 }
 
+const tickets = async(req,res) =>{
+    try
+    {
+        // user tickets based on Access token
+        
+        let data = await ticket.find({
+            user : req.user._id
+        }).lean();
+        //  let get events details
+        data =  await Promise.all(data.map(async(e) =>{
+
+            e.event = await helpers.getEventById(e.event)
+            return e;   
+        }))
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 200,
+            message : error.message,
+            data : []
+        })
+    }
+}
+
 export  default{
     store,
     index,
     view,
-    nearby
+    nearby,
+    tickets
 }

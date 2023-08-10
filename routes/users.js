@@ -30,7 +30,4 @@ router.get("/type/:type" , userController.userByType);
 
 
 
-
-
-
 export default router;

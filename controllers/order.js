@@ -9,6 +9,9 @@ import Payment from '../models/payments.js';
 import Order from '../models/order.js';
 import mongoose, { mongo } from 'mongoose';
 import membership from '../models/membership.js';
+import ticket from '../models/ticket.js';
+import QRCode  from 'qrcode';
+import order from '../models/order.js';
 
 const store = async (req, res) => {
     let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type,bar} = req.body;
@@ -70,7 +73,7 @@ const store = async (req, res) => {
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
     
-        let orderData = await new Order(
+        let orderData =  new Order(
             {subscriptionType,
             orderNo,
             items,
@@ -81,7 +84,7 @@ const store = async (req, res) => {
 
         }
         );
-        orderData.save();
+        await orderData.save();
 
         if(orderData)
         {
@@ -96,8 +99,8 @@ const store = async (req, res) => {
                 paymentMethod,
                 invoice_url,
             }
-            const payment = await new  Payment(paymentData)
-            payment.save();
+            const payment = new  Payment(paymentData)
+            await  payment.save();
 
                 
 
@@ -118,10 +121,34 @@ const store = async (req, res) => {
                 if(paymentCode == "buy_membership")
                 {
                     let paymentDetail = await User.findByIdAndUpdate({_id:req.user._id},{$set:{paymentStatus:"paid", membership:items[0].item}}).lean()
-                        await membership.findByIdAndUpdate({_id: items[0].item},{$push : {subscriptions:[{user:mongoose.Types.ObjectId(customer)}]}})
-                    }
+                    await membership.findByIdAndUpdate({_id: items[0].item},{$push : {subscriptions:[{user:mongoose.Types.ObjectId(customer)}]}})
+                }
+                else if(paymentCode == "buy_ticket")
+                {
+                    // store data into the Tickets table, and create nested document in the User
+
+                    // Generate a Unqiue QRCODE!
+
+                    const qrCodeData = req.user._id.toString();
+                    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+
                 
-                    await User.findByIdAndUpdate({
+                    let tickets = new ticket({
+                        "event" : items[0].item,
+                        "user" : req.user._id,
+                        "qrcode" : qrCodeImage,
+                        "order" : order,
+                        "price" : amountPaid
+                    })
+                    await tickets.save();
+
+                    // Send Notification to the user
+
+
+
+                }
+                
+                await User.findByIdAndUpdate({
                         _id : req.user._id
                     },{$set : { "currently_active_card" : cardId } })
                 
@@ -145,8 +172,34 @@ const show = async(req,res) =>
 {
 
 }
-
+const payment = async(req,res) =>
+{
+    try
+    {
+        let data = await order.find({
+            customer : req.user._id
+        });
+        // get neccessary details in the payment screen
+        data = await Promise.all(data.map(async(e) =>{
+            console.log(e)
+        }))
+        return res.json({
+            status : 200,
+            message : 'success',
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 200,
+            message : error.message,
+            data : []
+        })
+    }
+}
 export default {
     store,
-    show
+    show,
+    payment
 }

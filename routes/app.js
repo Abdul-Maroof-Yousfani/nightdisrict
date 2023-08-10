@@ -5,6 +5,7 @@ import helpers from '../utils/helpers.js';
 import bar from '../controllers/barowner/bar.js';
 import users from '../controllers/users.js';
 import events from '../controllers/events.js';
+import order from '../controllers/order.js';
 
 const router = express.Router();
 
@@ -32,6 +33,14 @@ router.put("/user",helpers.verifyAuthToken , users.profile)
 
 router.post('/events',helpers.verifyAuthToken, events.nearby);
 
+router.get('/tickets', helpers.verifyAuthToken, events.tickets);
+
+
+router.get('/payments', helpers.verifyAuthToken, order.payment);
+
+
+// Events
+
 
 
 
@@ -41,6 +50,9 @@ router.post('/events',helpers.verifyAuthToken, events.nearby);
 router.post('/favourite',helpers.verifyAuthToken, users.favourite)
 router.get('/favourite/bars',helpers.verifyAuthToken, users.favouritebars)
 router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
+
+
+
 
 
 

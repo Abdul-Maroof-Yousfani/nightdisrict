@@ -10,6 +10,7 @@ import menu from '../models/menu.js';
 import superMenu from '../models/superMenu.js';
 import promotion from '../models/promotion.js';
 import hashtag from '../models/hashtag.js';
+import users from '../models/users.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -334,12 +335,30 @@ const nearbyBars = async(longitude,latitude) =>{
 }
 
 
+// User iformation
+
+const getUserById = async(id) => {
+    try
+    {
+        let data = await users.findById({_id : id})
+        return data?data.username:""
+
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
+
 // Events
+
 
 const getHastags = async(_id) =>{
     try
     {
         let hastag = await hashtag.findOne({_id});
+        console.log(hashtag);
         return hastag
     }
     catch(error)
@@ -348,18 +367,33 @@ const getHastags = async(_id) =>{
     }
 }
 
-// const getEventById = async(event) =>{
+const getEventById = async(id) =>{
 
-//     try
-//     {   
+    try
+    {   
+        let data = await event.findById({
+            _id : id
+        }).lean()
+        data.hashtags  = await Promise.all(data.hashtags.map( async (e) =>{
+            
+            let data = await getHastags(e)
+            return  data?data:[]
+            
+        }))
+        // get dj
 
-//     }
-//     catch(error)
-//     {
+        data.dj = await getUserById(data.dj);
 
-//     }
+        return data;
 
-// }
+    }
+    catch(error)
+    {
+        return error.message;
+
+    }
+
+}
 
 
 // Writing Code Related To Menu and Categories Setup
@@ -536,7 +570,9 @@ export default {
     fileValidation,
     getBarById,
     getHastags,
-    getItemById
+    getItemById,
+    getEventById,
+    getUserById
 
 }
 
