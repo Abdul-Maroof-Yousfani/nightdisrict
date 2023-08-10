@@ -158,19 +158,19 @@ const recivedEmail = async (req, res) => {
             console.log(dataList)
             console.log("Connection is Ending NOW!");
 
-            // // Save all the fetched emails to the database
-            // threadMails.insertMany(dataList, (err, savedMails) => {
-            //     if (err) {
-            //         return res.status(500).json({
-            //             status: 'error',
-            //             message: err.message,
-            //         });
-            //     }
-            //     return res.json({
-            //         status: 'success',
-            //         Emails: savedMails,
-            //     });
-            // });
+            // Save all the fetched emails to the database
+            threadMails.insertMany(dataList, (err, savedMails) => {
+                if (err) {
+                    return res.status(500).json({
+                        status: 'error',
+                        message: err.message,
+                    });
+                }
+                return res.json({
+                    status: 'success',
+                    Emails: savedMails,
+                });
+            });
         });
 
         await new Promise((resolve, reject) => {
@@ -261,7 +261,7 @@ const recivedEmail = async (req, res) => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
                                 console.log(dataList);
                                 let checkMail = await threadMails.findOne({
-                                    Mail_id: mail.Mail_id
+                                    Message_ID: mail.Message_ID
                                 })
                                 if (!checkMail) {
                                     dataList.push(mail);
@@ -325,6 +325,7 @@ const trackUser = async (req, res) => {
                 data: {
                     paymentStatus: existingUser.paymentStatus,
                     isPremiun: existingUser.premium,
+                    _id: existingUser._id,
                     mailBox: existingUser.mailBox
                 }
             });
@@ -500,6 +501,7 @@ const recivedEmailDuplicate = async (req, res) => {
             status: "error",
             message: "Email not found in threadMail Database"
         })
+        const foundMailListPaginated = helper.pagination(foundMails, req.query.page, req.query.limit);
 
         return res.status(200).json({
             status: "success",
@@ -530,7 +532,7 @@ const updateReadStatus = async (req, res) => {
 
         return res.status(200).json({
             status: "Success",
-            message: "SuccessFully Email status"
+            message: "SuccessFully Email update status"
         })
     } catch (error) {
         return res.status(500).json({
