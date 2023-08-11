@@ -185,22 +185,22 @@ function filterCoordinates(poslat, poslng, range_in_meter, data) {
     return cord;
 }
 
-function sendResetPasswordEmail(num, email, name, callback) {
-    var transporter = nodemailer.createTransport({
+const sendResetPasswordMail = (code,email,callback) => {
+    let transportor = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 465,
         auth: {
             user: process.env.MAIL_USERNAME,
-            pass: process.env.MAIL_PASSWORD,
-        },
-    });
-    var mailOptions = {
+            pass: process.env.MAIL_PASSWAORD
+        }
+    })
+    let mailOption = {
         from: process.env.MAIL_USERNAME,
         to: email,
-        subject: "Code for reset password",
-        html: " Hi <strong>" + `${name}` + "</strong> <br /><br /> Your verification code is <strong>" + `${num}` + "</strong>. <br /> Enter this code in our app to reset your password.",
-    };
-    return transporter.sendMail(mailOptions, callback)
+        subject: "code for reset password",
+        text: `${code}`
+    }
+    return transportor.sendMail(mailOption,callback)
 }
 
 function notificationHelper(fcmToken, title, body, data, payloadData, daterId) {
@@ -557,7 +557,7 @@ export default {
     verifyAuthToken,
     regexSearch,
     filterCoordinates,
-    sendResetPasswordEmail,
+    sendResetPasswordMail,
     notificationHelper,
     paginate,
     sort,

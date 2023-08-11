@@ -333,6 +333,17 @@ const forgetPassword = async(req,res) =>{
 
         let otp = Math.floor(1000 + Math.random() * 9000);
 
+        // helpers.sendResetPasswordEmail(otp,req.body.email,"Abdul Maroof");
+        helpers.sendResetPasswordMail(otp , user.email,(error,response) => {
+            if (error) {return res.status(400).json({message:error.message})}
+            result = {
+                _id: result._id,
+                email:result.email,
+                code: code
+            }
+            return res.json({result})
+        });
+
         // updating Otp in User
 
         await User.findByIdAndUpdate({
@@ -352,6 +363,7 @@ const forgetPassword = async(req,res) =>{
     }
     catch(error)
     {
+        console.log(error);
         return res.status(500).json({
             status : 500,
             message : error.message,
