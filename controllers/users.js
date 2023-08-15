@@ -167,7 +167,6 @@ const register = async (req, res) => {
                 data: inserted,
             });
         }).catch(error => {
-            console.log(error)
             return res.status(500).json({
                 status: "error",
                 message: "An unexpected error occurred while proceeding your request.",
@@ -222,9 +221,9 @@ const login = async (req, res) => {
             });
         }
         // check role
-        let roleCheck = await Role.findById({_id : user.role})
-        // check if bar is not banned from the Admin
-        if(roleCheck.name != req.body.role)
+        let roleCheck = await Role.findOne({name : req.body.role})
+
+        if(user.role.toString() != roleCheck._id.toString())
         {
             return res.status(403).json({
                 status : 403,
