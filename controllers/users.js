@@ -216,10 +216,10 @@ const login = async (req, res) => {
                 trace: `{username: ${username}, password: ${password}}`
             });
         }
-
+        // check role
+        let roleCheck = await Role.findById({_id : user.role})
         // check if bar is not banned from the Admin
-
-        if(user.role != req.body.role)
+        if(roleCheck.name != req.body.role)
         {
             return res.status(403).json({
                 status : 403,
