@@ -43,6 +43,30 @@ const nearby = async(req,res) =>
     }
 
 }
+const pages = async(req,res) =>{
+    let {slug} = req.params;
+    try
+    {
+        
+        let page = await Page.findOne({
+            slug
+        });
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : page
+        })
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 200,
+            message : error.message,
+            data : {}
+        })
+    }   
+}
 export default{
     nearby,
+    pages
 };

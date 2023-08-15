@@ -10,6 +10,7 @@ import inquiries from '../controllers/inquiries.js';
 import users from '../controllers/users.js';
 import bar from '../controllers/barowner/bar.js';
 import admin from '../controllers/admin/admin.js';
+import page from '../controllers/page.js';
 const router = express.Router();
 router.get('/users/barOwnersDetails', helpers.verifyAuthToken, admin.barOwnersDetails)
 router.post("/category",category.store);
@@ -60,5 +61,11 @@ router.put('/bar/inquiries/:_id',helpers.verifyAuthToken,admin.updateInquiry)
 
 router.get('/users/getUserActivities',helpers.verifyAuthToken,admin.getUserActivities)
 router.put('/users/blockOrUnBlockUser',helpers.verifyAuthToken,admin.blockOrUnBlockUser)
+
+
+// Pages
+
+router.post('/page',page.store);
+router.get('/page/:slug',page.find);
 
 export default router;
