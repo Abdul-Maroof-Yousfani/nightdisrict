@@ -15,6 +15,71 @@ const home = (req, res) => {
     res.send('Hello From Home');
 }
 
+const social = async(req,res) =>{
+    try
+    {
+        let schema = Joi.object({
+            email : Joi.string(),
+            username : Joi.string(),
+            fcm : Joi.string(),
+            role : Joi.string()
+        })
+
+
+        const { error, value } = schema.validate(req.body);
+        if(error) return res.status(400).json({ status : 400,message : error.message })
+
+
+
+        // checking Role of the User
+
+        let result = await Role.findOne({name: req.body.role});
+   
+
+
+        let data = await  User.findOne({
+            email : req.body.email
+        })
+        if(!data)
+        {
+            data = new User({
+                username  : req.body.username,
+                username  : req.body.email,
+                password : "122",
+                role : result._id,
+                fcm : req.body.fcm
+                
+            })
+            data = await data.save()
+        }
+
+        // if user.role is matching the request comming from the login
+
+        if(data.role != req.body.role)
+        {
+            return res.status(403).json({ status : 403,message : "Only Customers are allowed to logged In!"})
+        }
+        
+        return res.json({ status : 200, message : "success" , data })
+
+
+        return res.status(200).json({
+            status : 200,
+            message : error.message,
+            data : {}
+        })
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        return res.status(500).json({
+            status : 500,
+            message : error.message
+        })
+    }
+}
+
 const register = async (req, res) => {
     
     try {
@@ -118,13 +183,15 @@ const register = async (req, res) => {
 }
 const login = async (req, res) => {
     try {
-        let { username, password , fcm} = req.body;
+        let { username, password , fcm , role} = req.body;
         const loginSchema = new SimpleSchema({
             username: String,
-            password: String
+            password: String,
+            role : String,
+            fcm  :String,
         }).newContext();
         
-        if (!loginSchema.validate({ username, password })) {
+        if (!loginSchema.validate({ username, password,role,fcm })) {
             return res.status(400).json({
                 status: "error",
                 message: "Username or Password is missing.",
@@ -151,6 +218,16 @@ const login = async (req, res) => {
         }
 
         // check if bar is not banned from the Admin
+
+        if(user.role != req.body.role)
+        {
+            return res.status(403).json({
+                status : 403,
+                message : "Only Customers are allowed to logged In!",
+                data : {}
+            })
+        }
+        
 
         if(!user.status) return res.status(403).json({
             status : 403,
@@ -199,6 +276,7 @@ const login = async (req, res) => {
             });
         }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             status: "error",
             message: "An unexpected error occurred while proceeding your request.",
@@ -713,5 +791,6 @@ export default{
     profile,
     favourite,
     favouritebars,
-    favouriteDrinks
+    favouriteDrinks,
+    social
 };

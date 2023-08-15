@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/home', userController.home);
 router.post('/', userController.register);
+router.post('/social', userController.social);
 router.put('/',helpers.verifyAuthToken ,userController.update);
 router.post('/login', userController.login);
 router.post('/selectMembership' ,  helper.verifyAuthToken, userController.selectMembership);

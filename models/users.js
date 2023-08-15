@@ -114,6 +114,11 @@ const usersSchema = new mongoose.Schema({
         default: 1
         //1 active, 2 delete, 4 inactive
     },
+    fcm: {
+        type: String,
+        default: ""
+        //1 active, 2 delete, 4 inactive
+    },
     phone: {
         type: Number,
         default: ""
