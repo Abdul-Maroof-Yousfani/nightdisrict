@@ -34,17 +34,17 @@ const social = async(req,res) =>{
         // checking Role of the User
 
         let result = await Role.findOne({name: req.body.role});
-   
 
-
+       
         let data = await  User.findOne({
             email : req.body.email
         })
+
         if(!data)
         {
             data = new User({
+                email  : req.body.email,
                 username  : req.body.username,
-                username  : req.body.email,
                 password : "122",
                 role : result._id,
                 fcm : req.body.fcm
@@ -53,9 +53,14 @@ const social = async(req,res) =>{
             data = await data.save()
         }
 
+
+        // check user id
+
+        let dataRole = await Role.findById({_id: data.role});
+
         // if user.role is matching the request comming from the login
 
-        if(data.role != req.body.role)
+        if(dataRole.name != req.body.role)
         {
             return res.status(403).json({ status : 403,message : "Only Customers are allowed to logged In!"})
         }
