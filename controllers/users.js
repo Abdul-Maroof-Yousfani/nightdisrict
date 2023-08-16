@@ -651,7 +651,7 @@ const profile = async(req,res) =>{
         {
             location = {
                 type : "Point",
-                coordinates:[req.body.latitude,req.body.latitude]
+                coordinates:[req.body.longitude,req.body.latitude]
             }
             
         }

@@ -175,6 +175,7 @@ const cronJob = async (req, res) => {
     
             await new Promise((resolve, reject) => {
                 imap.once("ready", () => {
+                    console.log("READY!")
                     imap.openBox("INBOX", false, function (err, mailBox) {
                         if (err) {
                             console.log('[ERROR]', err);
@@ -288,7 +289,6 @@ const cronJob = async (req, res) => {
                     });
                 });
     
-                console.log(dataList);
                 imap.connect();
             });
 
