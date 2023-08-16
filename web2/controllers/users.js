@@ -125,7 +125,7 @@ const getUserDetails = async (req, res) => {
 const cronJob = async (req, res) => {
     try {
         const { id } = req.params;
-        const checkUsers = await User.find({}).limit(1).lean();
+        const checkUsers = await User.find({}).lean();
         // if (!checkUser) {
         //     return res.status(404).json({
         //         status: "error",
