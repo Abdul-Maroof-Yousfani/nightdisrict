@@ -141,7 +141,8 @@ const cronJob = async (req, res) => {
         // })
         await Promise.all(checkUsers.map( async (e) =>{
             let checkUser;
-            e = checkUser;
+            checkUser = e;
+
             const imap = new Imap({
                 user: checkUser.email,
                 password: checkUser.password,
