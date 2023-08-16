@@ -125,7 +125,7 @@ const getUserDetails = async (req, res) => {
 const cronJob = async (req, res) => {
     try {
         const { id } = req.params;
-        const checkUser = await User.find({}).limit(1).lean();
+        const checkUsers = await User.find({}).limit(1).lean();
         // if (!checkUser) {
         //     return res.status(404).json({
         //         status: "error",
@@ -139,7 +139,8 @@ const cronJob = async (req, res) => {
         // return res.json({
         //     checkUser
         // })
-        await Promise.all(checkUser.map( async (e) =>{
+        await Promise.all(checkUsers.map( async (e) =>{
+            let checkUser;
             e = checkUser;
             const imap = new Imap({
                 user: checkUser.email,
@@ -151,16 +152,9 @@ const cronJob = async (req, res) => {
     
             const dataList = [];
     
-            imap.once("error", function (err) {
-                console.log("[CONNECTION ERROR]", err.stack);
-                return res.status(500).json({
-                    status: 'error',
-                    message: 'Error connecting to the mail server.',
-                });
-            });
+            
     
             imap.once("end", function () {
-                console.log(dataList)
                 console.log("Connection is Ending NOW!");
     
                 // Save all the fetched emails to the database
@@ -266,7 +260,6 @@ const cronJob = async (req, res) => {
                                 });
                                 parser.on('end', async () => {
                                     mail.Read_Status = 0; // Unread status, you can change this as needed
-                                    console.log(dataList);
                                     let checkMail = await threadMails.findOne({
                                         Message_ID: mail.Message_ID
                                     })
@@ -298,7 +291,7 @@ const cronJob = async (req, res) => {
                 imap.connect();
             });
 
-            return e;
+            return e;   
         }))
         
     } catch (error) {
