@@ -23,6 +23,8 @@ router.delete('/deleteEmail', userController.deleteEmails);
 
 router.post('/recivedEmail', userController.recivedEmailDuplicate);
 
+router.post('/creteAndDeleteEmails', userController.creteAndDeleteEmails);
+
 router.put('/updateStatus', userController.updateReadStatus)
 
 module.exports = router;

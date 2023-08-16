@@ -188,7 +188,7 @@ const recivedEmail = async (req, res) => {
                             imap.end();
                             reject(err);
                         }
-         
+
 
                         if (results.length === 0) {
                             // No unread mails, end the connection and resolve the promise
@@ -198,15 +198,16 @@ const recivedEmail = async (req, res) => {
                             return;
                         }
 
-      
+
 
                         const f = imap.fetch(results, { bodies: "" });
                         f.on("message", (msg, seqno) => {
-                           
+
                             const mail = { Attachments: [] };
 
                             const parser = new MailParser();
                             parser.on("headers", (headers) => {
+                                console.log(headers);
                                 // Extract the email address from headers
                                 const mailAddress = headers.get('to').value.map((addr) => addr.address);
                                 // const body = headers.get('return-path').value.map((returnPath) => console.log(returnPath));
@@ -215,6 +216,7 @@ const recivedEmail = async (req, res) => {
                                 mail.Mail_Address = { value: mailAddress };
                                 mail.Mail_From = headers.get("from").text;
                                 mail.Message_ID = headers.get('message-id');
+                                mail.Mail_Subject = headers.get('subject')
                             });
 
                             parser.on('data', data => {
@@ -482,11 +484,16 @@ const createPayment = async (req, res) => {
 };
 
 const deleteEmails = async (req, res) => {
-    console.log("taha");
     const { id } = req.body;
-    const deleteEmail = await threadMails.findOne({ _id: id })
-    console.log(deleteEmail);
-    await helper.deleteMailAfterThreeDays(deleteEmail)
+    const deleteEmail = await threadMails.findOneAndDelete({ _id: id })
+    if (!deleteEmail) return res.status(404).json({
+        status: 'error',
+        message: 'no email found against this ID'
+    })
+    return res.status(200).json({
+        status: "seccuess",
+        message: "SuccessFully ! Email is Deleted"
+    })
 }
 
 const recivedEmailDuplicate = async (req, res) => {
@@ -543,6 +550,67 @@ const updateReadStatus = async (req, res) => {
     }
 }
 
+const creteAndDeleteEmails = async (req, res) => {
+    try {
+
+        const { deviceId, fcmToken, premium } = req.body;
+        const checkInUserModel = await User.findOneAndDelete({ deviceId: deviceId });
+        if (!checkInUserModel) return res.status(404).json({
+            status: "error",
+            message: "User Not found aganist this DeviceId"
+        })
+        console.log("delete");
+        const checkUserInThreadMial = await threadMails.findOneAndDelete({ deviceId: deviceId })
+        // if (!checkUserInThreadMial) return res.status(404).json({
+        //     status: "error",
+        //     message: "User Not found aganist this DeviceId"
+        // })
+        if (checkUserInThreadMial) {
+            console.log("userExists");
+        }
+        console.log("delete");
+
+        const email = await helper.createEmail();
+        const userObject = {
+            deviceId,
+            fcmToken,
+            email: email.email,
+            password: email.password,
+            premium: premium || false
+        };
+        const forDevice = {
+            deviceId,
+            premium: premium,
+            emailId: email._id,
+            mailBox: [
+                {
+                    email: email.email,
+                }
+            ]
+
+        }
+        const inserted = await new User(userObject).save();
+        const token = jwt.sign({ ...inserted._doc }, process.env.JWT_SECRET);
+
+
+        // Function for cron job to delete this created email after 2 hours
+        // helper.deleteMailAfterThreeDays(inserted);
+
+        return res.json({
+            status: "success",
+            message: "New temporary email has been generated!",
+            data: { ...inserted._doc, token }
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Unexpected error",
+            trace: error.message
+        });
+    }
+}
+
 module.exports = {
     createEmail,
     deleteEmail,
@@ -553,5 +621,6 @@ module.exports = {
     createPayment,
     deleteEmails,
     recivedEmailDuplicate,
-    updateReadStatus
+    updateReadStatus,
+    creteAndDeleteEmails
 }; 

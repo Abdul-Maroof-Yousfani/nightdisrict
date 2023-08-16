@@ -11,7 +11,8 @@ const threadMailsSchema = new mongoose.Schema({
     Mail_From: { type: String },
     Mail_Text: { type: String },
     Read_Status: { type: Number },
-    Message_ID : {type : String}
+    Message_ID: { type: String },
+    Mail_Subject: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('threadMails', threadMailsSchema);
