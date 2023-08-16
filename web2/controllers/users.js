@@ -166,26 +166,20 @@ const cronJob = async (req, res) => {
                             message: err.message,
                         });
                     }
-                    return res.status(400).json({
-                        status: 'success',
-                        Emails: savedMails,
-                    });
+                    
                 });
             });
     
             await new Promise((resolve, reject) => {
                 imap.once("ready", () => {
-                    console.log("READY!")
                     imap.openBox("INBOX", false, function (err, mailBox) {
                         if (err) {
-                            console.log('[ERROR]', err);
                             imap.end();
                             reject(err);
                         }
     
                         imap.search(["UNSEEN"], function (err, results) {
                             if (err) {
-                                console.log("Error fetching messages:", err);
                                 imap.end();
                                 reject(err);
                             }
@@ -193,7 +187,6 @@ const cronJob = async (req, res) => {
     
                             if (results.length === 0) {
                                 // No unread mails, end the connection and resolve the promise
-                                console.log("No unread mails");
                                 imap.end();
                                 resolve();
                                 return;
@@ -208,7 +201,6 @@ const cronJob = async (req, res) => {
     
                                 const parser = new MailParser();
                                 parser.on("headers", (headers) => {
-                                    console.log(headers);
                                     // Extract the email address from headers
                                     const mailAddress = headers.get('to').value.map((addr) => addr.address);
                                     // const body = headers.get('return-path').value.map((returnPath) => console.log(returnPath));
@@ -273,7 +265,6 @@ const cronJob = async (req, res) => {
                             });
     
                             f.once("error", function (err) {
-                                console.log("Error fetching messages:", err);
                                 f.removeAllListeners('end');
                                 f.removeAllListeners('message');
                                 imap.end();
@@ -281,7 +272,6 @@ const cronJob = async (req, res) => {
                             });
     
                             f.once("end", function () {
-                                console.log("Done fetching all unseen messages.");
                                 imap.end();
                                 resolve();
                             });
@@ -290,11 +280,15 @@ const cronJob = async (req, res) => {
                 });
     
                 imap.connect();
+                
             });
 
-            return e;   
+            return e;
         }))
-        
+        return res.status(400).json({
+            status: 'success',
+            Emails: [],
+                    });
     } catch (error) {
         return res.status(500).json({
             status: 'error',
