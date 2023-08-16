@@ -289,6 +289,7 @@ const recivedEmail = async (req, res) => {
                 });
             });
 
+            console.log(dataList);
             imap.connect();
         });
     } catch (error) {
@@ -513,7 +514,7 @@ const recivedEmailDuplicate = async (req, res) => {
         return res.status(200).json({
             status: "success",
             message: "success",
-            data: foundMails
+            data: foundMailListPaginated
         })
 
 

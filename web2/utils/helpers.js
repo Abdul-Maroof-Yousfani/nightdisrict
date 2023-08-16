@@ -160,6 +160,10 @@ function pagination(records, page = 1, limit = 10) {
     results.result = records.slice(startIndex, endIndex);
     return results;
 }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 module.exports = {
     sendResetPasswordEmail,
     validateUsername,
