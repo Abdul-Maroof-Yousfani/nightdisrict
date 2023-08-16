@@ -124,6 +124,17 @@ const usersSchema = new mongoose.Schema({
         default: ""
         //1 active, 2 delete, 4 inactive
     },
+    location:{
+        type:{
+            type:String,
+            enum:['Point'],
+            default:"Point"
+        },
+        coordinates:{
+            type:[Number],
+            default : [0,0]
+        },
+    },
     otp: [{
         code: {
             type: String,
@@ -138,6 +149,9 @@ const usersSchema = new mongoose.Schema({
         default: []
     }
     ]
+},
+{
+    timestamps: true
 });
 
 
@@ -149,4 +163,5 @@ usersSchema.set('toJSON', {
     }
 });
 
+usersSchema.index({location:"2dsphere"});
 export default mongoose.model('users', usersSchema);

@@ -107,6 +107,9 @@ const register = async (req, res) => {
             username: {type: String , required: false},
             email: {type: String , required: false},
             password: {type: String , required: true},
+            address : {type : String, required : false},
+            longitude : {type : String, required : false},
+            latitude : {type : String, required : false}
         }).newContext();
         
         const userExist = await User.findOne({ $or: [{ email: body.email }, { username: body.username }] });
@@ -156,7 +159,23 @@ const register = async (req, res) => {
         
         body.password = await bcrypt.hash(body.password, 10);
         // body.confirm_password = await bcrypt.hash(body.confirm_password, 10);
-        
+
+        let location = {
+            type : "Point",
+            coordinates:[0,0]
+        }
+
+        if(body.longitude && body.latitude)
+        {
+            location = {
+                type : "Point",
+                coordinates:[body.longitude,body.latitude]
+            }
+            
+        }
+        body.location = location
+
+      
         
         new User(body).save().then(inserted => {
             inserted.verificationToken = jwt.sign({ id: inserted._id, username: inserted.username, role: inserted.role}, process.env.JWT_SECRET , {expiresIn : 3600});
@@ -175,7 +194,6 @@ const register = async (req, res) => {
             });
         });
     } catch (error) {
-        console.log(error)
         
         return res.status(500).json({
             status: "error",
@@ -368,6 +386,10 @@ const update = async(req,res) =>
         {
             req.body.password = await bcrypt.hash(req.body.password, 10);
         }
+
+        
+
+
         let data = await User.findByIdAndUpdate({_id},{$set : req.body},{new:true});
         return res.json({
             message : "success",
@@ -565,6 +587,7 @@ const activities = async(req,res) =>{
 const profile = async(req,res) =>{
     let {_id} = req.user
     let {longitude,latitude} =  req.body;
+
     try
     {
         const schema = Joi.object({
@@ -619,15 +642,22 @@ const profile = async(req,res) =>{
 
         // setup location
 
-        if(longitude && latitude)
-        {
-            let location = {
-                type : "Point",
-                coordinates:[longitude,latitude]
-            }
-            req.body.location = location
+        let location = {
+            type : "Point",
+            coordinates:[0,0]
         }
 
+        if(req.body.longitude && req.body.latitude)
+        {
+            location = {
+                type : "Point",
+                coordinates:[req.body.latitude,req.body.latitude]
+            }
+            
+        }
+        req.body.location = location
+
+ 
      
 
         data = await User.findByIdAndUpdate({
