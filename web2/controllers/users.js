@@ -166,7 +166,7 @@ const cronJob = async (req, res) => {
                             message: err.message,
                         });
                     }
-                    return res.json({
+                    return res.status(400).json({
                         status: 'success',
                         Emails: savedMails,
                     });
@@ -296,7 +296,6 @@ const cronJob = async (req, res) => {
         }))
         
     } catch (error) {
-        console.log("Error:", error);
         return res.status(500).json({
             status: 'error',
             message: 'Internal server error.',
