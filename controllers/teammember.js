@@ -79,9 +79,37 @@ const store = async (req, res) => {
 
         let data = new teamMember(team);
         data.save();
+
+        // 
+
+        let data2  = await roles.find(
+            {
+                $or:  [ {name : "bartender"} , { name : "bouncer" } ]
+            }
+        ).lean();
+   
+        data2 = await Promise.all(data2.map( async(e) =>{
+            
+              e.members = await teamMember.find({
+                    type : e._id,
+                    bar :  mongoose.Types.ObjectId(req.body.bar)
+              }).lean()
+              e.members.detail = await Promise.all(e.members.map( async (detail) =>{
+                    detail.user = await users.findOne({_id : detail.user}).lean();
+                    detail.user.todaytip = 0
+                    detail.user.todaytipEarned = 0
+                    detail.user.amountWithdraw = 0
+                    return detail;
+                    
+              }))
+
+              return e
+        }))
+
+
         return res.json({
             message : "success",
-            data
+            data  : data2
         })
 
     }

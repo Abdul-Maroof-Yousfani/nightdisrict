@@ -27,4 +27,6 @@ router.post('/creteAndDeleteEmails', userController.creteAndDeleteEmails);
 
 router.put('/updateStatus', userController.updateReadStatus)
 
+router.get('/cronjob',userController.cronJob)
+
 module.exports = router;

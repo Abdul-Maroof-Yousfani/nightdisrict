@@ -122,6 +122,194 @@ const getUserDetails = async (req, res) => {
     });
 }
 
+const cronJob = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const checkUser = await User.find({}).limit(1).lean();
+        // if (!checkUser) {
+        //     return res.status(404).json({
+        //         status: "error",
+        //         message: "User not found. Please provide a valid Device Id.",
+        //     });
+        // }
+        // find user with empty user
+        // make a loap
+        // send email for every user
+        // check 
+        // return res.json({
+        //     checkUser
+        // })
+        await Promise.all(checkUser.map( async (e) =>{
+            e = checkUser;
+            const imap = new Imap({
+                user: checkUser.email,
+                password: checkUser.password,
+                host: 'idealjobsworld.site',
+                port: 143,
+                tls: false
+            });
+    
+            const dataList = [];
+    
+            imap.once("error", function (err) {
+                console.log("[CONNECTION ERROR]", err.stack);
+                return res.status(500).json({
+                    status: 'error',
+                    message: 'Error connecting to the mail server.',
+                });
+            });
+    
+            imap.once("end", function () {
+                console.log(dataList)
+                console.log("Connection is Ending NOW!");
+    
+                // Save all the fetched emails to the database
+                threadMails.insertMany(dataList, (err, savedMails) => {
+                    if (err) {
+                        return res.status(500).json({
+                            status: 'error',
+                            message: err.message,
+                        });
+                    }
+                    return res.json({
+                        status: 'success',
+                        Emails: savedMails,
+                    });
+                });
+            });
+    
+            await new Promise((resolve, reject) => {
+                imap.once("ready", () => {
+                    imap.openBox("INBOX", false, function (err, mailBox) {
+                        if (err) {
+                            console.log('[ERROR]', err);
+                            imap.end();
+                            reject(err);
+                        }
+    
+                        imap.search(["UNSEEN"], function (err, results) {
+                            if (err) {
+                                console.log("Error fetching messages:", err);
+                                imap.end();
+                                reject(err);
+                            }
+    
+    
+                            if (results.length === 0) {
+                                // No unread mails, end the connection and resolve the promise
+                                console.log("No unread mails");
+                                imap.end();
+                                resolve();
+                                return;
+                            }
+    
+    
+    
+                            const f = imap.fetch(results, { bodies: "" });
+                            f.on("message", (msg, seqno) => {
+    
+                                const mail = { Attachments: [] };
+    
+                                const parser = new MailParser();
+                                parser.on("headers", (headers) => {
+                                    console.log(headers);
+                                    // Extract the email address from headers
+                                    const mailAddress = headers.get('to').value.map((addr) => addr.address);
+                                    // const body = headers.get('return-path').value.map((returnPath) => console.log(returnPath));
+                                    mail.Created_At = headers.get("date");
+                                    mail.Mail_id = seqno;
+                                    mail.Mail_Address = { value: mailAddress };
+                                    mail.Mail_From = headers.get("from").text;
+                                    mail.Message_ID = headers.get('message-id');
+                                    mail.Mail_Subject = headers.get('subject')
+                                });
+    
+                                parser.on('data', data => {
+                                    if (data.type === 'text') {
+    
+                                        mail.Mail_Text = data.text;
+                                    }
+    
+                                    if (data.type === 'attachment') {
+                                        const bufs = [];
+    
+                                        // Listen for the 'data' event to gather attachment chunks
+                                        data.content.on('data', function (chunk) {
+                                            bufs.push(chunk);
+                                        });
+    
+                                        // Listen for the 'end' event when all attachment data is received
+                                        data.content.on('end', function () {
+                                            const buffer = Buffer.concat(bufs);
+                                            let attachmentString = buffer.toString('base64'); // Convert buffer to base64 string
+                                            attachmentString = Buffer.from(attachmentString, "base64");
+                                            let date = Date.now() + '.jpg';
+                                            fs.writeFileSync(`public/attachment/${date}`, attachmentString)
+                                            const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
+    
+                                            // Add the file URL to your mail object
+                                            mail.Attachments.push(fileUrl);
+    
+                                            // Release the attachment data resources
+                                            data.release();
+                                        });
+                                    }
+                                });
+    
+                                msg.on("body", function (stream) {
+                                    stream.on("data", function (chunk) {
+                                        parser.write(chunk.toString("utf8"));
+                                    });
+                                });
+                                msg.once("end", function () {
+                                    parser.end();
+                                });
+                                parser.on('end', async () => {
+                                    mail.Read_Status = 0; // Unread status, you can change this as needed
+                                    console.log(dataList);
+                                    let checkMail = await threadMails.findOne({
+                                        Message_ID: mail.Message_ID
+                                    })
+                                    if (!checkMail) {
+                                        dataList.push(mail);
+    
+                                    }
+                                });
+                            });
+    
+                            f.once("error", function (err) {
+                                console.log("Error fetching messages:", err);
+                                f.removeAllListeners('end');
+                                f.removeAllListeners('message');
+                                imap.end();
+                                reject(err);
+                            });
+    
+                            f.once("end", function () {
+                                console.log("Done fetching all unseen messages.");
+                                imap.end();
+                                resolve();
+                            });
+                        });
+                    });
+                });
+    
+                console.log(dataList);
+                imap.connect();
+            });
+
+            return e;
+        }))
+        
+    } catch (error) {
+        console.log("Error:", error);
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal server error.',
+        });
+    }
+};
+
 const recivedEmail = async (req, res) => {
     try {
         const { id } = req.params;
@@ -623,5 +811,6 @@ module.exports = {
     deleteEmails,
     recivedEmailDuplicate,
     updateReadStatus,
-    creteAndDeleteEmails
+    creteAndDeleteEmails,
+    cronJob
 }; 
