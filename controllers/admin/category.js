@@ -6,6 +6,7 @@ import superMenu from '../../models/superMenu.js';
 import menu from '../../models/menu.js';
 import users from '../../models/users.js';
 import reviews from '../../models/reviews.js';
+import pourtype from '../../models/pourtype.js';
 
 const store = async (req, res) => {
     let { name, description, category_image, parent } = req.body;
@@ -187,10 +188,29 @@ const parentCategory = async (req, res) => {
         data = await Promise.all(data.map(async (e) => {
             e.items = await superMenu.find({ category: e._id }).lean()
             e.items = e.items ? e.items : []
+           
+            // get a subcategory
+           
 
             if(e.items)
             {
                 e.items = await Promise.all(e.items.map( async (item) =>{
+
+                    // get categories and subcategories
+
+                    
+                    if(item.category)
+                    {
+                        let category = await menuCategory.findById({_id : item.category},{name : 1});
+                        item.category = category.name
+                    }
+                    if(item.subCategory)
+                    {
+                        let subCategory = await menuCategory.findById({_id : item.subCategory},{name : 1});
+                        item.subCategory = subCategory.name
+                    }
+
+
 
                     // get item name from the bar
                     let itemsdata = await menu.findOne({
@@ -198,7 +218,21 @@ const parentCategory = async (req, res) => {
                     }).lean()
                     if(itemsdata)
                     {
+                        
+                        // add variation data to
+
+                        item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
+                            // get variation data
+                            let newVariations = await pourtype.findOne({
+                                _id : va.variant
+                            })
+                            va.name = newVariations.name
+                            return va
+                        }))
+
+                        
                         // get reviews from the customer
+
                         if(itemsdata.reviews)
                         {
                             item.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
@@ -207,7 +241,6 @@ const parentCategory = async (req, res) => {
                                 // get customer data and review information
     
                                 let userInfo = await users.findOne({_id : rev.customer});
-                                console.log(userInfo)
                                 if(userInfo)
                                 {
                                     rev.name = userInfo.username
