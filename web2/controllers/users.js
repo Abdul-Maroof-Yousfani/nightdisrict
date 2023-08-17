@@ -6,12 +6,14 @@ const User = require('../models/users.js');
 const Order = require('../models/order.js');
 const Device = require('../models/device.js');
 const threadMails = require('../models/threadMails.js');
+const Cronjob = require('../models/cronJob.js')
 const Payment = require('../models/payment.js');
 const SimpleSchema = require('simpl-schema');
 const Imap = require('imap');
 const MailParser = require('mailparser').MailParser;
 const Promise = require('bluebird');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const createEmail = async (req, res) => {
     try {
@@ -139,7 +141,7 @@ const cronJob = async (req, res) => {
         // return res.json({
         //     checkUser
         // })
-        await Promise.all(checkUsers.map( async (e) =>{
+        await Promise.all(checkUsers.map(async (e) => {
             let checkUser;
             checkUser = e;
 
@@ -150,14 +152,14 @@ const cronJob = async (req, res) => {
                 port: 143,
                 tls: false
             });
-    
+
             const dataList = [];
-    
-            
-    
+
+
+
             imap.once("end", function () {
                 console.log("Connection is Ending NOW!");
-    
+
                 // Save all the fetched emails to the database
                 threadMails.insertMany(dataList, (err, savedMails) => {
                     if (err) {
@@ -166,10 +168,10 @@ const cronJob = async (req, res) => {
                             message: err.message,
                         });
                     }
-                    
+
                 });
             });
-    
+
             await new Promise((resolve, reject) => {
                 imap.once("ready", () => {
                     imap.openBox("INBOX", false, function (err, mailBox) {
@@ -177,28 +179,28 @@ const cronJob = async (req, res) => {
                             imap.end();
                             reject(err);
                         }
-    
+
                         imap.search(["UNSEEN"], function (err, results) {
                             if (err) {
                                 imap.end();
                                 reject(err);
                             }
-    
-    
+
+
                             if (results.length === 0) {
                                 // No unread mails, end the connection and resolve the promise
                                 imap.end();
                                 resolve();
                                 return;
                             }
-    
-    
-    
+
+
+
                             const f = imap.fetch(results, { bodies: "" });
                             f.on("message", (msg, seqno) => {
-    
+
                                 const mail = { Attachments: [] };
-    
+
                                 const parser = new MailParser();
                                 parser.on("headers", (headers) => {
                                     // Extract the email address from headers
@@ -211,21 +213,21 @@ const cronJob = async (req, res) => {
                                     mail.Message_ID = headers.get('message-id');
                                     mail.Mail_Subject = headers.get('subject')
                                 });
-    
+
                                 parser.on('data', data => {
                                     if (data.type === 'text') {
-    
+
                                         mail.Mail_Text = data.text;
                                     }
-    
+
                                     if (data.type === 'attachment') {
                                         const bufs = [];
-    
+
                                         // Listen for the 'data' event to gather attachment chunks
                                         data.content.on('data', function (chunk) {
                                             bufs.push(chunk);
                                         });
-    
+
                                         // Listen for the 'end' event when all attachment data is received
                                         data.content.on('end', function () {
                                             const buffer = Buffer.concat(bufs);
@@ -234,16 +236,16 @@ const cronJob = async (req, res) => {
                                             let date = Date.now() + '.jpg';
                                             fs.writeFileSync(`public/attachment/${date}`, attachmentString)
                                             const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
-    
+
                                             // Add the file URL to your mail object
                                             mail.Attachments.push(fileUrl);
-    
+
                                             // Release the attachment data resources
                                             data.release();
                                         });
                                     }
                                 });
-    
+
                                 msg.on("body", function (stream) {
                                     stream.on("data", function (chunk) {
                                         parser.write(chunk.toString("utf8"));
@@ -259,18 +261,18 @@ const cronJob = async (req, res) => {
                                     })
                                     if (!checkMail) {
                                         dataList.push(mail);
-    
+
                                     }
                                 });
                             });
-    
+
                             f.once("error", function (err) {
                                 f.removeAllListeners('end');
                                 f.removeAllListeners('message');
                                 imap.end();
                                 reject(err);
                             });
-    
+
                             f.once("end", function () {
                                 imap.end();
                                 resolve();
@@ -278,17 +280,23 @@ const cronJob = async (req, res) => {
                         });
                     });
                 });
-    
+
                 imap.connect();
-                
+
             });
 
             return e;
         }))
+
+        const defaultData = { key: 'defaultValue' };
+        const savedEntry = await new Cronjob({ run: JSON.stringify(defaultData) }).save();
+
+        console.log(savedEntry);
+        
         return res.status(400).json({
             status: 'success',
             Emails: [],
-                    });
+        });
     } catch (error) {
         return res.status(500).json({
             status: 'error',
@@ -631,9 +639,12 @@ const createPayment = async (req, res) => {
         const savedPayment = await newPayment.save();
         var timeObject = new Date();
         timeObject.setTime(timeObject.getTime() + 1000 * 60)
-        await Device.findOneAndUpdate(
-            { deviceId: body.deviceId },
-            { $set: { premium: true, paymentStatus: "paid", expireAt: timeObject } },
+        const expireAt = moment().add(1, 'month').toDate();
+
+        // Update the user information in the database
+        const updatedUser = await Device.findOneAndUpdate(
+            { deviceId },
+            { $set: { premium: true, paymentStatus: "paid", expireAt:expireAt } },
             { new: true }
         ).lean();
 
