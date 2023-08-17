@@ -10,6 +10,8 @@ import Joi from 'joi';
 import bar from '../models/bar.js';
 import helpers from '../utils/helpers.js';
 import users from '../models/users.js';
+import menu from '../models/menu.js';
+import reviews from '../models/reviews.js';
 
 const home = (req, res) => {
     res.send('Hello From Home');
@@ -810,6 +812,63 @@ const favouriteDrinks = async(req,res) =>{
     }
 }
 
+// adding reviews to the bar items
+
+
+const review  = async(req,res) =>{
+    let {item,variation,customer,rating,bar,message} = req.body;
+    let body = req.body;
+
+    try
+    {
+        // check item, if item exists
+        
+        // get customer from the access token
+
+        body.customer = req.user._id;
+
+        
+
+        let checkMenu = await menu.findOne({
+            item,
+            bar
+        })
+
+        // adding a review to  a drink
+
+        let drink = new reviews(req.body);
+        drink = await drink.save();
+
+        // let checDat = await menu.findOne({
+        //     item
+        // })
+        // console.log(checDat);
+        // return;
+
+        let newData = await menu.findOneAndUpdate({
+            item : item
+        },{
+            $push: { "reviews" : { "customer" : body.item , "review" : drink._id } } 
+        },{
+            new : true
+        })
+        return res.status(200).json({
+            status : 200,
+            message : 'success',
+            data : newData
+        })
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.status(200).json({
+            status : 200,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 export default{
     home,
     register,
@@ -826,5 +885,6 @@ export default{
     favourite,
     favouritebars,
     favouriteDrinks,
-    social
+    social,
+    review
 };

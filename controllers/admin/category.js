@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import menuCategory from '../../models/menuCategory.js';
 import fs from 'fs';
 import superMenu from '../../models/superMenu.js';
+import menu from '../../models/menu.js';
+import users from '../../models/users.js';
+import reviews from '../../models/reviews.js';
 
 const store = async (req, res) => {
     let { name, description, category_image, parent } = req.body;
@@ -182,11 +185,71 @@ const parentCategory = async (req, res) => {
 
         let data = await menuCategory.find({ parent: null }).lean();
         data = await Promise.all(data.map(async (e) => {
-            e.items = await superMenu.find({ category: e._id })
+            e.items = await superMenu.find({ category: e._id }).lean()
             e.items = e.items ? e.items : []
-            return e
+
+            if(e.items)
+            {
+                e.items = await Promise.all(e.items.map( async (item) =>{
+
+                    // get item name from the bar
+                    let itemsdata = await menu.findOne({
+                        item : item._id
+                    }).lean()
+                    if(itemsdata)
+                    {
+                        // get reviews from the customer
+                        if(itemsdata.reviews)
+                        {
+                            item.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
+                                // get customer data
+    
+                                // get customer data and review information
+    
+                                let userInfo = await users.findOne({_id : rev.customer});
+                                console.log(userInfo)
+                                if(userInfo)
+                                {
+                                    rev.name = userInfo.username
+                                    rev.picture = userInfo.profile_picture
+                                }
+                 
+                                // get review information
+    
+                                let reviewInfor = await reviews.findOne({
+                                    _id : rev.review
+                                })
+                                if(reviewInfor)
+                                {
+                                    rev.message = reviewInfor.message
+                                    rev.count = reviewInfor.rating
+                                }
+                        
+    
+    
+                                return rev;
+    
+    
+                                
+    
+                            }))
+                        }
+                        else
+                        {
+                            item.reviews = []
+                        }
+                       
+
+                    }
+
+                    return item;
+                    
+
+                }))
+            }
 
             return e
+
         }))
 
 

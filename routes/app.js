@@ -42,6 +42,12 @@ router.get('/payments', helpers.verifyAuthToken, order.payment);
 // Events
 
 
+// Reviews for bars,tickets
+
+
+router.post('/review',helpers.verifyAuthToken,users.review);
+
+
 
 
 // Setting Bar and Drinks As Favourite
@@ -50,6 +56,12 @@ router.get('/payments', helpers.verifyAuthToken, order.payment);
 router.post('/favourite',helpers.verifyAuthToken, users.favourite)
 router.get('/favourite/bars',helpers.verifyAuthToken, users.favouritebars)
 router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
+
+
+
+//  Add a review to the Drink /Events Promotions
+
+
 
 
 

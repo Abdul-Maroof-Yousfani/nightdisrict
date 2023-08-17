@@ -13,12 +13,14 @@ import order from '../models/order.js';
 
 const index = async(req,res) =>
 {
-    let events , orders , promotions = [];
+    let events = [];
+    let orders = [];
+    let promotions = [];
 
     try
     {
         let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
-
+        
 
         // get Events with respect to Bar
 
@@ -63,7 +65,7 @@ const index = async(req,res) =>
 
         // recent Orders
 
-        orders = await Promise.all(orders)
+        // orders = await Promise.all(orders)
 
        
 

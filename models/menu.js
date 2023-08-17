@@ -31,7 +31,20 @@ const menu = new mongoose.Schema({
                 default : 0
             }
         }
-    ]
+    ],
+    reviews:[{
+        customer : {
+            type : String,
+            ref : "users",
+            default : null
+        },
+        review : {
+            type : String,
+            default : null,
+            ref : "reviews"
+
+        }
+    }]
    
 });
 export default mongoose.model('menu', menu);
