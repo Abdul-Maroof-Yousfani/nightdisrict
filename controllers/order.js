@@ -56,8 +56,11 @@ const store = async (req, res) => {
         // Check Payment Types
 
         paymentCode = await helpers.checkPaymentType(subscriptionType);
+        subscriptionType = await helpers.checkPaymentType(subscriptionType);
+   
         paymentCode = paymentCode.code
-        subscriptionType = paymentCode._id
+        subscriptionType = subscriptionType._id
+
 
       
         // check Customers
@@ -72,9 +75,10 @@ const store = async (req, res) => {
 
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
-    
+        console.log(subscriptionType)
         let orderData =  new Order(
-            {subscriptionType,
+            {
+            subscriptionType,
             orderNo,
             items,
             customer : req.user._id,
@@ -84,6 +88,7 @@ const store = async (req, res) => {
 
         }
         );
+
         await orderData.save();
 
         if(orderData)

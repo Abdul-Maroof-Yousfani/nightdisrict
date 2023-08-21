@@ -11,6 +11,7 @@ import superMenu from '../models/superMenu.js';
 import promotion from '../models/promotion.js';
 import hashtag from '../models/hashtag.js';
 import users from '../models/users.js';
+import order from '../models/order.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -323,7 +324,37 @@ const nearbyBars = async(longitude,latitude) =>{
                 $minDistance: 0,
                 $maxDistance: 10000
             }
-        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1});
+        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1}).lean();
+        // data = await Promise.all(data.map( async (e) =>{
+        //     return getBarById(e._id);
+            
+        // }))
+        return data
+
+    }
+    catch(error)
+    {
+        console.log(error);
+    }
+
+}
+
+const nearbyEvents = async(longitude,latitude) =>{
+    try
+    {   
+        let data  = await event.find({location: {
+
+            $near: {
+                $geometry: { type: "Point", coordinates: [longitude, latitude] },
+                $minDistance: 0,
+                $maxDistance: 10000
+            }
+        }}).lean();
+        data = await Promise.all(data.map( async (e) =>{
+            return getEventById(e._id);
+            
+        }))
+        console.log(data);
         return data
 
     }
@@ -367,6 +398,53 @@ const getHastags = async(_id) =>{
     }
 }
 
+
+// Order Type
+
+const orderType = async(id) =>
+{
+    try
+    {
+        let data = await subscriptiontype.findById({_id : id}).lean();
+        return data.code;
+    }
+    catch(error)
+    {
+        return error.message;
+    }
+}
+
+
+const getOrderById = async(id) => {
+    try
+    {
+        let data = await order.findById(id).lean();
+
+        data.subscriptionType = await orderType(data.subscriptionType);
+        
+        // get items details in order
+
+        data.items = await Promise.all(data.items.map((e) =>{
+            if(data.subscriptionType == 'buy_ticket')
+            {
+                return getEventById(e.item)
+            }
+            else if(data.subscriptionType == 'buy_drink')
+            {
+                return getItemById(e.item)
+            }
+            
+
+        }))
+
+        return data;
+    }
+    catch(error)
+    {
+        console.log(error.message)
+    }
+}
+
 const getEventById = async(id) =>{
 
     try
@@ -406,6 +484,7 @@ const getItemById = async(id) => {
         let data = await superMenu.findOne({
             _id : id
         }).lean()
+        
         // update category and Subcateogry
         if(data.category)
         {
@@ -417,12 +496,11 @@ const getItemById = async(id) => {
             data.subCategory = await menuCategory.findOne({_id :data.subCategory })
         }
         
-        console.log(data)
         return data
     }
     catch(error)
     {
-        
+        console.log(error)
         return error.message
     }
 }
@@ -572,7 +650,11 @@ export default {
     getHastags,
     getItemById,
     getEventById,
-    getUserById
+    getUserById,
+    nearbyEvents,
+    getOrderById,
+    orderType
+    
 
 }
 

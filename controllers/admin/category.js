@@ -188,6 +188,7 @@ const parentCategory = async (req, res) => {
         data = await Promise.all(data.map(async (e) => {
             e.items = await superMenu.find({ category: e._id }).lean()
             e.items = e.items ? e.items : []
+            
            
             // get a subcategory
            
@@ -197,6 +198,9 @@ const parentCategory = async (req, res) => {
                 e.items = await Promise.all(e.items.map( async (item) =>{
 
                     // get categories and subcategories
+
+                    item.price = 0
+
 
                     
                     if(item.category)
@@ -220,15 +224,18 @@ const parentCategory = async (req, res) => {
                     {
                         
                         // add variation data to
-
+                        let totalPrice = 0;
                         item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
                             // get variation data
                             let newVariations = await pourtype.findOne({
                                 _id : va.variant
                             })
                             va.name = newVariations.name
+                            totalPrice  = totalPrice + va.price
                             return va
                         }))
+
+                        item.price = totalPrice
 
                         
                         // get reviews from the customer
