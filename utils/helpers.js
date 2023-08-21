@@ -325,13 +325,10 @@ const nearbyBars = async(longitude,latitude) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 10000
+                $maxDistance: 100
             }
         }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1}).lean();
-        // data = await Promise.all(data.map( async (e) =>{
-        //     return getBarById(e._id);
-            
-        // }))
+        
         return data
 
     }
@@ -350,14 +347,13 @@ const nearbyEvents = async(longitude,latitude) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 10000
+                $maxDistance: 100
             }
         }}).lean();
         data = await Promise.all(data.map( async (e) =>{
             return getEventById(e._id);
             
         }))
-        console.log(data);
         return data
 
     }
@@ -430,10 +426,17 @@ const getPromotionById = async(data,bar='') =>
 {
     try
     {
+        // check item category
+
+        let category = await menuCategory.findById({
+            _id : data.category
+        })
+        data.category = category.name
+
         data.menu = await Promise.all(data.menu.map( async (e) =>{
             return await getItemById(e.item,bar)
         }))
-        console.log(data.menu);
+   
         
         return data;
     }
@@ -444,16 +447,38 @@ const getPromotionById = async(data,bar='') =>
     }
 }
 
+const nearbyPromotion = async(longitude,latitude,bar='') =>{
+    try
+    {   
+        let data  = await promotion.find({location: {
 
+            $near: {
+                $geometry: { type: "Point", coordinates: [longitude, latitude] },
+                $minDistance: 0,
+                $maxDistance: 100
+            }
+        }}).lean();
+        data = await Promise.all(data.map( async (e) =>{
+            return getPromotionById(e,bar);
+        }))
+        return data
+
+    }
+    catch(error)
+    {
+        console.log(error);
+    }
+
+}
+
+// end Promotion
 // Events
 
 
 const getHastags = async(_id) =>{
     try
     {
-        let hastag = await hashtag.findOne({_id});
-        console.log(hashtag);
-        return hastag
+        return await hashtag.findOne({_id});
     }
     catch(error)
     {
@@ -762,7 +787,8 @@ export default {
     getOrderById,
     orderType,
     getUserEvents,
-    getPromotionById
+    getPromotionById,
+    nearbyPromotion
     
 
 }
