@@ -428,6 +428,7 @@ const getPromotionById = async(data,bar='') =>
     {
         // check item category
 
+
         let category = await menuCategory.findById({
             _id : data.category
         })
@@ -509,17 +510,27 @@ const getOrderById = async(data) => {
         // let data = await order.findById(id).lean();
 
         data.subscriptionType = await orderType(data.subscriptionType);
+
         
         // get items details in order
 
-        data.items = await Promise.all(data.items.map((e) =>{
+        data.items = await Promise.all(data.items.map(async(e) =>{
             if(data.subscriptionType == 'buy_ticket')
             {
-                return getEventById(e.item)
+                return await getEventById(e.item)
             }
             else if(data.subscriptionType == 'buy_drink')
             {
-                return getItemById(e.item,data.bar,e.variant)
+    
+                return await getItemById(e.item,data.bar,e.variant)
+            }
+            else if(data.subscriptionType == 'promotion')
+            {
+    
+                let promotionData = await promotion.findById({
+                    _id : e.item
+                }).lean()
+                return await getPromotionById(promotionData,data.bar)
             }
             
 
@@ -529,6 +540,7 @@ const getOrderById = async(data) => {
     }
     catch(error)
     {
+        console.log(error);
         console.log(error.message)
     }
 }
@@ -569,13 +581,13 @@ const getEventById = async(id) =>{
 const getItemById = async(id,bar,bought='') => {
     try
     {
-        
+
         let data = await menu.findOne({
             item : id,
             barId : bar
         }).lean()
-
-
+ 
+      
       
        
         // add reviews to the item
@@ -640,34 +652,85 @@ const getItemById = async(id,bar,bought='') => {
 const getMenuByBarId = async(bar) =>{
     try
     {
-        
-        let data = await menuCategory.find({}).limit(4).lean();
-        // get subcategories and items
+        // get data based on bar
 
-        await Promise.all(data.map( async (e) =>{
-            // add sub categories
-            let sub = await menuCategory.find({parent : e._id}).lean()
-            e.categories = sub
-            if(sub.length)
-            {
+        let data = await menu.find({
+            barId : bar 
+        }).lean()
+        data = await Promise.all(data.map( async (mainCategory) =>{
+            mainCategory.category = await menuCategory.find({
+                _id : mainCategory.category
+            }).limit(4).lean();
+
+            // get sub categories
+
+            mainCategory.category = await Promise.all(mainCategory.category.map(async(subCategory) =>{
+                 let newSub = await menuCategory.find({parent : subCategory._id , _id : mainCategory.subCategory}).lean();
+                 subCategory.subcategories = newSub
+
+                 if(newSub)
+                 {
+                    subCategory.subcategories = await Promise.all(subCategory.subcategories.map( async (item) =>{
+                        let newItems = await superMenu.find({
+                            category : mainCategory.category,
+                            subCategory : mainCategory.subCategory
+                        })
+                        newItems =  await Promise.all(newItems.map( async (itemData) =>{
+                            return await getItemById(itemData._id);
+                        }))
+                        return newItems;
+                    }))
+                 }
+
+
+
+                 return subCategory
                 
-                e.categories = await Promise.all(e.categories.map( async (subCategory) =>{
-                    let items = await menu.find({
-                        subCategory : subCategory._id,
-                        barId : bar
-                    })
-
-                    subCategory.items = items;
-
-                    return subCategory
-                    
-                }))
-            }
-
-            return e
+            }))
             
 
+            return mainCategory;
         }))
+
+        console.log(data)
+
+        // console.log(data);
+
+
+
+        // data = await menuCategory.find({}).limit(4).lean();
+        // get subcategories and items
+
+        // await Promise.all(data.map( async (e) =>{
+        //     // add sub categories
+        //     let sub = await menuCategory.find({parent : e._id}).lean()
+        //     e.categories = sub
+        //     if(sub.length)
+        //     {
+                
+        //         e.categories = await Promise.all(e.categories.map( async (subCategory) =>{
+        //             let items = await menu.find({
+        //                 subCategory : subCategory._id,
+        //                 barId : bar
+        //             })
+
+        //             subCategory.items = items;
+
+        //             // get item Details
+
+        //             subCategory.items = await Promise.all(subCategory.items.map( async (e) =>{
+        //                 return await getItemById(e.item,bar)
+        //             }))
+
+        //             return subCategory
+                    
+        //         }))
+        //     }
+
+        //     return e
+            
+
+        // }))
 
 
         return data;
@@ -720,7 +783,7 @@ const getBarById = async(id,loggedInUser="") =>{
     try
     {
         // 
-        let data = await bar.findById({_id : id}).lean()
+        let data = await bar.findById({_id : id}).select().lean()
 
         // get followers
 
@@ -728,16 +791,14 @@ const getBarById = async(id,loggedInUser="") =>{
 
 
         // get events
-        events = await event.find({bar : data._id}).sort({ _id: -1 }).limit(4)
+        events = await event.find({bar : data._id}).sort({ _id: -1 }).limit(4).lean()
+        events = await Promise.all(events.map(async(e) =>{
+            return getEventById(e._id)
+        }))
+        
         data.events = events
 
-        
 
-        // get Menu
-
-        menus = await getMenuByBarId(data._id)
-        data.menus = menus
-        // 
 
         // house of Favourites
         favDrinks =   await favouriteDrinks(data._id);
@@ -745,14 +806,24 @@ const getBarById = async(id,loggedInUser="") =>{
 
         // promotions for the bar
 
-        promos = await promotions(data._id);
+        promos = await promotion.find({bar : data._id}).lean();
+
+        promos = await Promise.all(promos.map( async (e) =>{
+            return await getPromotionById(e,id)
+        }))
         data.promotions = promos
+
+        // get menu by id
+
+        // menus = await getMenuByBarId(id) 
+        // data.menus = menus
 
       
         return data;
     }   
     catch(error)
     {
+        console.log(error.message)
         return error;
     }
 }

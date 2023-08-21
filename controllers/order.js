@@ -157,10 +157,17 @@ const store = async (req, res) => {
                         _id : req.user._id
                     },{$set : { "currently_active_card" : cardId } })
                 
+
+
+                // call helper to get order information
+                let orderData = await Order.findById({_id : order}).lean();
+
+                orderData = await helpers.getOrderById(orderData)
+                
                
                 return res.json({
                     message  : "Success",
-                    data : payment
+                    data : orderData
                 })
             }
     
@@ -175,7 +182,28 @@ const store = async (req, res) => {
 
 const show = async(req,res) =>
 {
+    try
+    {   
+        let order = await Order.findById(req.params._id).lean();
+        // console.log(order);
+        order = await helpers.getOrderById(order)
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data :  order
+        })
 
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data :  {}
+        })
+    }
+
+    
 }
 const payment = async(req,res) =>
 {
