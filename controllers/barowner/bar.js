@@ -397,7 +397,7 @@ const updateBarInfo = async (req, res) => {
 // Adding items to a Bar Menu
 
 const addItem = async (req, res) => {
-    let { title, description, type, category, subcategory, variation , picture } = req.body;
+    let { title, description, type, category, subcategory, variation } = req.body;
 
     try {
         let schema = Joi.object({
@@ -407,8 +407,7 @@ const addItem = async (req, res) => {
             type: Joi.string(),
             category: Joi.string(),
             subcategory: Joi.string(),
-            variation: Joi.array(),
-            picture : Joi.Str
+            variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(400).json({ message: error.message, data: {} })
@@ -461,6 +460,7 @@ const addItem = async (req, res) => {
         return res.json({ message: "success", data })
     }
     catch (error) {
+        console.log(error);
         return res.status(500).json({ message: error.message })
     }
 
