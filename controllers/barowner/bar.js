@@ -397,7 +397,8 @@ const updateBarInfo = async (req, res) => {
 // Adding items to a Bar Menu
 
 const addItem = async (req, res) => {
-    let { title, description, type, category, subcategory, variation } = req.body;
+    let { title, description, type, category, subcategory, variation , picture } = req.body;
+    let menuPictures = []
 
     try {
         let schema = Joi.object({
@@ -407,14 +408,47 @@ const addItem = async (req, res) => {
             type: Joi.string(),
             category: Joi.string(),
             subcategory: Joi.string(),
-            variation: Joi.array()
+            variation: Joi.array(),
+            picture : Joi.Str
         });
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(400).json({ message: error.message, data: {} })
 
         if (type) {
             // add item to the main Menu
+            let imageNameOne = '';
+            let fileName = '';
 
+            if (req.files) {
+                let picture = req.files.picture;
+                if(picture)
+                {
+                  // Add Pictures in Menu
+
+                const dirOne = "/public/menu";
+                fileName = `${Date.now()}_` + picture.name;
+                imageNameOne = `${dirOne}/${fileName}`;
+                if (!fs.existsSync(dirOne)) {
+                        fs.mkdirSync(dirOne, { recursive: true });
+                      }
+                      picture.mv(imageNameOne, error => {
+                        if (error) {
+                          return res.status(400).json({
+                            status: 400,
+                            error: error.message,
+                            data: ""
+                          });
+                        }
+                      });
+
+                      menuPictures.push(`/menu/${fileName}`)
+
+
+                  
+                }
+                
+                
+              }
 
             let mainMenu = new superMenu({
                 barId: req.user.barInfo,
@@ -422,7 +456,8 @@ const addItem = async (req, res) => {
                 menu_name: title,
                 description,
                 category,
-                subCategory : subcategory
+                subCategory : subcategory,
+                pictures  : menuPictures
 
             })
             mainMenu = await mainMenu.save()
