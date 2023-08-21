@@ -422,7 +422,7 @@ const addItem = async (req, res) => {
                 menu_name: title,
                 description,
                 category,
-                subcategory
+                subCategory : subcategory
 
             })
             mainMenu = await mainMenu.save()
@@ -448,7 +448,6 @@ const addItem = async (req, res) => {
         if (!menu) {
             return res.status(400).json({ status: 400, message: "Menu is required", data: {} })
         }
-        console.log(req.body.menu);
         let data = await menu.insertMany(req.body.menu)
         // await data.save()
 

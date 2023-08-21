@@ -12,6 +12,7 @@ import promotion from '../models/promotion.js';
 import hashtag from '../models/hashtag.js';
 import users from '../models/users.js';
 import order from '../models/order.js';
+import pourtype from '../models/pourtype.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -415,10 +416,10 @@ const orderType = async(id) =>
 }
 
 
-const getOrderById = async(id) => {
+const getOrderById = async(data) => {
     try
     {
-        let data = await order.findById(id).lean();
+        // let data = await order.findById(id).lean();
 
         data.subscriptionType = await orderType(data.subscriptionType);
         
@@ -431,7 +432,7 @@ const getOrderById = async(id) => {
             }
             else if(data.subscriptionType == 'buy_drink')
             {
-                return getItemById(e.item)
+                return getItemById(e.item,data.bar,e.variant)
             }
             
 
@@ -478,23 +479,65 @@ const getEventById = async(id) =>{
 
 // get item details
 
-const getItemById = async(id) => {
+const getItemById = async(id,bar,bought='') => {
     try
     {
-        let data = await superMenu.findOne({
-            _id : id
-        }).lean()
         
-        // update category and Subcateogry
+        let data = await menu.findOne({
+            item : id,
+            barId : bar
+        }).lean()
+
+
+        // add reviews to the item
+
+        // if(data.reviews)
+
+        // get item from super categories
+
+
+        
+
+           // // update category and Subcateogry
         if(data.category)
         {
-            data.category = await menuCategory.findOne({_id :data.category })
+            let category = await menuCategory.findOne({_id :data.category })
+            data.category = category.name
         }
         
         if(data.subCategory)
         {
-            data.subCategory = await menuCategory.findOne({_id :data.subCategory })
+            let subCategory = await menuCategory.findOne({_id :data.subCategory })
+            data.subCategory = subCategory.name
         }
+
+        data.item = await superMenu.findById({
+            _id : data.item
+        })
+        data.name = data.item.menu_name
+        data.description = data.item.menu_name
+        data.description = data.item.description
+        data.pictures = data.item.pictures
+
+        data.buy = bought
+        
+        delete data.item;
+
+
+
+        data.variation = await Promise.all(data.variation.map(async(e) =>{
+            let itemTypes = await pourtype.findById({_id : e.variant}).lean()
+            itemTypes.price = e.price
+            return itemTypes;
+        }))
+
+
+  
+
+     
+        return data;
+        
+     
         
         return data
     }

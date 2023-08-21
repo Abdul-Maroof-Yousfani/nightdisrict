@@ -72,7 +72,7 @@ const index = async(req,res) =>
         orders = await Promise.all(orders.map( async (e) =>{
             // check order type it
             // check type of order
-            return helpers.getOrderById(e._id);
+            return helpers.getOrderById(e);
         }))
         // orders = await Promise.all(orders)
 
