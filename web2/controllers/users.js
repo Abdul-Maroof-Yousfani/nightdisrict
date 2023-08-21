@@ -288,10 +288,10 @@ const cronJob = async (req, res) => {
             return e;
         }))
 
-        const defaultData = { key: 'defaultValue' };
-        const savedEntry = await new Cronjob({ run: JSON.stringify(defaultData) }).save();
+        // const defaultData = { key: 'defaultValue' };
+        // const savedEntry = await new Cronjob({ run: JSON.stringify(defaultData) }).save();
 
-        console.log(savedEntry);
+        // console.log(savedEntry);
         
         return res.status(400).json({
             status: 'success',
