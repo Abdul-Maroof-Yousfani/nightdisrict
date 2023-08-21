@@ -406,7 +406,7 @@ const addItem = async (req, res) => {
             description: Joi.string(),
             type: Joi.string(),
             category: Joi.string(),
-            subCategory: Joi.string(),
+            subcategory: Joi.string(),
             variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
