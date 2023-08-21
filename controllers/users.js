@@ -784,6 +784,7 @@ const favouriteDrinks = async(req,res) =>{
         let data = await users.findById({
             _id : req.user._id
         },{favouriteDrinks: 1}).lean()
+     
 
         if(!data) return res.status(404).json({
             status : 404,
@@ -794,9 +795,9 @@ const favouriteDrinks = async(req,res) =>{
       
         data.favouriteDrinks = await Promise.all(data.favouriteDrinks.map( async (e) =>{
 
-            let barDetails = await bar.findById({_id : e.bar})
+            // let barDetails = await bar.findById({_id : e.bar})
 
-            let itemData = await helpers.getItemById(e.item)
+            let itemData = await helpers.getItemById(e.item,e.bar, "")
             itemData.barname = barDetails.barName
             itemData.logo =  barDetails.upload_logo
             

@@ -433,7 +433,7 @@ const addItem = async (req, res) => {
             })
             mainMenu = await mainMenu.save()
 
-            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
+            mainMenu = await superMenju.findOne({ _id: mainMenu._id }).lean()
 
           
 
@@ -543,9 +543,7 @@ const favouriteitem  = async(req,res) =>
     let {item,bar} = req.body;
     try
     {
-        console.log(req.body);
-        return;
-
+   
         let itemCheck = await menu.findById({
             _id : id,
             barId : bar 

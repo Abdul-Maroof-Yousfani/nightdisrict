@@ -80,6 +80,10 @@ const store = async(req,res) =>
     
         data = await data.save();
 
+        // get event data 
+
+        data = await helpers.getEventById(data._id);
+
         res.json({
             status : 200,
             message : "success",

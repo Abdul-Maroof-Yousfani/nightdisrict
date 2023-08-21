@@ -424,6 +424,27 @@ const getUserEvents = async(id) =>{
 }
 
 
+// promotion
+
+const getPromotionById = async(data,bar='') =>
+{
+    try
+    {
+        data.menu = await Promise.all(data.menu.map( async (e) =>{
+            return await getItemById(e.item,bar)
+        }))
+        console.log(data.menu);
+        
+        return data;
+    }
+    catch(error)
+    {
+        console.log(error);
+        return;
+    }
+}
+
+
 // Events
 
 
@@ -530,6 +551,8 @@ const getItemById = async(id,bar,bought='') => {
         }).lean()
 
 
+      
+       
         // add reviews to the item
 
         // if(data.reviews)
@@ -551,6 +574,7 @@ const getItemById = async(id,bar,bought='') => {
             let subCategory = await menuCategory.findOne({_id :data.subCategory })
             data.subCategory = subCategory.name
         }
+    
 
         data.item = await superMenu.findById({
             _id : data.item
@@ -573,14 +597,13 @@ const getItemById = async(id,bar,bought='') => {
         }))
 
 
+
   
 
      
         return data;
         
      
-        
-        return data
     }
     catch(error)
     {
@@ -738,7 +761,8 @@ export default {
     nearbyEvents,
     getOrderById,
     orderType,
-    getUserEvents
+    getUserEvents,
+    getPromotionById
     
 
 }

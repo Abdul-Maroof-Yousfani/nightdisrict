@@ -4,6 +4,8 @@ import promotion from "../models/promotion.js";
 import superMenu from "../models/superMenu.js";
 import fs from 'fs';
 import menu from "../models/menu.js";
+import bar from "../models/bar.js";
+import helpers from "../utils/helpers.js";
 
 
 const store = async(req,res) =>
@@ -65,6 +67,13 @@ const store = async(req,res) =>
         // adding auth as bar_id
         req.body.bar = req.user.barInfo
 
+
+        // adding bar location in promotion
+
+        let bardata = await bar.findById({_id : req.user.barInfo});
+        // req.body.address = bardata.address
+        req.body.location = bardata.location
+
         if (req.files) {
             let image = req.files.picture;
         
@@ -92,8 +101,16 @@ const store = async(req,res) =>
         }
 
         let data  = new promotion(req.body);
-        await data.save();
-        return res.status(200).json({ message : 'success' , data })
+        data = await data.save();
+
+        data = await promotion.findById({
+            _id : data._id
+        }).lean()
+
+
+        data = await helpers.getPromotionById(data,req.user.barInfo)
+
+        return res.status(200).json({ status:200, message : 'success' , data })
          
     }
     catch(error)
@@ -174,16 +191,8 @@ const show = async(req,res) =>
     let {_id} = req.params;
     try
     {
-        let data = await promotion.findOne({_id}).lean();
-        if(!data) return res.status(404).json({status:404,message : "promotion not found", data : {}})
-        data.category = await menuCategory.findOne({_id:data.category}).select({_id : 1 , name:1});
-        data.category = data.category.name
-        data.menu = await Promise.all(data.menu.map(async(e) =>{
-            let menuName = await superMenu.findOne({item:e.item}).lean();
-            e.item = menuName.menu_name
-            e.picture = menuName.pictures
-            return e
-        }));
+        let data = await promotion.findById({_id}).lean();
+        data = await helpers.getPromotionById(data,req.user.barInfo)
         return res.status(200).json({
             status : 200,
             message : "success",
@@ -202,8 +211,33 @@ const show = async(req,res) =>
 
     }
 }
+
+const getPromotions = async(req,res) => {
+    try
+    {
+        let data = await promotion.find({}).lean();
+        data = await Promise.all(data.map(async(e) =>{
+            return await helpers.getPromotionById(e,req.user.barInfo)
+        }))
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : []
+        })
+    }
+}
+
 export default {
    store,
    index,
-   show
+   show,
+   getPromotions
 }
