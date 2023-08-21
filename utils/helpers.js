@@ -236,6 +236,7 @@ function notificationHelper(fcmToken, title, body, data, payloadData, daterId) {
 }
 
 function paginate(records, page = 1, limit = 10) {
+
     page = isNaN(parseInt(page)) ? 1 : parseInt(page),
         limit = isNaN(parseInt(limit)) ? 1 : parseInt(limit);
 

@@ -12,6 +12,7 @@ import helpers from '../utils/helpers.js';
 import users from '../models/users.js';
 import menu from '../models/menu.js';
 import reviews from '../models/reviews.js';
+import order from '../models/order.js';
 
 const home = (req, res) => {
     res.send('Hello From Home');
@@ -869,6 +870,41 @@ const review  = async(req,res) =>{
     }
 }
 
+const myOrders = async(req,res) =>
+{
+    try
+    {
+        let orders = await order.find({customer : req.user._id}).lean();
+        orders = helpers.paginate(
+            orders,
+            req.query.page,
+            req.query.limit
+            
+          );
+      
+        let Order = await Promise.all(orders.result.map( async (e) =>{
+            // check order type it
+            // check type of order
+            return helpers.getOrderById(e);
+        }))
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data  : Order,
+            pagination : orders.totalPages
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data  : []
+        })
+    }
+    
+}
+
 export default{
     home,
     register,
@@ -886,5 +922,6 @@ export default{
     favouritebars,
     favouriteDrinks,
     social,
-    review
+    review,
+    myOrders
 };

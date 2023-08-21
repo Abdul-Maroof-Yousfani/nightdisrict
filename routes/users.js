@@ -30,5 +30,11 @@ router.get("/type/:type" , userController.userByType);
 
 
 
+// orders
+
+router.get("/order",helpers.verifyAuthToken ,userController.myOrders);
+
+
+
 
 export default router;
