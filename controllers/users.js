@@ -276,6 +276,13 @@ const login = async (req, res) => {
             // get bar info
             let bardetails   = await bar.findOne({_id : user.barInfo}).lean();
             user.barDetails = bardetails
+
+            // add user attended Parties in the Code
+
+
+            let myEvents = await helpers.getUserEvents(user._id);
+            user.partiesAttended = myEvents;
+
 // 
             User.updateOne({ _id: user._id }, { $set: { verificationToken: token, fcm: fcm } }).then(response => {
                 return res.json({

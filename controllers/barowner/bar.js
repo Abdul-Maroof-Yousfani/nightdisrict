@@ -433,8 +433,23 @@ const addItem = async (req, res) => {
             })
             mainMenu = await mainMenu.save()
 
+            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
 
-            
+          
+
+            if(mainMenu.category)
+                    {
+                        let category = await menuCategory.findById({_id : mainMenu.category},{name : 1});
+                        mainMenu.category = category.name
+                    }
+                    if(mainMenu.subCategory)
+                    {
+                        let subCategory = await menuCategory.findById({_id : mainMenu.subCategory},{name : 1});
+                        mainMenu.subCategory = subCategory.name
+                    }
+
+
+      
 
             // then add item to the Bar
             let data = new menu(
@@ -446,9 +461,65 @@ const addItem = async (req, res) => {
                     variation
                 }
             )
-            await data.save();
+            data = await data.save();
 
-            return res.json({ message: "success", data })
+            
+            let itemsdata = await menu.findOne({
+                item : mainMenu._id
+            }).lean()
+
+            let totalPrice = 0;
+            mainMenu.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
+                            // get variation data
+            let newVariations = await pourtype.findOne({
+                                _id : va.variant
+                            })
+                            va.name = newVariations.name
+                            totalPrice  = totalPrice + va.price
+                            return va
+                        }))
+
+            itemsdata.price = totalPrice
+
+            if(itemsdata.reviews)
+                        {
+                            mainMenu.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
+                                // get customer data
+    
+                                // get customer data and review information
+    
+                                let userInfo = await users.findOne({_id : rev.customer});
+                                if(userInfo)
+                                {
+                                    rev.name = userInfo.username
+                                    rev.picture = userInfo.profile_picture
+                                }
+                 
+                                // get review information
+    
+                                let reviewInfor = await reviews.findOne({
+                                    _id : rev.review
+                                })
+                                if(reviewInfor)
+                                {
+                                    rev.message = reviewInfor.message
+                                    rev.count = reviewInfor.rating
+                                }
+                        
+    
+    
+                                return rev;
+    
+    
+                                
+    
+                            }))
+                        }
+
+
+            // get item structure as parent item
+            
+            return res.json({ message: "success", data : mainMenu })
 
         }
         if (!menu) {

@@ -13,6 +13,7 @@ import hashtag from '../models/hashtag.js';
 import users from '../models/users.js';
 import order from '../models/order.js';
 import pourtype from '../models/pourtype.js';
+import mongoose from 'mongoose';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -370,6 +371,9 @@ const nearbyEvents = async(longitude,latitude) =>{
 
 // User iformation
 
+
+
+
 const getUserById = async(id) => {
     try
     {
@@ -379,6 +383,42 @@ const getUserById = async(id) => {
     }
     catch(error)
     {
+        return error.message
+    }
+}
+
+// user attended parties
+
+const getUserEvents = async(id) =>{
+    try
+    {
+        let myEvents = [];
+        let data = await order.find({
+            customer : id,
+            subscriptionType : mongoose.Types.ObjectId('642a7e9917dc8bc505021552')
+        }).limit(5)
+        await Promise.all(data.map( async (e) =>{
+
+            // 
+            await Promise.all(e.items.map( async (party) =>{
+
+                let eventData = await getEventById(party.item);
+                if(eventData)
+                {
+                    myEvents.push(eventData)
+                }
+
+            }))
+
+        }))
+        
+
+        return myEvents;
+        
+    }
+    catch(error)
+    {
+        console.log(error);
         return error.message
     }
 }
@@ -697,7 +737,8 @@ export default {
     getUserById,
     nearbyEvents,
     getOrderById,
-    orderType
+    orderType,
+    getUserEvents
     
 
 }
