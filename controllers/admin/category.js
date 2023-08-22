@@ -215,11 +215,26 @@ const parentCategory = async (req, res) => {
                     }
 
 
+                    let itemsdata = "";
 
                     // get item name from the bar
-                    let itemsdata = await menu.findOne({
-                        item : item._id
-                    }).lean()
+                    if(req.query.barid)
+                    {
+                        itemsdata = await menu.findOne({
+                            item : item._id,
+                            bar : req.query.barid
+                        }).lean()
+                    }
+                    else
+                    {
+                        itemsdata = await menu.findOne({
+                            item : item._id,
+                        }).lean()
+                    }
+
+
+
+                   
                     if(itemsdata)
                     {
                         
