@@ -108,13 +108,15 @@ const index = async(req,res) =>
     let date = new Date().toISOString();
     try
     {
-        live = await event.find( { $and: [ { date: { $gte: date } }, { enddate: { $lte: date } } ] } ).lean()
+        live = await event.find( { bar:req.user.barInfo,   $and: [ { date: { $gte: date } }, { enddate: { $lte: date } } ] } ).lean()
         today = await event.find({
+            bar:req.user.barInfo, 
             date: { $gte : date},
         }).lean()
         
         
         upcomming = await event.find({
+            bar:req.user.barInfo, 
             date: { $gte : date}
         }).lean()
         live = await Promise.all(live.map( async (e) => {

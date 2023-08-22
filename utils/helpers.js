@@ -823,7 +823,6 @@ const getBarById = async(id,loggedInUser="") =>{
     }   
     catch(error)
     {
-        console.log(error.message)
         return error;
     }
 }

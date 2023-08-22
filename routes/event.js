@@ -13,7 +13,7 @@ const router = express.Router();
 // Menus (Adding item to the Menu)
 
 router.post("/" ,[auth.verifyAuthToken,admin], event.store);
-router.get("/" , event.index);
+router.get("/" ,[auth.verifyAuthToken,admin], event.index);
 router.get("/:_id" , event.view);
 
 
