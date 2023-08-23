@@ -374,7 +374,7 @@ const getUserById = async(id) => {
     try
     {
         let data = await users.findById({_id : id})
-        return data?data.username:""
+        return data;
 
     }
     catch(error)
