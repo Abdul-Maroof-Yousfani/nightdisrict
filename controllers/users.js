@@ -66,8 +66,17 @@ const social = async(req,res) =>{
         data.fcm = req.body.fcm;
 
         data = await User.findByIdAndUpdate({_id : data._id},{
-            $set : data
+            $set : {
+                email : data.email,
+                username : data.username,
+                fcm : data.fcm,
+                verificationToken : data.verificationToken
+            }
+        },{
+            new:true
         }).lean()
+
+        console.log(data);
 
 
         let myEvents = await helpers.getUserEvents(data._id);
