@@ -41,7 +41,7 @@ const social = async(req,res) =>{
        
         let data = await  User.findOne({
             email : req.body.email
-        })
+        }).lean()
 
         if(!data)
         {
@@ -54,6 +54,7 @@ const social = async(req,res) =>{
                 
             })
             data = await data.save()
+            data = await User.findById({_id : data._id}).lean()
         }
 
         // update FCM TOKEN!
@@ -64,6 +65,9 @@ const social = async(req,res) =>{
         delete data.fcm;
         data.verificationToken = token;
         data.fcm = req.body.fcm;
+
+        let myEvents = await helpers.getUserEvents(data._id);
+        data.partiesAttended = myEvents.length?myEvents:[];
 
 
         // check user id
@@ -77,8 +81,7 @@ const social = async(req,res) =>{
             return res.status(403).json({ status : 403,message : "Only Customers are allowed to logged In!"})
         }
         
-        let myEvents = await helpers.getUserEvents(data._id);
-        data.partiesAttended = myEvents.length?myEvents:[];
+
 
         return res.json({ status : 200, message : "success" , data })
 
