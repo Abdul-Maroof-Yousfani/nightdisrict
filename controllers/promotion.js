@@ -11,6 +11,9 @@ import helpers from "../utils/helpers.js";
 const store = async(req,res) =>
 {
     let {title,from,to,price,repeat,category,menu,infinity,discount} = req.body;
+
+    console.log(req.body);
+
     let imageNameOne,thumbPath = "";
     try
     {
