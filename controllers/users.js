@@ -56,6 +56,15 @@ const social = async(req,res) =>{
             data = await data.save()
         }
 
+        // update FCM TOKEN!
+
+        const token = jwt.sign({ id: data._id, username: data.username }, process.env.JWT_SECRET);
+        delete data.password;
+        delete data.verificationToken;
+        delete data.fcm;
+        data.verificationToken = token;
+        data.fcm = req.body.fcm;
+
 
         // check user id
 
@@ -68,6 +77,9 @@ const social = async(req,res) =>{
             return res.status(403).json({ status : 403,message : "Only Customers are allowed to logged In!"})
         }
         
+        let myEvents = await helpers.getUserEvents(data._id);
+        data.partiesAttended = myEvents.length?myEvents:[];
+
         return res.json({ status : 200, message : "success" , data })
 
 
