@@ -317,6 +317,18 @@ const checkRole = async(id) =>{
 
 }
 
+const getBarData = async(id) => {
+    try
+    {
+        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1}).lean();
+        return data;
+    }
+    catch(error)
+    {
+        return error;
+    }
+}
+
 const nearbyBars = async(longitude,latitude) =>{
     try
     {   
@@ -561,6 +573,10 @@ const getEventById = async(id) =>{
         // get dj
 
         data.dj = await getUserById(data.dj);
+
+        // get bar details
+
+        data.bar = await getBarData(data.bar)
 
         return data;
 
@@ -858,7 +874,8 @@ export default {
     orderType,
     getUserEvents,
     getPromotionById,
-    nearbyPromotion
+    nearbyPromotion,
+    getBarData
     
 
 }

@@ -93,6 +93,10 @@ const bar = new mongoose.Schema({
         ref : "bars",
         default : null
     },
+    rating:{
+        type : Number,
+        default : 5
+    },
     location:{
         type:{
             type:String,
