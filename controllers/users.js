@@ -54,7 +54,6 @@ const social = async(req,res) =>{
                 
             })
             data = await data.save()
-            data = await User.findById({_id : data._id}).lean()
         }
 
         // update FCM TOKEN!
@@ -65,6 +64,11 @@ const social = async(req,res) =>{
         delete data.fcm;
         data.verificationToken = token;
         data.fcm = req.body.fcm;
+
+        data = await User.findByIdAndUpdate({_id : data._id},{
+            $set : data
+        }).lean()
+
 
         let myEvents = await helpers.getUserEvents(data._id);
         data.partiesAttended = myEvents.length?myEvents:[];
