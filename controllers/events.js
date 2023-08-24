@@ -137,7 +137,7 @@ const index = async(req,res) =>
         }))
         upcomming = await Promise.all(upcomming.map( async (e) => {
 
-            e.djDetail = await users.findOne({_id : e.dj}).select('username').lean()
+            e.djDetail = await users.findOne({_id : e.dj})?await users.findOne({_id : e.dj}).select('username').lean():""
             e.hashtagsdetail = await Promise.all(e.hashtags.map( async (hash) =>{
                     return await hashtag.findOne({_id  : hash._id}).lean()
             }))
