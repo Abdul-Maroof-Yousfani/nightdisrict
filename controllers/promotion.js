@@ -103,12 +103,14 @@ const store = async(req,res) =>
             req.body.menu = JSON.parse(req.body.menu);
         }
 
+        console.log(req.body.menu)
+
         let data  = new promotion(req.body);
         data = await data.save();
 
-        data = await promotion.findById({
-            _id : data._id
-        }).lean()
+        // data = await promotion.findById({
+        //     _id : data._id
+        // }).lean()
 
 
         data = await helpers.getPromotionById(data,req.user.barInfo)
