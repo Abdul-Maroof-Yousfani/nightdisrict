@@ -12,7 +12,6 @@ const store = async(req,res) =>
 {
     let {title,from,to,price,repeat,category,menu,infinity,discount} = req.body;
 
-    console.log(req.body);
 
     let imageNameOne,thumbPath = "";
     try
@@ -103,17 +102,17 @@ const store = async(req,res) =>
             req.body.menu = JSON.parse(req.body.menu);
         }
 
-        console.log(req.body)
+       
 
         let data  = new promotion(req.body);
         data = await data.save();
 
-        // data = await promotion.findById({
-        //     _id : data._id
-        // }).lean()
+        data = await promotion.findById({
+            _id : data._id
+        }).lean()
 
 
-        // data = await helpers.getPromotionById(data,req.user.barInfo)
+        data = await helpers.getPromotionById(data,req.user.barInfo)
 
         return res.status(200).json({ status:200, message : 'success' , data })
          
@@ -220,7 +219,7 @@ const show = async(req,res) =>
 const getPromotions = async(req,res) => {
     try
     {
-        let data = await promotion.find({}).lean();
+        let data = await promotion.find({bar:req.user.barInfo}).lean();
         data = await Promise.all(data.map(async(e) =>{
             return await helpers.getPromotionById(e,req.user.barInfo)
         }))
@@ -228,7 +227,7 @@ const getPromotions = async(req,res) => {
             status : 200,
             message : "success",
             data
-        })
+        })  
     }
     catch(error)
     {
