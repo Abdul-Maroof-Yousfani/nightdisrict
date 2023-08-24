@@ -307,6 +307,15 @@ const login = async (req, res) => {
 
             // add user attended Parties in the Code
 
+            if(user.barInfo)
+            {
+                user.todayOrder  = 0;
+                user.todayAttendance  = 0;
+                user.menuSales  = 0;
+                user.drinkRating  = 0;
+                user.eventRating  = 0;
+            }
+
 
             let myEvents = await helpers.getUserEvents(user._id);
             user.partiesAttended = myEvents;

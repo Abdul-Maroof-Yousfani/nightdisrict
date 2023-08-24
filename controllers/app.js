@@ -20,26 +20,23 @@ const index = async(req,res) =>
     try
     {
         let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
-
+        
         // events
 
         let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
+
+
   
         // recent Orders
         let orders = await order.find({customer : req.user._id}).lean().limit(5)
         orders = await Promise.all(orders.map( async (e) =>{
-            let promotionData = await promotion.findById({
-
-            })
-            e.promotions = await helpers.getPromotionById()
+            // check order type it
+            // check type of order
+            return helpers.getOrderById(e);
         }))
 
-        // promotions = await Promise.all(bars.map((e) =>{
-        //     //  get all promotions based on bar
 
-        //     console.log(e)
 
-        // }))
 
         promotions = await helpers.nearbyPromotion(req.body.longitude,req.body.latitude,req.user.barInfo);
 
