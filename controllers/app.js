@@ -36,9 +36,22 @@ const index = async(req,res) =>
         }))
 
 
+        promotions = await Promise.all(bars.map( async (e) =>{
+            // get Promotions for a bar
+            let promo = await promotion.find({
+                bar  :e._id
+            }).lean()
+            if(promo)
+            {
+                e.promotions = await Promise.all(promo.map( async (code) =>{
+                    return await helpers.getPromotionById(code,e._id);
+                }))
+                return e;
+            }
+           
+        }))
 
-
-        promotions = await helpers.nearbyPromotion(req.body.longitude,req.body.latitude,req.user.barInfo);
+        // promotions = await helpers.nearbyPromotion(req.body.longitude,req.body.latitude,req.user.barInfo);
 
         // orders = await Promise.all(orders)
 

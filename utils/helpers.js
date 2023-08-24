@@ -320,7 +320,7 @@ const checkRole = async(id) =>{
 const getBarData = async(id) => {
     try
     {
-        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1}).lean();
+        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating": 1}).lean();
         return data;
     }
     catch(error)
@@ -339,7 +339,7 @@ const nearbyBars = async(longitude,latitude) =>{
                 $minDistance: 0,
                 $maxDistance: 100
             }
-        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1}).lean();
+        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 }).lean();
         
         return data
 
@@ -619,13 +619,13 @@ const getItemById = async(id,bar,bought='') => {
         if(data.category)
         {
             let category = await menuCategory.findOne({_id :data.category })
-            data.category = category.name
+            data.category = category
         }
         
         if(data.subCategory)
         {
             let subCategory = await menuCategory.findOne({_id :data.subCategory })
-            data.subCategory = subCategory.name
+            data.subCategory = subCategory
         }
     
 
