@@ -103,7 +103,7 @@ const store = async(req,res) =>
             req.body.menu = JSON.parse(req.body.menu);
         }
 
-        console.log(req.body.menu)
+        console.log(req.body)
 
         let data  = new promotion(req.body);
         data = await data.save();
@@ -113,7 +113,7 @@ const store = async(req,res) =>
         // }).lean()
 
 
-        data = await helpers.getPromotionById(data,req.user.barInfo)
+        // data = await helpers.getPromotionById(data,req.user.barInfo)
 
         return res.status(200).json({ status:200, message : 'success' , data })
          
