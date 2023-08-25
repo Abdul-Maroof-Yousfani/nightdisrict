@@ -12,7 +12,6 @@ const attendance = async(req,res) =>
 
     // get bar id
 
-    console.log(req.body);
 
     
 
@@ -43,6 +42,8 @@ const attendance = async(req,res) =>
             address : 1
 
         })
+
+        console.log(userData);
 
         return res.status(200).json({
             status : 200,
