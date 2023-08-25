@@ -847,9 +847,11 @@ const getBarById = async(id,loggedInUser="") =>{
         favDrinks =   await favouriteDrinks(data._id);
         data.favDrinks = favDrinks
 
+        houseOfFav = []
 
-        houseOfFav =   await favouriteDrinks(data._id);
-        data.houseOfFav = houseOfFav
+
+        // houseOfFav =   await favouriteDrinks(data._id);
+        // data.houseOfFav = houseOfFav
 
         // promotions for the bar
 
