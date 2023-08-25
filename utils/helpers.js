@@ -526,7 +526,7 @@ const getItems = async(order) =>
         if(order.subscriptionType.toString() == '642a6f6e17dc8bc505021545')
         {
             await Promise.all(order.items.map( async (e) =>{
-                orders = await getItemById(e.item,order.bar);
+                orders = await getItemById(e.item,order.bar,e.variant);
              }))
         }
 
@@ -638,7 +638,8 @@ const   getItemById = async(id,bar,bought='') => {
 
         // get item from super categories
 
-
+        data.min = 10;
+        data.max = 50;
         
 
            // // update category and Subcateogry
@@ -676,9 +677,6 @@ const   getItemById = async(id,bar,bought='') => {
         }))
 
 
-
-  
-
      
         return data;
         
@@ -686,7 +684,6 @@ const   getItemById = async(id,bar,bought='') => {
     }
     catch(error)
     {
-        console.log(error)
         return error.message
     }
 }
@@ -734,11 +731,8 @@ const getMenuByBarId = async(bar) =>{
             return mainCategory;
         }))
 
-        console.log(data)
 
         // console.log(data);
-
-
 
         // data = await menuCategory.find({}).limit(4).lean();
         // get subcategories and items
@@ -822,6 +816,7 @@ const getBarById = async(id,loggedInUser="") =>{
     let menus = []
     let favDrinks = [];
     let promos = [];
+    let houseOfFav = []
     try
     {
         // 
@@ -851,6 +846,10 @@ const getBarById = async(id,loggedInUser="") =>{
         // house of Favourites
         favDrinks =   await favouriteDrinks(data._id);
         data.favDrinks = favDrinks
+
+
+        houseOfFav =   await favouriteDrinks(data._id);
+        data.houseOfFav = houseOfFav
 
         // promotions for the bar
 
