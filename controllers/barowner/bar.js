@@ -11,6 +11,8 @@ import order from '../../models/order.js';
 import users from '../../models/users.js';
 import pourtype from '../../models/pourtype.js';
 import helpers from '../../utils/helpers.js';
+import event from '../../models/event.js';
+import promotion from '../../models/promotion.js';
 
 
 
@@ -831,6 +833,78 @@ const show = async(req,res) =>{
     }
 }
 
+const events = async(req,res) =>
+{
+    try
+    {
+        let data = await event.find({
+            bar : req.params.id
+        }).lean()
+        data = helpers.paginate(
+            data,
+            req.query.page,
+            req.query.limit
+            
+          );
+
+
+        let result = await Promise.all(data.result.map( async (e) =>{
+            return await helpers.getEventById(e._id)
+        }))
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : result,
+            pagination : data.totalPages
+        })
+        
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.status(500).json({
+            status : 500,
+            message :error.message,
+            data : []
+        })
+    }
+}
+const promotions = async(req,res) =>
+{
+    try
+    {
+        let data = await promotion.find({
+            bar : req.params.id
+        }).lean()
+        data = helpers.paginate(
+            data,
+            req.query.page,
+            req.query.limit
+            
+          );
+
+
+        let result = await Promise.all(data.result.map( async (e) =>{
+            return await helpers.getPromotionById(e,e.bar)
+        }))
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : result,
+            pagination : data.totalPages
+        })
+        
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message :error.message,
+            data : []
+        })
+    }
+}
+
 export default {
     items,
     barProfile,
@@ -843,5 +917,7 @@ export default {
     view,
     tips,
     show,
-    favouriteitem
+    favouriteitem,
+    events,
+    promotions
 }

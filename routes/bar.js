@@ -33,6 +33,19 @@ router.get("/orders/tips",helper.verifyAuthToken,Bar.tips);
 
 router.get("/:id",helper.verifyAuthToken,Bar.show)
 
+// get all events
+
+
+router.get("/:id/events",helper.verifyAuthToken,Bar.events)
+
+// get all Promotions
+
+
+router.get("/:id/promotions",helper.verifyAuthToken,Bar.promotions)
+
+// 
+
+
 
 
 

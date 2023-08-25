@@ -515,6 +515,32 @@ const orderType = async(id) =>
     }
 }
 
+// Order items only
+
+const getItems = async(order) =>
+{
+    try
+    {
+        let orders = [];
+        // check order type only get orders which has Drinks
+        if(order.subscriptionType.toString() == '642a6f6e17dc8bc505021545')
+        {
+            await Promise.all(order.items.map( async (e) =>{
+                orders = await getItemById(e.item,order.bar);
+             }))
+        }
+
+        return orders;
+
+   
+        
+
+    }
+    catch(error)
+    {
+        return error
+    }   
+}
 
 const getOrderById = async(data) => {
     try
@@ -594,7 +620,7 @@ const getEventById = async(id) =>{
 
 // get item details
 
-const getItemById = async(id,bar,bought='') => {
+const   getItemById = async(id,bar,bought='') => {
     try
     {
 
@@ -801,6 +827,12 @@ const getBarById = async(id,loggedInUser="") =>{
         // 
         let data = await bar.findById({_id : id}).select().lean()
 
+        // get parent Categories
+
+        let parent = await menuCategory.find({parent : null});
+
+        data.categories = parent;
+
         // get followers
 
         data.followers = []
@@ -875,7 +907,8 @@ export default {
     getUserEvents,
     getPromotionById,
     nearbyPromotion,
-    getBarData
+    getBarData,
+    getItems
     
 
 }

@@ -97,6 +97,18 @@ const bar = new mongoose.Schema({
         type : Number,
         default : 5
     },
+    fbUrl:{
+        type : String,
+        default : ''
+    },
+    instagramUrl:{
+        type : String,
+        default : ''
+    },
+    twitterUrl:{
+        type : String,
+        default : ''
+    },
     location:{
         type:{
             type:String,
@@ -108,6 +120,7 @@ const bar = new mongoose.Schema({
             default : [0,0]
         },
     },
+
 },
 {   
     timestamps : true

@@ -75,7 +75,6 @@ const store = async (req, res) => {
 
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
-        console.log(subscriptionType)
         let orderData =  new Order(
             {
             subscriptionType,
