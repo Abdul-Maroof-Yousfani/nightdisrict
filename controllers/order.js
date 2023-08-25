@@ -133,8 +133,18 @@ const store = async (req, res) => {
 
                     // Generate a Unqiue QRCODE!
 
-                    const qrCodeData = req.user._id.toString();
-                    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+                    // create a Qr code string, which can be converted to json
+                    
+                    let jsonData = {
+                        user: req.user._id,
+                        event: items[0].item,
+                        order : order,
+                      };
+
+                    jsonData = JSON.stringify(jsonData);
+
+                    // const qrCodeData = req.user._id.toString();
+                    const qrCodeImage = await QRCode.toDataURL(jsonData);
 
                 
                     let tickets = new ticket({

@@ -21,6 +21,8 @@ import appRoute from './routes/app.js';
 import bartenderRoute from './routes/bartender.js';
 import orderSocket from './sockets/order.js';
 import inApp from './routes/inapp.js';
+import bouncerRoute from './routes/bouncer.js';
+
 
 import path from 'node:path';
 import { dirname } from 'path';
@@ -71,7 +73,15 @@ app.use('/api/inApp',inApp)
 app.use('/api/order',orderRoute);
 app.use('/api/web',webRoute);
 
+
+
 // Routes for App
+
+app.use('/api/bouncer' , bouncerRoute);
+
+
+
+
 
 
 app.use("/api/app",appRoute);
