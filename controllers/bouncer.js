@@ -12,6 +12,8 @@ const attendance = async(req,res) =>
 
     // get bar id
 
+    console.log(req.body);
+
     
 
     try
