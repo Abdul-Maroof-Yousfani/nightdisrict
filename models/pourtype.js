@@ -7,6 +7,11 @@ const pourtype = new mongoose.Schema({
     isActive : {
         type : Boolean,
         default : true
+    },
+    quantity:
+    {
+        type : Number,
+        default : 0
     }
     
 },{timestamps:true});

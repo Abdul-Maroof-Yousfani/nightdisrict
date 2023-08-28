@@ -254,10 +254,10 @@ const login = async (req, res) => {
         }
         
         let user = {};
-        user = User.findOne({
+        user = await  User.findOne({
             $or: [{ email: username }, { username: username }],
           }).lean();
-        
+
         if (!user) {
             return res.status(404).json({
                 status: "error",
@@ -343,6 +343,7 @@ const login = async (req, res) => {
         }
     } catch (error) {
         console.log(error);
+        console.log(error.message);
         return res.status(500).json({
             status: "error",
             message: "An unexpected error occurred while proceeding your request.",
