@@ -14,6 +14,7 @@ import users from '../models/users.js';
 import order from '../models/order.js';
 import pourtype from '../models/pourtype.js';
 import mongoose from 'mongoose';
+import reviews from '../models/reviews.js';
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -320,7 +321,7 @@ const checkRole = async(id) =>{
 const getBarData = async(id) => {
     try
     {
-        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating": 1}).lean();
+        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating": 1 , "geometry" : 1}).lean();
         return data;
     }
     catch(error)
@@ -515,7 +516,56 @@ const orderType = async(id) =>
     }
 }
 
+
+// customer reviews on any item
+
+const getReviewById = async(id) =>
+{
+    try
+    {
+        let drink = await reviews.findById({
+            _id : id
+        }).lean()
+
+
+        await menu.findOneAndUpdate({
+            item : drink.item
+        },{
+            $push: { "reviews" : { "customer" : drink.item , "review" : drink._id } } 
+        },{
+            new : true
+        }).lean()
+
+        // update the response
+        
+        // drink.item = await getItemById(drink.item,drink.bar,drink.variation)
+        // console.log(drink.item);
+        // return;
+        // get order data
+        let orderDetail = await order.findById({
+            _id : drink.Order
+        }).lean()
+        drink.Order = await getOrderById(orderDetail)
+        // drink.bar = await getBarData(drink.bar)
+        // drink.customer = await getUserById(drink.customer)
+
+        return drink;
+    }
+    catch(error)
+    {
+        console.log(error)
+        return error.message;
+    }
+}
+
+
+// ending customer Reviews
+
+
 // Order items only
+
+
+
 
 const getItems = async(order) =>
 {
@@ -548,6 +598,7 @@ const getOrderById = async(data) => {
         // let data = await order.findById(id).lean();
 
         data.subscriptionType = await orderType(data.subscriptionType);
+        data.customer = await getUserById(data.customer);
 
         
         // get items details in order
@@ -640,6 +691,7 @@ const   getItemById = async(id,bar,bought='') => {
 
         data.min = 10;
         data.max = 50;
+        data.barDetail = await getBarData(bar);
         
 
            // // update category and Subcateogry
@@ -665,6 +717,7 @@ const   getItemById = async(id,bar,bought='') => {
         data.pictures = data.item.pictures
 
         data.buy = bought
+
         
         delete data.item;
 
@@ -909,7 +962,8 @@ export default {
     getPromotionById,
     nearbyPromotion,
     getBarData,
-    getItems
+    getItems,
+    getReviewById
     
 
 }

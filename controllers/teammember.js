@@ -24,6 +24,13 @@ const store = async (req, res) => {
         const { error, value } = schema.validate(req.body);
         if(error) return res.status(400).json({ message : error.message ,data : {} })
 
+
+        // // update code
+
+        // let roleType = await roles.findOne({
+
+        // })
+
         // check if user already exists
 
         let checkUser = await users.findOne({email : req.body.email})
@@ -66,7 +73,8 @@ const store = async (req, res) => {
             username : req.body.username,
             password : req.body.password,
             email : req.body.email,
-            profile_picture : req.body.picture
+            profile_picture : req.body.picture,
+            type : req.body.type,
         });
         await user.save()
 

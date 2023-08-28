@@ -874,7 +874,7 @@ const favouriteDrinks = async(req,res) =>{
 
 
 const review  = async(req,res) =>{
-    let {item,variation,customer,rating,bar,message} = req.body;
+    let {item,variation,customer,rating,bar,message,Order} = req.body;
     let body = req.body;
 
     try
@@ -884,6 +884,9 @@ const review  = async(req,res) =>{
         // get customer from the access token
 
         body.customer = req.user._id;
+
+        // add dat to the req.body
+
 
         
 
@@ -897,30 +900,23 @@ const review  = async(req,res) =>{
         let drink = new reviews(req.body);
         drink = await drink.save();
 
-        // let checDat = await menu.findOne({
-        //     item
-        // })
-        // console.log(checDat);
-        // return;
+        // get drink data
 
-        let newData = await menu.findOneAndUpdate({
-            item : item
-        },{
-            $push: { "reviews" : { "customer" : body.item , "review" : drink._id } } 
-        },{
-            new : true
-        })
+        drink = await helpers.getReviewById(drink._id)
+        
+        
+
         return res.status(200).json({
             status : 200,
             message : 'success',
-            data : newData
+            data : drink
         })
     }
     catch(error)
     {
-        console.log(error);
-        return res.status(200).json({
-            status : 200,
+        console.log(error)
+        return res.status(500).json({
+            status : 500,
             message : error.message,
             data : {}
         })

@@ -1,6 +1,11 @@
 import mongoose, { Mongoose, mongo } from 'mongoose';
 
 const reviews = new mongoose.Schema({
+    Order : {
+        type : mongoose.Types.ObjectId,
+        ref : "orders",
+        default : null
+    },
     customer: {
         type: mongoose.Types.ObjectId,
         ref : "customers",
