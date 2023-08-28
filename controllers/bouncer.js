@@ -43,11 +43,11 @@ const attendance = async(req,res) =>
 
         })
 
-        console.log(userData);
 
         return res.status(200).json({
             status : 200,
-            message : userData
+            message : 'success',
+            data : userData
         })
     }
     catch(error)
@@ -101,7 +101,6 @@ const tickets = async(req,res) =>
 
 
 export  default{
-
     attendance,
     tickets
 }

@@ -733,7 +733,7 @@ const profile = async(req,res) =>{
 
 const favourite = async(req,res) =>
 {
-    let {bar,type,item} = req.body;
+    let { bar , type , item } = req.body;
     try
     {
          //  add bar to the Favourites
@@ -746,6 +746,11 @@ const favourite = async(req,res) =>
             data : {}
         })
 
+        // get user detail
+
+        console.log(req.user);
+        return;
+
         if(type == "drink")
         {
             data = await users.findByIdAndUpdate({_id : req.user._id},{
@@ -754,6 +759,13 @@ const favourite = async(req,res) =>
         }
         else if(type == "bar")
         {
+
+            // check if already in Favourites ?
+
+            const hasFavorited = users.favouriteBars.includes(bar);
+            console.log(hasFavorited);
+            return
+
             data = await users.findByIdAndUpdate({_id : req.user._id},{
                 $push: { "favouriteBars" : { bar} } 
             },{new:true})
