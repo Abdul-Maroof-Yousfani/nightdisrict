@@ -72,6 +72,9 @@ const tickets = async(req,res) =>
             e.ticket = await ticket.findOne({
                 order : e.order
             })
+            e.user = await users.findOne({
+                _id : e.customer
+            })
             e.event = await helpers.getEventById(e.event)
 
             // get order data
