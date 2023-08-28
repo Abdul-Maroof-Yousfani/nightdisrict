@@ -254,12 +254,9 @@ const login = async (req, res) => {
         }
         
         let user = {};
-        if (!helper.validateEmail(username)) {
-            user = await User.findOne({ username }).lean();
-        }
-        else {
-            user = await User.findOne({ email: username }).lean();
-        }
+        user = User.findOne({
+            $or: [{ email: username }, { username: username }],
+          }).lean();
         
         if (!user) {
             return res.status(404).json({
