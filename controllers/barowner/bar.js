@@ -905,6 +905,65 @@ const promotions = async(req,res) =>
     }
 }
 
+// get all par menu
+
+const Menu = async(req,res) =>
+{
+    let {bar,category,subCategory} = req.body;
+    let {page,limit} = req.query;
+    try
+    {   
+        // adding validation in the code, to atleast have a bar id here
+
+        let schema = Joi.object({
+            bar: Joi.string().required(),
+            category: Joi.string(),
+            subCategory: Joi.string()
+        });
+        
+        const { error, value } = schema.validate(req.body);
+        if (error) return res.status(400).json({ status : 400, message: error.message, data: {} })
+
+
+        const filters = [];
+
+        filters.push({ bar });
+
+        if (category) {
+            filters.category = category;
+        }
+        if (subCategory) {
+            filters.subCategory = subCategory;
+        }
+
+        let results = await menu.find({
+            barId : bar
+        });
+
+        // results = await helpers.paginate(results,page,limit);
+        // let data = results.result;
+        results = await Promise.all(results.map( async (e) =>{
+            return await helpers.getItemById(e.item,e.barId,'');
+        }))
+
+         return res.status(200).json({
+            status : 200,
+            message : 'success',
+            data  : results,
+            pagination :results
+        })
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data :  []
+        })
+    }
+}
+
 export default {
     items,
     barProfile,
@@ -919,5 +978,6 @@ export default {
     show,
     favouriteitem,
     events,
-    promotions
+    promotions,
+    Menu
 }

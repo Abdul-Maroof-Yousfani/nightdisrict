@@ -1,9 +1,14 @@
 import mongoose from 'mongoose';
+import { v4 } from 'uuid';
 
 const menu = new mongoose.Schema({
     barId: {
         type: mongoose.Schema.Types.ObjectId, ref: 'bars',
         default : null
+    },
+    itemcode : {
+        type : String,
+        default : Date.now() - Math.floor(Math.random() * 10000)
     },
     item : {
         type: mongoose.Schema.Types.ObjectId, ref: 'supermenus',

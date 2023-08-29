@@ -124,11 +124,9 @@ const bar = new mongoose.Schema({
         type: {
           type: String,
           enum: ['Polygon'],
-          required: true,
         },
         coordinates: {
           type: [[[Number]]], // Coordinates of the polygon
-          required: true,
         },
         default : []
       },

@@ -318,6 +318,8 @@ const checkRole = async(id) =>{
 
 }
 
+// GET BAR DATA
+
 const getBarData = async(id) => {
     try
     {
@@ -377,6 +379,37 @@ const nearbyEvents = async(longitude,latitude) =>{
 
 }
 
+
+const getBarMenus = async(bar,category = '',subCategory = '') =>
+{
+    try
+    {
+        // update user data
+
+        const filters = [];
+
+        filters.push({ bar });
+
+        if (category) {
+            filters.category = category;
+        }
+        if (subCategory) {
+            filters.subCategory = subCategory;
+        }
+
+        let results = await menu.find({
+            $and: filters
+        });
+        
+
+        return results;
+    }
+    catch(error)
+    {
+        console.log(error);
+        return error;
+    }
+}
 
 // User iformation
 
@@ -671,14 +704,25 @@ const getEventById = async(id) =>{
 
 // get item details
 
-const   getItemById = async(id,bar,bought='') => {
+const  getItemById = async(id,bar,bought='') => {
     try
     {
 
+     
         let data = await menu.findOne({
             item : id,
             barId : bar
         }).lean()
+
+        
+        if(data.reviews)
+        {
+            data.reviews = await Promise.all(data.reviews.map( async (e) =>
+            {
+                return await getReviewById(e.review);
+            }))
+        }
+
  
       
       
@@ -963,7 +1007,8 @@ export default {
     nearbyPromotion,
     getBarData,
     getItems,
-    getReviewById
+    getReviewById,
+    getBarMenus
     
 
 }

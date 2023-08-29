@@ -20,6 +20,7 @@ router.post('/mapView', helpers.verifyAuthToken , app.mapView)
 // Get Bar Details
 
 router.get('/bar/:id',helpers.verifyAuthToken, bar.show)
+router.post('/bar/menu',helpers.verifyAuthToken, bar.Menu)
 
 
 // Update Profile

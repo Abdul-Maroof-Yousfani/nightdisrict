@@ -23,6 +23,9 @@ import orderSocket from './sockets/order.js';
 import inApp from './routes/inapp.js';
 import bouncerRoute from './routes/bouncer.js';
 
+import Menu from './models/menu.js';
+
+
 
 import path from 'node:path';
 import { dirname } from 'path';
@@ -31,6 +34,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 import cors from 'cors';
+import superMenu from "./models/superMenu.js";
 
 
 
@@ -72,6 +76,50 @@ app.use('/api/inApp',inApp)
 
 app.use('/api/order',orderRoute);
 app.use('/api/web',webRoute);
+
+
+// route to remove items that are not is supermenu
+
+app.use('/remove-items', async(req,res) =>{
+
+    // the query is going to remove items that are not is supermenu
+
+    let data = await Menu.find({});
+    data = await Promise.all(data.map(async(e) =>{
+        if(e.item)
+        {
+            let chekMenu = await superMenu.findById({
+                _id : e.item
+            });
+            if(chekMenu)
+            {
+                console.log("menu is there")
+            }
+            else
+            {
+                await Menu.findByIdAndDelete({
+                    _id : e._id
+                })
+
+                console.log("NO MENU DELETED");
+            }
+        }
+        else
+
+        {
+            await Menu.findByIdAndDelete({
+                _id : e._id
+            })
+            console.log("NO ITEM DELETED");
+        }
+        
+    }))
+
+    return res.json({
+
+    });
+
+}) 
 
 
 

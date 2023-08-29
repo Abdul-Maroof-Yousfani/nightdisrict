@@ -46,7 +46,6 @@ function initOrder() {
             try
             {
                 let data = await order.find({orderStatus:"preparing"}).lean()
-                console.log(data);
                 socket.emit('data', data);
             }
             catch(error)
@@ -62,7 +61,6 @@ function initOrder() {
             try
             {
                 let data = await order.find({orderStatus:"completed"}).lean()
-                console.log(data);
                 socket.emit('data', data);
             }
             catch(error)
