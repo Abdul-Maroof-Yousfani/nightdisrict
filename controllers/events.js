@@ -182,7 +182,7 @@ const view = async(req,res) =>
         })
     }
 }
-
+// 
 const nearby = async(req,res) =>{
     let {longitude,latitude}  = req.body;
     try
