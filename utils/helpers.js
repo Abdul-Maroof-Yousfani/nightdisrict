@@ -342,7 +342,7 @@ const nearbyBars = async(longitude,latitude) =>{
                 $minDistance: 0,
                 $maxDistance: 100
             }
-        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 }).lean();
+        }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 , 'geometry' : 1 }).lean();
         
         return data
 
@@ -1014,7 +1014,7 @@ const getBarById = async(id,loggedInUser="") =>{
 
         // get list of fovourites
 
-        
+
 
 
 
