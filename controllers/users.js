@@ -890,17 +890,35 @@ const review  = async(req,res) =>{
         // add dat to the req.body
 
 
+
+
         
 
         let checkMenu = await menu.findOne({
             item,
-            bar
+            barId : bar
         })
 
         // adding a review to  a drink
 
         let drink = new reviews(req.body);
         drink = await drink.save();
+
+
+        // update
+        // await menu.findOneAndUpdate({
+        //     item,
+        //     barId: bar
+        // },
+        // {
+        //     $push : {
+        //         "reviews" : {
+        //             customer : req.user._id,
+        //             review : drink._id
+        //         },
+                
+        //     }
+        // })
 
         // get drink data
 
@@ -916,7 +934,6 @@ const review  = async(req,res) =>{
     }
     catch(error)
     {
-        console.log(error)
         return res.status(500).json({
             status : 500,
             message : error.message,

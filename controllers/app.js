@@ -20,7 +20,7 @@ const index = async(req,res) =>
     try
     {
         let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
-        
+    
         // events
 
         let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
