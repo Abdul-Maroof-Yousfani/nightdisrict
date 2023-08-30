@@ -969,6 +969,8 @@ const home = async(req,res) =>
     try
     {  
 
+       
+
         const orders = (await order.find({
             bar : req.user.barInfo
         })).length;
@@ -982,6 +984,8 @@ const home = async(req,res) =>
             bar : req.user.barInfo
         })).length;
 
+  
+
         // get todays sale
 
 
@@ -994,11 +998,15 @@ const home = async(req,res) =>
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
+      
+
 
         let salesData = await order.find({}).lean();
-        salesData  = await Promise.all(salesData.map( async (e) =>{
-            return await helpers.getOrderById(e);
-        }))
+        // // salesData  = await Promise.all(salesData.map( async (e) =>{
+        //     return await helpers.getOrderById(e);
+        // // }))
+
+
 
         const hourlySales = await order.aggregate([
            
