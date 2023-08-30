@@ -522,7 +522,7 @@ const addItem = async (req, res) => {
 
             // get item structure as parent item
             
-            return res.json({ message: "success", data : mainMenu })
+            return res.json({ status: 200, message: "success", data : mainMenu })
 
         }
         if (!menu) {
@@ -531,11 +531,11 @@ const addItem = async (req, res) => {
         let data = await menu.insertMany(req.body.menu)
         // await data.save()
 
-        return res.json({ message: "success", data })
+        return res.json({status: 200 , message: "success", data })
     }
     catch (error) {
         console.log(error);
-        return res.status(500).json({ message: error.message })
+        return res.status(500).json({ status: 500 , message: error.message })
     }
 
 }
