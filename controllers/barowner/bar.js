@@ -436,7 +436,7 @@ const addItem = async (req, res) => {
             })
             mainMenu = await mainMenu.save()
 
-            mainMenu = await superMenju.findOne({ _id: mainMenu._id }).lean()
+            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
 
           
 
@@ -998,7 +998,7 @@ const home = async(req,res) =>
         }))
 
         const hourlySales = await order.aggregate([
-            
+           
             {
               $group: {
                 _id: {
@@ -1013,13 +1013,17 @@ const home = async(req,res) =>
               }
             },
           ]);
-
-          const salesDataArray = hourlySales.map(item => {
-            const hour = ('0' + item._id).slice(-2) + ':00';
-            const sales = item.sales;
-            return { [hour]: sales };
+      
+          const salesDataArray = Array.from({ length: 24 }, (_, index) => {
+            const hour = ('0' + index).slice(-2) + ':00';
+            return { [hour]: 0 };
           });
-
+      
+          hourlySales.forEach(item => {
+            const hourIndex = item._id; // Use the hour as index
+            const hour = ('0' + hourIndex).slice(-2) + ':00';
+            salesDataArray[hourIndex] = { [hour]: item.sales };
+          });
 
          res.json({ status : 200, message : "success", data  : { orders, events , attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
         
