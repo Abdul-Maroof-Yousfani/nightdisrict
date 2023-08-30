@@ -13,6 +13,7 @@ import pourtype from '../../models/pourtype.js';
 import helpers from '../../utils/helpers.js';
 import event from '../../models/event.js';
 import promotion from '../../models/promotion.js';
+import attendance from '../../models/attendance.js';
 
 
 
@@ -962,6 +963,91 @@ const Menu = async(req,res) =>
     }
 }
 
+const home = async(req,res) =>
+{
+    let graph  = {}
+    try
+    {  
+
+        const orders = (await order.find({
+            bar : req.user.barInfo
+        })).length;
+        const events =  (await event.find({
+            bar : req.user.barInfo
+        })).length;
+        const attendence =  (await attendance.find({
+            bar : req.user.barInfo
+        })).length;
+
+        // get todays sale
+
+
+
+        let averageDrinkRating = 0;
+        let averageEventRating = 0;
+        // const drinks = await Drink.find();
+
+        const currentDate = new Date();
+        const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
+        const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
+
+
+        let salesData = await order.find({}).lean();
+        salesData  = await Promise.all(salesData.map( async (e) =>{
+            return await helpers.getOrderById(e);
+        }))
+
+        const hourlySales = await order.aggregate([
+            
+            {
+              $group: {
+                _id: {
+                  $hour: '$timestamp'
+                },
+                sales: { $sum: '$amount' },
+              },
+            },
+            {
+              $sort: {
+                _id: 1
+              }
+            },
+          ]);
+
+          const salesDataArray = hourlySales.map(item => {
+            const hour = ('0' + item._id).slice(-2) + ':00';
+            const sales = item.sales;
+            return { [hour]: sales };
+          });
+
+
+         res.json({ status : 200, message : "success", data  : { orders, events , attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
+        
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
+const analytics = async(req,res) =>
+{
+    try
+    {
+
+    }
+    catch(error)
+    {
+
+    }
+}
+
 export default {
     items,
     barProfile,
@@ -977,5 +1063,7 @@ export default {
     favouriteitem,
     events,
     promotions,
-    Menu
+    Menu,
+    home,
+    analytics
 }

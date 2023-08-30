@@ -731,7 +731,7 @@ const profile = async(req,res) =>{
 
 const favourite = async(req,res) =>
 {
-    let { bar , type , item } = req.body;
+    let { Bar , type , item } = req.body;
     try
     {
          //  add bar to the Favourites
@@ -751,7 +751,7 @@ const favourite = async(req,res) =>
         if(type == "drink")
         {
             data = await users.findByIdAndUpdate({_id : req.user._id},{
-                $push: { "favouriteDrinks" : { "bar" : bar , item : item } } 
+                $push: { "favouriteDrinks" : { "bar" : Bar , item : item } } 
             },{new:true})
         }
         else if(type == "bar")
@@ -759,17 +759,18 @@ const favourite = async(req,res) =>
 
             // check if already in Favourites ?
 
-            const hasFavorited = users.favouriteBars.includes(bar);
+            // const hasFavorited = data.favouriteBars.includes(bar);
             
 
-            data = await users.findByIdAndUpdate({_id : req.user._id},{
-                $push: { "favouriteBars" : { bar} } 
+            await users.findByIdAndUpdate({_id : req.user._id},{
+                $push: { "favouriteBars" : { Bar} } 
             },{new:true})
+
             await bar.findByIdAndUpdate({
-                _id : bar
+                _id : Bar
             },
             {
-                $push: { "favouriteDrinks" : { "bar" : bar , item : item } } 
+                $push: { "followers" : { "user" : req.user._id } } 
             })
         }
 

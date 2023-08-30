@@ -53,10 +53,11 @@ const bar = new mongoose.Schema({
     ],
     followers : [
         {
-            type : mongoose.Types.ObjectId,
-            ref : "users",
-            default : null
-
+            user : {
+                type : mongoose.Types.ObjectId,
+                ref : "users",
+                default : null
+            }
         }
     ],
     barHashtag: [

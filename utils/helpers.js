@@ -411,6 +411,20 @@ const getBarMenus = async(bar,category = '',subCategory = '') =>
     }
 }
 
+
+// const getBarFollowers = async(bar) =>
+// {
+//     try
+//     {
+//         let data = awa
+
+//     }
+//     catch(error)
+//     {
+
+//     }
+// }
+
 // User iformation
 
 
@@ -714,7 +728,7 @@ const  getItemById = async(id,bar,bought='') => {
             barId : bar
         }).lean()
 
-        
+        data.superItem = id
         if(data.reviews)
         {
             data.reviews = await Promise.all(data.reviews.map( async (e) =>
@@ -983,7 +997,7 @@ const getBarById = async(id,loggedInUser="") =>{
 
         // get followers
 
-        data.followers = []
+        // data.followers = []
 
 
         // get events
@@ -1013,6 +1027,17 @@ const getBarById = async(id,loggedInUser="") =>{
 
 
         // get list of fovourites
+
+        // check if bar has favourites
+
+        let followers = data.followers;
+        if(data.followers)
+        {
+            data.followers = await Promise.all(data.followers.map( async (e) =>{
+                e =  await getUserById(e.user)
+                return e;
+            }))
+        }
 
 
 
@@ -1080,7 +1105,8 @@ export default {
     getBarMenus,
     houseOffavourites,
     categoryWiseItems,
-    getItemByCategory
+    getItemByCategory,
+    // getBarFollowers
     
 
 }
