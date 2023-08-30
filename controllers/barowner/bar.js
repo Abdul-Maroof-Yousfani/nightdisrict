@@ -754,7 +754,6 @@ const view = async (req, res) => {
 
     }
     catch (error) {
-        console.log(error)
         return res.status(500).json({
             status: 500,
             message: "failed",
@@ -861,7 +860,6 @@ const events = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error);
         return res.status(500).json({
             status : 500,
             message :error.message,
@@ -940,9 +938,9 @@ const Menu = async(req,res) =>
             barId : bar
         });
 
-        // results = await helpers.paginate(results,page,limit);
-        // let data = results.result;
-        results = await Promise.all(results.map( async (e) =>{
+        results = await helpers.paginate(results,page,limit);
+        let data = results.result;
+        data = await Promise.all(data.map( async (e) =>{
             return await helpers.getItemById(e.item,e.barId,'');
         }))
 

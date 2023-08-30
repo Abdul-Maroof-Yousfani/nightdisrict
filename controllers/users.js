@@ -269,14 +269,14 @@ const login = async (req, res) => {
         // check role
         let roleCheck = await Role.findOne({name : req.body.role})
 
-        if(user.role.toString() != roleCheck._id.toString())
-        {
-            return res.status(403).json({
-                status : 403,
-                message : "Only Customers are allowed to logged In!",
-                data : {}
-            })
-        }
+        // if(user.role.toString() != roleCheck._id.toString())
+        // {
+        //     return res.status(403).json({
+        //         status : 403,
+        //         message : "Only Customers are allowed to logged In!",
+        //         data : {}
+        //     })
+        // }
         
 
         if(!user.status) return res.status(403).json({
@@ -746,8 +746,7 @@ const favourite = async(req,res) =>
 
         // get user detail
 
-        console.log(req.user);
-        return;
+      
 
         if(type == "drink")
         {
@@ -761,12 +760,17 @@ const favourite = async(req,res) =>
             // check if already in Favourites ?
 
             const hasFavorited = users.favouriteBars.includes(bar);
-            console.log(hasFavorited);
-            return
+            
 
             data = await users.findByIdAndUpdate({_id : req.user._id},{
                 $push: { "favouriteBars" : { bar} } 
             },{new:true})
+            await bar.findByIdAndUpdate({
+                _id : bar
+            },
+            {
+                $push: { "favouriteDrinks" : { "bar" : bar , item : item } } 
+            })
         }
 
         return res.status(200).json({
@@ -777,7 +781,6 @@ const favourite = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error.message);
         return res.status(500).json({
             status : 500,
             message :error.message,

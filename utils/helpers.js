@@ -722,6 +722,10 @@ const  getItemById = async(id,bar,bought='') => {
                 return await getReviewById(e.review);
             }))
         }
+        else
+        {
+            data.reviews = []
+        }
 
  
       
@@ -879,8 +883,60 @@ const getMenuByBarId = async(bar) =>{
     }
 }
 
+const getItemByCategory = async(req,res) =>
+{
+    try
+    {
 
+    }
+    catch(error)
+    {
 
+    }
+}
+
+const categoryWiseItems = async(id) =>
+{
+    try
+    {
+        let data = await menuCategory.find({parent:{$ne:null}}).limit(3).lean();
+        data = await Promise.all(data.map( async (e) =>{
+            e.items = await menu.find({
+                barId : id,
+                subCategory : e._id
+             }).lean()
+             e.items = await Promise.all(e.items.map( async (it) =>{
+                    return await getItemById(it.item,id);
+             }))
+            return e;
+        }))
+        return data;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
+const houseOffavourites = async(bar) =>
+{
+    try
+    {
+        let data = await menu.find({
+            barId : bar
+        }).limit(5).lean();
+        data = await Promise.all(data.map( async (e) =>
+        {
+            return await getItemById(e.item,bar)
+        }))
+
+        return data;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
 
 const favouriteDrinks = async(bar) =>
 {
@@ -947,8 +1003,21 @@ const getBarById = async(id,loggedInUser="") =>{
         houseOfFav = []
 
 
-        // houseOfFav =   await favouriteDrinks(data._id);
-        // data.houseOfFav = houseOfFav
+        houseOfFav =   await houseOffavourites(id);
+        data.houseOfFav = houseOfFav
+
+        // category wise items
+
+        let categorizedMenus = await categoryWiseItems(id)
+        data.categorizedMenus = categorizedMenus
+
+
+        // get list of fovourites
+
+        
+
+
+
 
         // promotions for the bar
 
@@ -1008,7 +1077,10 @@ export default {
     getBarData,
     getItems,
     getReviewById,
-    getBarMenus
+    getBarMenus,
+    houseOffavourites,
+    categoryWiseItems,
+    getItemByCategory
     
 
 }

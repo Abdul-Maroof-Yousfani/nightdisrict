@@ -59,7 +59,7 @@ router.get('/favourite/bars',helpers.verifyAuthToken, users.favouritebars)
 router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
 // get menu
 
-router.post('/')
+
 
 
 

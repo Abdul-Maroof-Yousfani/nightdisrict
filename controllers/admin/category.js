@@ -187,13 +187,17 @@ const parentCategory = async (req, res) => {
         let data = await menuCategory.find({ parent: null }).lean();
         data = await Promise.all(data.map(async (e) => {
             e.items = await superMenu.find({ category: e._id }).lean()
+
+            // add a check here
+
+       
             e.items = e.items ? e.items : []
             
            
             // get a subcategory
            
 
-            if(e.items)
+            if(e.items.length)
             {
                 e.items = await Promise.all(e.items.map( async (item) =>{
 
@@ -215,25 +219,31 @@ const parentCategory = async (req, res) => {
                     }
 
 
-                    let itemsdata = "";
+                    let filter = {};
 
                     // get item name from the bar
                     if(req.query.barid)
                     {
-                        itemsdata = await menu.findOne({
-                            item : item._id,
-                            bar : req.query.barid
-                        }).lean()
+                        filter.push = item._id
+                        filter.barId = req.query.barid
+                        // itemsdata = await menu.findOne({
+                        //     item : item._id,
+                        //     bar : req.query.barid
+                        // }).lean()
                     }
                     else
                     {
-                        itemsdata = await menu.findOne({
-                            item : item._id,
-                        }).lean()
+                        filter.item = item._id
+                        // filter.bar = req.query.barid
                     }
 
+                    
 
+                    let itemsdata = await menu.findOne({
+                        $and : [filter]
+                    });
 
+                    
                    
                     if(itemsdata)
                     {
