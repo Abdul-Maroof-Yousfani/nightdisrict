@@ -975,6 +975,9 @@ const home = async(req,res) =>
         const events =  (await event.find({
             bar : req.user.barInfo
         })).length;
+        const menuSales =  (await event.find({
+            bar : req.user.barInfo
+        })).length;
         const attendence =  (await attendance.find({
             bar : req.user.barInfo
         })).length;
@@ -1025,7 +1028,7 @@ const home = async(req,res) =>
             salesDataArray[hourIndex] = { [hour]: item.sales };
           });
 
-         res.json({ status : 200, message : "success", data  : { orders, events , attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
+         res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
         
 
     }

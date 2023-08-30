@@ -721,12 +721,10 @@ const getEventById = async(id) =>{
 const  getItemById = async(id,bar,bought='') => {
     try
     {
-
-     
         let data = await menu.findOne({
             item : id,
             barId : bar
-        }).lean()
+        }).select({favDrinks :0}).lean()
 
         data.superItem = id
         if(data.reviews)
@@ -987,7 +985,7 @@ const getBarById = async(id,loggedInUser="") =>{
     try
     {
         // 
-        let data = await bar.findById({_id : id}).select().lean()
+        let data = await bar.findById({_id : id}).select({"favDrinks" : 0}).lean()
 
         // get parent Categories
 
@@ -1011,8 +1009,8 @@ const getBarById = async(id,loggedInUser="") =>{
 
 
         // house of Favourites
-        favDrinks =   await favouriteDrinks(data._id);
-        data.favDrinks = favDrinks
+        // favDrinks =   await favouriteDrinks(data._id);
+        // data.favDrinks = favDrinks
 
         houseOfFav = []
 
