@@ -725,6 +725,12 @@ const getEventById = async(id) =>{
             return  data?data:[]
             
         }))
+        data.participants  = await Promise.all(data.participants.map( async (e) =>{
+            
+            let data = await getUserById(e.user)
+            return  data?data:[]
+            
+        }))
         // get dj
 
         data.dj = await getUserById(data.dj);
