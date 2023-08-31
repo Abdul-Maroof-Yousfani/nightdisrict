@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema({
                 default : 0
             },
             
-            price:{
+            qty:{
                 type:Number,
                 default:0
             },

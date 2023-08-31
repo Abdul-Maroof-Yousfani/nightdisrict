@@ -12,7 +12,8 @@ const store = async(req,res) =>
 {   
     let imageNameOne,thumbPath = "";
     try
-    {   
+    {  
+        console.log(req.body); 
         const schema = Joi.object({
             name: Joi.string().required(),
             description: Joi.string().required(),
@@ -92,7 +93,6 @@ const store = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error)
 
         res.status(500).json({
             status:500,

@@ -14,7 +14,7 @@ import QRCode  from 'qrcode';
 import order from '../models/order.js';
 
 const store = async (req, res) => {
-    let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type,bar} = req.body;
+    let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type,bar,amount} = req.body;
     let paymentCode,cardId;
     let orderNo  = Math.floor(Math.random() * 10000000);
     try
@@ -23,6 +23,7 @@ const store = async (req, res) => {
             subscriptionType:Joi.string().required(),
             items: Joi.array().required(),
             price : Joi.string(),
+            amount : Joi.number(),
             type : Joi.string(),
             bar : Joi.string(),
             transactionId:Joi.string().required(),
@@ -83,6 +84,7 @@ const store = async (req, res) => {
             customer : req.user._id,
             tip,
             type,
+            amount : amountPaid,
             bar : mongoose.Types.ObjectId(bar)
 
         }

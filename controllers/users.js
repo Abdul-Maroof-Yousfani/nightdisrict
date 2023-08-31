@@ -879,6 +879,8 @@ const review  = async(req,res) =>{
     let {item,variation,customer,rating,bar,message,Order} = req.body;
     let body = req.body;
 
+
+
     try
     {
         // check item, if item exists
@@ -906,7 +908,7 @@ const review  = async(req,res) =>{
 
 
         // update
-        await menu.findOneAndUpdate({
+        let newData = await menu.findOneAndUpdate({
             item,
             barId: bar
         },
@@ -918,7 +920,11 @@ const review  = async(req,res) =>{
                 },
                 
             }
+        },{
+            new: true
         })
+
+        console.log(newData)
 
         // get drink data
 
