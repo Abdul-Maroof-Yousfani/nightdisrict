@@ -18,7 +18,7 @@ const store = async(req,res) =>
             name: Joi.string().required(),
             description: Joi.string().required(),
             price: Joi.number().required(),
-            hashtags: Joi.string(),
+            hashtags: type ? Joi.array() : Joi.string(),
             repeat: Joi.boolean(),
             stock :Joi.number().required(),
             dj : Joi.string(),
