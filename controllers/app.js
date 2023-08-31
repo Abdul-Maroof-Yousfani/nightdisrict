@@ -30,11 +30,11 @@ const index = async(req,res) =>
 
   
         // recent Orders
-        let orders = await order.find({customer : req.user._id}).lean().limit(3)
-        orders = await Promise.all(orders.map( async (e) =>{
-            // return helpers.getOrderById(e);
-            return await helpers.getItems(e)
-        }))
+        // let orders = await order.find({customer : req.user._id}).lean().limit(3)
+        // orders = await Promise.all(orders.map( async (e) =>{
+        //     // return helpers.getOrderById(e);
+        //     return await helpers.getItems(e)
+        // }))
 
         // get order items only
 
