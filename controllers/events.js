@@ -9,7 +9,7 @@ import helpers from '../utils/helpers.js';
 import menuCategory from '../models/menuCategory.js';
 import ticket from '../models/ticket.js';
 const store = async(req,res) =>
-{   
+{   let {type} = req.body;
     let imageNameOne,thumbPath = "";
     try
     {  
