@@ -1082,7 +1082,7 @@ const getBarById = async(id,loggedInUser="") =>{
         // category wise items
 
         let categorizedMenus = await categoryWiseItems(id)
-        data.categorizedMenus = []
+        data.categorizedMenus = categorizedMenus
 
     
 
@@ -1112,10 +1112,10 @@ const getBarById = async(id,loggedInUser="") =>{
 
         promos = await promotion.find({bar : data._id}).limit(4).lean();
 
-        // promos = await Promise.all(promos.map( async (e) =>{
-        //     return await getPromotionById(e,id)
-        // }))
-        data.promotions = []
+        promos = await Promise.all(promos.map( async (e) =>{
+            return await getPromotionById(e,id)
+        }))
+        data.promotions = promos
 
 
 
