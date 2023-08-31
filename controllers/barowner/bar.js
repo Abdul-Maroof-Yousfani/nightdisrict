@@ -950,15 +950,15 @@ const Menu = async(req,res) =>
 
         
 
-        // data = await Promise.all(data.map( async (e) =>{
-        //     return await helpers.getItemById(e.item,e.barId,'');
-        // }))
+        data = await Promise.all(data.map( async (e) =>{
+            return await helpers.getItemById(e.item,e.barId,'');
+        }))
 
          return res.status(200).json({
             status : 200,
             message : 'success',
-            data  : [],
-            pagination :results
+            data  : data,
+            pagination :results.totalPages
         })
     }
     catch(error)
