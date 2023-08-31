@@ -340,7 +340,7 @@ const nearbyBars = async(longitude,latitude) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 100
+                $maxDistance: 10000
             }
         }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 , 'geometry' : 1 }).lean();
         
@@ -619,6 +619,8 @@ const getItems = async(order) =>
     try
     {
         let orders = [];
+        console.log(order);
+        
         // check order type only get orders which has Drinks
         if(order.subscriptionType.toString() == '642a6f6e17dc8bc505021545')
         {

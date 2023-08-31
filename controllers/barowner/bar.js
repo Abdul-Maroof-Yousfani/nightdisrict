@@ -1055,7 +1055,7 @@ const analytics = async(req,res) =>
 {
     try
     {
-
+        return res.json({})
     }
     catch(error)
     {
