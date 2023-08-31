@@ -21,20 +21,20 @@ const index = async(req,res) =>
 
     try
     {
-        // let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
+        let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
     
         // events
 
-        // let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
+        let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
 
 
   
         // recent Orders
-        // let orders = await order.find({customer : req.user._id}).lean().limit(3)
-        // orders = await Promise.all(orders.map( async (e) =>{
-        //     // return helpers.getOrderById(e);
-        //     return await helpers.getItems(e)
-        // }))
+        let orders = await order.find({customer : req.user._id}).lean().limit(3)
+        orders = await Promise.all(orders.map( async (e) =>{
+            // return helpers.getOrderById(e);
+            return await helpers.getItems(e)
+        }))
 
         // get order items only
 

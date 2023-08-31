@@ -870,6 +870,7 @@ const events = async(req,res) =>
 }
 const promotions = async(req,res) =>
 {
+    let result = []
     try
     {
         let data = await promotion.find({
@@ -883,9 +884,9 @@ const promotions = async(req,res) =>
           );
 
 
-        let result = await Promise.all(data.result.map( async (e) =>{
-            return await helpers.getPromotionById(e,e.bar)
-        }))
+        //result = await Promise.all(data.result.map( async (e) =>{
+        //     return await helpers.getPromotionById(e,e.bar)
+        // }))
         return res.status(200).json({
             status : 200,
             message : "success",
@@ -923,6 +924,8 @@ const Menu = async(req,res) =>
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(400).json({ status : 400, message: error.message, data: {} })
 
+      
+
 
         const filters = [];
 
@@ -940,15 +943,21 @@ const Menu = async(req,res) =>
         });
 
         results = await helpers.paginate(results,page,limit);
+        // console.log(results);
+        // return res.json({results})
         let data = results.result;
-        data = await Promise.all(data.map( async (e) =>{
-            return await helpers.getItemById(e.item,e.barId,'');
-        }))
+
+
+        
+
+        // data = await Promise.all(data.map( async (e) =>{
+        //     return await helpers.getItemById(e.item,e.barId,'');
+        // }))
 
          return res.status(200).json({
             status : 200,
             message : 'success',
-            data  : results,
+            data  : [],
             pagination :results
         })
     }

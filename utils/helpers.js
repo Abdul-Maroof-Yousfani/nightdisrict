@@ -395,9 +395,9 @@ const nearbyEvents = async(longitude,latitude) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 100
+                $maxDistance: 1000
             }
-        }}).lean();
+        }}).limit(10).lean();
         data = await Promise.all(data.map( async (e) =>{
             return getEventById(e._id);
             
@@ -652,7 +652,6 @@ const getItems = async(order) =>
     try
     {
         let orders = [];
-        console.log(order);
         
         // check order type only get orders which has Drinks
         if(order.subscriptionType.toString() == '642a6f6e17dc8bc505021545')
@@ -663,9 +662,6 @@ const getItems = async(order) =>
         }
 
         return orders;
-
-   
-        
 
     }
     catch(error)
