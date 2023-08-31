@@ -1248,11 +1248,53 @@ const analytics = async(req,res) =>
         const eventAttendanceCount = 300;
         const averagingEventRatingsCount = 4.5;
         const bestSellingMenuPieChart = []; // Data for pie chart
-        const mostPopularMenuCategories = ["Appetizers", "Main Course", "Desserts"];
-        const bestSellingEvents = ["Event A", "Event B", "Event C"];
+        // const mostPopularMenuCategories = ["Appetizers", "Main Course", "Desserts"];
+        // const bestSellingEvents = ["Event A", "Event B", "Event C"];
 
         const demoGraphicsMalePercentage = 60;
         const demoGraphicsFemalePercentage = 40;
+
+        // get best selling menu
+
+        let menuData = await superMenu.find({}).limit(6).lean();
+        let count = 0;
+        menuData = menuData.map((menu) => {
+        count += 20;
+        menu.value = count;
+        return menu;
+        });
+
+        const totalMenuSales = menuData.reduce((sum, menu) => sum + menu.value, 0);
+
+        const menuColors = ['#FFA500', '#FF0000', '#87CEEB', '#FFC0CB', '#008000', '#0000FF']; // Colors for each rank
+
+        const bestSellingMenuWithPercentageAndColor = menuData.map((menu, index) => {
+
+
+        const percentage = (menu.value / totalMenuSales) * 100;
+
+        let backgroundColor;
+        if (percentage >= 30) {
+            backgroundColor = menuColors[0]; // Highest percentage color
+        } else if (percentage >= 25) {
+            backgroundColor = menuColors[1];
+        } else if (percentage >= 20) {
+            backgroundColor = menuColors[2];
+        } else if (percentage >= 15) {
+            backgroundColor = menuColors[3];
+        } else if (percentage >= 10) {
+            backgroundColor = menuColors[4];
+        } else {
+            backgroundColor = menuColors[5]; // Lowest percentage color
+        }
+
+        return {
+            label: menu.menu_name, // Assuming 'name' is the property containing the menu label
+            value: menu.value,
+            percentage: percentage,
+            backgroundColor: backgroundColor
+          };
+    })
 
         const demoGraphicsArray = [
             {
@@ -1337,7 +1379,7 @@ const analytics = async(req,res) =>
             totalTicketCounts,
             eventAttendanceCount,
             averagingEventRatingsCount,
-            bestSellingMenuPieChart,
+            bestSellingMenuPieChart : bestSellingMenuWithPercentageAndColor,
             mostPopularMenuCategories  : menu,
             bestSellingEvents: events,
             demoGraphics: demoGraphicsArray,
