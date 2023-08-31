@@ -1126,16 +1126,16 @@ const app = async(req,res) =>
             value: 0
           }));
       
-          hourlySales.forEach(item => {
-            if (item._id !== null) {
-              const hour = item._id;
-              const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
-              const index = salesDataArray.findIndex(data => data.key === formattedHour);
-              if (index !== -1) {
-                salesDataArray[index].value = item.sales;
-              }
-            }
-          });
+         hourlySales.forEach(item => {
+      if (item._id !== null) {
+        const hour = item._id;
+        const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
+        const index = salesDataArray.findIndex(data => data.key === formattedHour);
+        if (index !== -1) {
+          salesDataArray[index].value = item.sales;
+        }
+      }
+    });
 
          res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
         
@@ -1253,12 +1253,84 @@ const analytics = async(req,res) =>
 
         const demoGraphicsMalePercentage = 60;
         const demoGraphicsFemalePercentage = 40;
+
+        const demoGraphicsArray = [
+            {
+              label: 'Male',
+              percentage: demoGraphicsMalePercentage,
+              color: '#FFA500'
+            },
+            {
+              label: 'Female',
+              percentage: demoGraphicsFemalePercentage,
+              color: '#FF0000'
+            }
+          ];
+        // const userAgeDistribution = {
+        //     'Baby Boomers': 20,
+        //     'GenX': 30,
+        //     'GenY': 25,
+        //     'GenZ': 25
+        //  };
+
         const userAgeDistribution = {
-            "Baby Boomers": 20,
-            "GenX": 30,
-            "GenY": 25,
-            "GenZ": 25
-        };
+            'Baby Boomers': {
+              percentage: 20,
+              color: '#FFA500'
+            },
+            'GenX': {
+              percentage: 30,
+              color: '#FF0000'
+            },
+            'GenY': {
+              percentage: 25,
+              color: '#87CEEB'
+            },
+            'GenZ': {
+              percentage: 25,
+              color: '#008000'
+            }
+          };
+
+        const ageDistributionArray = Object.entries(userAgeDistribution).map(([ageGroup, data]) => ({
+            ageGroup,
+            percentage: data.percentage,
+            color: data.color
+          }));
+
+        const colors = ['#FFA500', '#FF0000', '#87CEEB', '#008000'];
+
+        const sortedAgeDistribution = Object.entries(userAgeDistribution).sort((a, b) => b[1] - a[1]);
+
+    
+
+
+        sortedAgeDistribution.forEach((entry, index) => {
+            const [ageGroup] = entry;
+            userAgeDistribution[ageGroup] = {
+              percentage: entry[1],
+              color: colors[index] || '#808080' // Use gray for extra items
+            };
+          });
+
+
+        //   get list of evetns
+
+        let events = await event.find({}).select({ name :1, picture : 1 }).limit(3).lean()
+        events = events.map((e) =>{
+            e.totalAttendance = 10
+            e.rating = 5
+            return e;
+        })
+        let menu = await menuCategory.find({}).select({ name :1, category_image : 1 }).limit(3).lean()
+        events = events.map((e) =>{
+            e.totalAttendance = 10
+            return e;
+        })
+
+        
+
+          
 
         const analyticsData = {
             totalMenuSalesCount,
@@ -1266,13 +1338,10 @@ const analytics = async(req,res) =>
             eventAttendanceCount,
             averagingEventRatingsCount,
             bestSellingMenuPieChart,
-            mostPopularMenuCategories,
-            bestSellingEvents,
-            demoGraphics: {
-                malePercentage: demoGraphicsMalePercentage,
-                femalePercentage: demoGraphicsFemalePercentage
-            },
-            userAgeDistribution
+            mostPopularMenuCategories  : menu,
+            bestSellingEvents: events,
+            demoGraphics: demoGraphicsArray,
+            userAgeDistribution : ageDistributionArray
         };
 
         return res.json({

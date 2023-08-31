@@ -879,8 +879,6 @@ const review  = async(req,res) =>{
     let {item,variation,customer,rating,bar,message,Order} = req.body;
     let body = req.body;
 
-
-
     try
     {
         // check item, if item exists
@@ -890,11 +888,6 @@ const review  = async(req,res) =>{
         body.customer = req.user._id;
 
         // add dat to the req.body
-
-     
-
-
-        
 
         let checkMenu = await menu.findOne({
             item,
@@ -924,7 +917,6 @@ const review  = async(req,res) =>{
             new: true
         })
 
-        console.log(newData)
 
         // get drink data
 
