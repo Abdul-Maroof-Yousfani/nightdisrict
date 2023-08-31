@@ -13,6 +13,7 @@ const router = express.Router();
 // All Home Page Related 
 
 router.post('/', helpers.verifyAuthToken , app.index)
+
 router.post('/mapView', helpers.verifyAuthToken , app.mapView)
 
 // Ending Home Page Code

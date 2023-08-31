@@ -1059,6 +1059,186 @@ const home = async(req,res) =>
     }
 }
 
+const app = async(req,res) =>
+{
+    let graph  = {}
+    try
+    {  
+
+       
+
+        const orders = (await order.find({
+            bar : req.user.barInfo
+        })).length;
+        const events =  (await event.find({
+            bar : req.user.barInfo
+        })).length;
+        const menuSales =  (await event.find({
+            bar : req.user.barInfo
+        })).length;
+        const attendence =  (await attendance.find({
+            bar : req.user.barInfo
+        })).length;
+
+  
+
+        // get todays sale
+
+
+
+        let averageDrinkRating = 0;
+        let averageEventRating = 0;
+        // const drinks = await Drink.find();
+
+        const currentDate = new Date();
+        const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
+        const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
+
+      
+
+
+        let salesData = await order.find({}).lean();
+        // // salesData  = await Promise.all(salesData.map( async (e) =>{
+        //     return await helpers.getOrderById(e);
+        // // }))
+
+
+
+        const hourlySales = await order.aggregate([
+           
+            {
+              $group: {
+                _id: {
+                  $hour: '$timestamp'
+                },
+                sales: { $sum: '$amount' },
+              },
+            },
+            {
+              $sort: {
+                _id: 1
+              }
+            },
+          ]);
+      
+          const salesDataArray = Array.from({ length: 24 }, (_, index) => ({
+            key: `${index.toString().padStart(2, '0')}:00`,
+            value: 0
+          }));
+      
+          hourlySales.forEach(item => {
+            if (item._id !== null) {
+              const hour = item._id;
+              const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
+              const index = salesDataArray.findIndex(data => data.key === formattedHour);
+              if (index !== -1) {
+                salesDataArray[index].value = item.sales;
+              }
+            }
+          });
+
+         res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
+        
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
+const web = async(req,res) =>
+{
+    let graph  = {}
+    try
+    {  
+
+       
+
+        const orders = (await order.find({
+            bar : req.user.barInfo
+        })).length;
+        const events =  (await event.find({
+            bar : req.user.barInfo
+        })).length;
+        const menuSales =  (await event.find({
+            bar : req.user.barInfo
+        })).length;
+        const attendence =  (await attendance.find({
+            bar : req.user.barInfo
+        })).length;
+
+  
+
+        // get todays sale
+
+
+
+        let averageDrinkRating = 0;
+        let averageEventRating = 0;
+        // const drinks = await Drink.find();
+
+        const currentDate = new Date();
+        const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
+        const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
+
+      
+
+
+        let salesData = await order.find({}).lean();
+        // // salesData  = await Promise.all(salesData.map( async (e) =>{
+        //     return await helpers.getOrderById(e);
+        // // }))
+
+
+
+        const hourlySales = await order.aggregate([
+           
+            {
+              $group: {
+                _id: {
+                  $hour: '$timestamp'
+                },
+                sales: { $sum: '$amount' },
+              },
+            },
+            {
+              $sort: {
+                _id: 1
+              }
+            },
+          ]);
+      
+          const salesDataArray = Array.from({ length: 24 }, (_, index) => {
+            const hour = ('0' + index).slice(-2) + ':00';
+            return { [hour]: 10 };
+          });
+          hourlySales.forEach(item => {
+            const hourIndex = item._id; // Use the hour as index
+            const hour = ('0' + hourIndex).slice(-2) + ':00';
+            salesDataArray[hourIndex] = { key : [hour] , value : 10 };
+          });
+
+         res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
+        
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 const analytics = async(req,res) =>
 {
     try
@@ -1130,5 +1310,7 @@ export default {
     promotions,
     Menu,
     home,
-    analytics
+    analytics,
+    app,
+    web
 }

@@ -7,6 +7,10 @@ const router = express.Router();
 // Bar Profile
 
 router.get("/home" ,helper.verifyAuthToken, Bar.home);
+router.get('/home/app', helper.verifyAuthToken , Bar.app)
+router.get('/home/web', helper.verifyAuthToken , Bar.web)
+
+
 router.get("/analytics" ,helper.verifyAuthToken, Bar.analytics);
 
 
