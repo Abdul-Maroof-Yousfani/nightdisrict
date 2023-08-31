@@ -16,23 +16,25 @@ const index = async(req,res) =>
     // let events = [];
     let orders = [];
     let promotions = [];
+    let bars = []
+    let events = []
 
     try
     {
-        let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
+        // let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
     
         // events
 
-        let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
+        // let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
 
 
   
         // recent Orders
-        let orders = await order.find({customer : req.user._id}).lean().limit(3)
-        orders = await Promise.all(orders.map( async (e) =>{
-            // return helpers.getOrderById(e);
-            return await helpers.getItems(e)
-        }))
+        // let orders = await order.find({customer : req.user._id}).lean().limit(3)
+        // orders = await Promise.all(orders.map( async (e) =>{
+        //     // return helpers.getOrderById(e);
+        //     return await helpers.getItems(e)
+        // }))
 
         // get order items only
 
@@ -41,20 +43,20 @@ const index = async(req,res) =>
 
 
 
-        promotions = await Promise.all(bars.map( async (e) =>{
-            // get Promotions for a bar
-            let promo = await promotion.find({
-                bar  :e._id
-            }).lean()
-            if(promo)
-            {
-                e.promotions = await Promise.all(promo.map( async (code) =>{
-                    return await helpers.getPromotionById(code,e._id);
-                }))
-                return e;
-            }
+        // promotions = await Promise.all(bars.map( async (e) =>{
+        //     // get Promotions for a bar
+        //     let promo = await promotion.find({
+        //         bar  :e._id
+        //     }).lean()
+        //     if(promo)
+        //     {
+        //         e.promotions = await Promise.all(promo.map( async (code) =>{
+        //             return await helpers.getPromotionById(code,e._id);
+        //         }))
+        //         return e;
+        //     }
            
-        }))
+        // }))
 
         // promotions = await helpers.nearbyPromotion(req.body.longitude,req.body.latitude,req.user.barInfo);
 

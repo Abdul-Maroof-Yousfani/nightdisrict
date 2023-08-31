@@ -320,6 +320,39 @@ const checkRole = async(id) =>{
 
 // GET BAR DATA
 
+// get best selling items
+
+const bestSellingDrink = async() =>
+{
+    try
+    {
+        let data = await order.find({
+            subscriptionType : "642a6f6e17dc8bc505021545"
+        });
+        const itemCounts = {};
+
+        for (const order of data) {
+        for (const itemEntry of order.items) {
+            const itemName = itemEntry.item.toString(); // Convert to string for consistency
+            if (itemCounts[itemName]) {
+            itemCounts[itemName]++;
+            } else {
+            itemCounts[itemName] = 1;
+            }
+        }
+        }
+
+        return itemCounts;
+
+    }
+    catch(error)
+    {
+        console.error("Error while calculating best selling items:", error);
+        return {}
+    }
+}
+
+
 const getBarData = async(id) => {
     try
     {
@@ -1107,6 +1140,7 @@ export default {
     categoryWiseItems,
     getItemByCategory,
     // getBarFollowers
+    bestSellingDrink
     
 
 }

@@ -1029,7 +1029,6 @@ const home = async(req,res) =>
             const hour = ('0' + index).slice(-2) + ':00';
             return { [hour]: 10 };
           });
-      
           hourlySales.forEach(item => {
             const hourIndex = item._id; // Use the hour as index
             const hour = ('0' + hourIndex).slice(-2) + ':00';
@@ -1055,11 +1054,53 @@ const analytics = async(req,res) =>
 {
     try
     {
-        return res.json({})
+        const totalMenuSalesCount = 1500;
+        const totalTicketCounts = 1200;
+        const eventAttendanceCount = 300;
+        const averagingEventRatingsCount = 4.5;
+        const bestSellingMenuPieChart = []; // Data for pie chart
+        const mostPopularMenuCategories = ["Appetizers", "Main Course", "Desserts"];
+        const bestSellingEvents = ["Event A", "Event B", "Event C"];
+
+        const demoGraphicsMalePercentage = 60;
+        const demoGraphicsFemalePercentage = 40;
+        const userAgeDistribution = {
+            "Baby Boomers": 20,
+            "GenX": 30,
+            "GenY": 25,
+            "GenZ": 25
+        };
+
+        const analyticsData = {
+            totalMenuSalesCount,
+            totalTicketCounts,
+            eventAttendanceCount,
+            averagingEventRatingsCount,
+            bestSellingMenuPieChart,
+            mostPopularMenuCategories,
+            bestSellingEvents,
+            demoGraphics: {
+                malePercentage: demoGraphicsMalePercentage,
+                femalePercentage: demoGraphicsFemalePercentage
+            },
+            userAgeDistribution
+        };
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data : analyticsData
+
+        })
     }
     catch(error)
     {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
 
+        })
     }
 }
 
