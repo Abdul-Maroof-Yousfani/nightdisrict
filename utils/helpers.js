@@ -1022,12 +1022,15 @@ const getBarById = async(id,loggedInUser="") =>{
         // 
         let data = await bar.findById({_id : id}).select({"favDrinks" : 0}).lean()
 
+       
+
         // get parent Categories
 
         let parent = await menuCategory.find({parent : null});
 
         data.categories = parent;
 
+      
         // get followers
 
         // data.followers = []
@@ -1041,6 +1044,11 @@ const getBarById = async(id,loggedInUser="") =>{
         
         data.events = events
 
+        
+
+
+
+
 
 
         // house of Favourites
@@ -1050,13 +1058,21 @@ const getBarById = async(id,loggedInUser="") =>{
         houseOfFav = []
 
 
-        houseOfFav =   await houseOffavourites(id);
+        // houseOfFav =   await houseOffavourites(id);
         data.houseOfFav = houseOfFav
+
+            
+
+
 
         // category wise items
 
-        let categorizedMenus = await categoryWiseItems(id)
-        data.categorizedMenus = categorizedMenus
+        // let categorizedMenus = await categoryWiseItems(id)
+        data.categorizedMenus = []
+
+    
+
+
 
 
         // get list of fovourites
@@ -1077,14 +1093,17 @@ const getBarById = async(id,loggedInUser="") =>{
 
 
 
+
         // promotions for the bar
 
         promos = await promotion.find({bar : data._id}).lean();
 
-        promos = await Promise.all(promos.map( async (e) =>{
-            return await getPromotionById(e,id)
-        }))
-        data.promotions = promos
+        // promos = await Promise.all(promos.map( async (e) =>{
+        //     return await getPromotionById(e,id)
+        // }))
+        data.promotions = []
+
+
 
         // get menu by id
 
