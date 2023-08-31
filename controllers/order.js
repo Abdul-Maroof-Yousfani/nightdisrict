@@ -62,6 +62,9 @@ const store = async (req, res) => {
         paymentCode = paymentCode.code
         subscriptionType = subscriptionType._id
 
+        console.log(req.body);
+        return;
+
 
       
         // check Customers

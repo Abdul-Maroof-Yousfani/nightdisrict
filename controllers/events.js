@@ -9,25 +9,22 @@ import helpers from '../utils/helpers.js';
 import menuCategory from '../models/menuCategory.js';
 import ticket from '../models/ticket.js';
 const store = async(req,res) =>
-{   let {type} = req.body;
+{   
     let imageNameOne,thumbPath = "";
     try
-    {  
-        console.log(req.body); 
+    {   
         const schema = Joi.object({
             name: Joi.string().required(),
             description: Joi.string().required(),
             price: Joi.number().required(),
-            hashtags: type ? Joi.array() : Joi.string(),
+            hashtags: Joi.string(),
             repeat: Joi.boolean(),
             stock :Joi.number().required(),
             dj : Joi.string(),
             category : Joi.string(),
-            type : Joi.string(),
             venue : Joi.string().required(),
             date : Joi.string().required(),
             enddate : Joi.string().required(),
-            picture : Joi.any(),
          });
         const { error, value } = schema.validate(req.body);
         if(error) return res.status(400).json({
@@ -47,14 +44,9 @@ const store = async(req,res) =>
 
 
 
-
         if(req.body.hashtags)
         {
-            if(!type)
-            {
-                req.body.hashtags = JSON.parse(req.body.hashtags)
-
-            }
+            req.body.hashtags = JSON.parse(req.body.hashtags)
         }
         if(req.body.category)
         {
@@ -100,6 +92,7 @@ const store = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error)
 
         res.status(500).json({
             status:500,
