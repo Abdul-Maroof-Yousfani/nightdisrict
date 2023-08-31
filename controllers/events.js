@@ -8,6 +8,7 @@ import bar from '../models/bar.js';
 import helpers from '../utils/helpers.js';
 import menuCategory from '../models/menuCategory.js';
 import ticket from '../models/ticket.js';
+
 const store = async(req,res) =>
 {   
     let imageNameOne,thumbPath = "";
@@ -196,28 +197,19 @@ const nearby = async(req,res) =>{
             }
         }}).lean();
         // convert data to a proper event Page
-
-        data = await Promise.all(data.map( async (e) => {
+        data = await helpers.paginate(data,req.params.page,req.params.limit)
+        
+        let newData = await Promise.all(data.result.map( async (e) => {
                 // get hastags
-                e.hashtags = await Promise.all(e.hashtags.map( async( hash) =>{
-                    return await hashtag.findById({_id : hash},{name : 1})
-                }))
-                // get dj from the Event
-                e.dj = await users.findById({_id : e.dj},{username : 1})
-
-                // get Category for  the Event
-                e.category = await Promise.all(e.category.map( async( cat) =>{
-                    console.log(cat)
-                    return await menuCategory.findById({_id : cat},{name : 1})
-                }))
-                return e;
+                return await helpers.getEventById(e._id);
         } ))
         
 
         return res.status(200).json({
             status : 200,
             message : "success",
-            data
+            data:newData,
+            paginate : data.totalPages
         })
 
     }
