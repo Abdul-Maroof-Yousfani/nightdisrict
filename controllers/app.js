@@ -43,7 +43,7 @@ const index = async(req,res) =>
             // get Promotions for a bar
             let promo = await promotion.find({
                 bar  :e._id
-            }).lean()
+            }).limit(5).lean()
             if(promo)
             {
                 e.promotions = await Promise.all(promo.map( async (code) =>{
