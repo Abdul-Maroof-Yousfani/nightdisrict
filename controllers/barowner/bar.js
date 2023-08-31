@@ -1027,13 +1027,13 @@ const home = async(req,res) =>
       
           const salesDataArray = Array.from({ length: 24 }, (_, index) => {
             const hour = ('0' + index).slice(-2) + ':00';
-            return { [hour]: 0 };
+            return { [hour]: 10 };
           });
       
           hourlySales.forEach(item => {
             const hourIndex = item._id; // Use the hour as index
             const hour = ('0' + hourIndex).slice(-2) + ':00';
-            salesDataArray[hourIndex] = { [hour]: item.sales };
+            salesDataArray[hourIndex] = { [hour]: 10 };
           });
 
          res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
