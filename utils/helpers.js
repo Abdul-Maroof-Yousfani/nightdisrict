@@ -965,7 +965,7 @@ const categoryWiseItems = async(id) =>
             e.items = await menu.find({
                 barId : id,
                 subCategory : e._id
-             }).lean()
+             }).limit(3).lean()
              e.items = await Promise.all(e.items.map( async (it) =>{
                     return await getItemById(it.item,id);
              }))
@@ -1072,7 +1072,7 @@ const getBarById = async(id,loggedInUser="") =>{
         houseOfFav = []
 
 
-        // houseOfFav =   await houseOffavourites(id);
+        houseOfFav =   await houseOffavourites(id);
         data.houseOfFav = houseOfFav
 
             
@@ -1081,7 +1081,7 @@ const getBarById = async(id,loggedInUser="") =>{
 
         // category wise items
 
-        // let categorizedMenus = await categoryWiseItems(id)
+        let categorizedMenus = await categoryWiseItems(id)
         data.categorizedMenus = []
 
     
@@ -1110,7 +1110,7 @@ const getBarById = async(id,loggedInUser="") =>{
 
         // promotions for the bar
 
-        promos = await promotion.find({bar : data._id}).lean();
+        promos = await promotion.find({bar : data._id}).limit(4).lean();
 
         // promos = await Promise.all(promos.map( async (e) =>{
         //     return await getPromotionById(e,id)

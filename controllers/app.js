@@ -17,6 +17,7 @@ const index = async(req,res) =>
     // let events = [];
     let orders = [];
     let promotions = [];
+    let newData = [];
     let bars = []
     let events = []
 
@@ -38,6 +39,7 @@ const index = async(req,res) =>
         }))
 
         // get order items only
+        
 
         promotions = await Promise.all(bars.map( async (e) =>{
             // get Promotions for a bar
@@ -45,12 +47,16 @@ const index = async(req,res) =>
                 bar  :e._id
             }).limit(5).lean()
             if(promo)
-            {
+            {   
                 e.promotions = await Promise.all(promo.map( async (code) =>{
-                    return await helpers.getPromotionById(code,e._id);
+                    e.promotions = await helpers.getPromotionById(code,e._id)
+                    newData.push(e)
+                    return e.promotions
                 }))
                 return e;
             }
+            return 
+
            
         }))
 
@@ -64,7 +70,7 @@ const index = async(req,res) =>
         return res.status(200).json({
             status : 200,
             message : "success",
-            data :  { bars ,  events , orders , promotions } 
+            data :  { bars ,  events , orders , promotions : newData } 
         })
     }
     catch(error)
