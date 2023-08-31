@@ -68,5 +68,6 @@ const promotion = new mongoose.Schema({
     },
 },{timestamps:true});
 
-promotion.index({location:"2dsphere"});
+promotion.index({location:"2dsphere", bar : 1});
+promotion.index({bar : 1});
 export default mongoose.model('promotions', promotion);

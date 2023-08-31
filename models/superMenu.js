@@ -54,4 +54,6 @@ const superMenu = new mongoose.Schema({
     }],
     
 },{timestamps:true});
+
+superMenu.index({category : 1 ,  subCategory :1 })
 export default mongoose.model('superMenu', superMenu);

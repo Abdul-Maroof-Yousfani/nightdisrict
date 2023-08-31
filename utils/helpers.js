@@ -652,14 +652,11 @@ const getItems = async(order) =>
     try
     {
         let orders = [];
-        
-        // check order type only get orders which has Drinks
-        if(order.subscriptionType.toString() == '642a6f6e17dc8bc505021545')
-        {
-            await Promise.all(order.items.map( async (e) =>{
-                orders = await getItemById(e.item,order.bar,e.variant);
-             }))
-        }
+       
+        await Promise.all(order.items.map( async (e) =>{
+            orders = await getItemById(e.item,order.bar,e.variant);
+       }))
+      
 
         return orders;
 
@@ -754,6 +751,21 @@ const getEventById = async(id) =>{
 // Writing Code Related To Menu and Categories Setup
 
 // get item details
+
+const getItemById2 =  async(id) =>
+{
+    try
+    {   
+        let data = await superMenu.findById({
+            _id : id
+        });
+        return data;
+    }
+    catch(error)
+    {
+
+    }
+}
 
 const  getItemById = async(id,bar,bought='') => {
     try
@@ -1161,7 +1173,8 @@ export default {
     categoryWiseItems,
     getItemByCategory,
     // getBarFollowers
-    bestSellingDrink
+    bestSellingDrink,
+    getItemById2
     
 
 }

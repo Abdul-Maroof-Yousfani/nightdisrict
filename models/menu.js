@@ -52,4 +52,6 @@ const menu = new mongoose.Schema({
     }]
    
 });
+
+menu.index({ item: 1, barId: 1 });
 export default mongoose.model('menu', menu);

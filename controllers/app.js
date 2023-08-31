@@ -9,6 +9,7 @@ import bar from '../models/bar.js';
 import menu from '../models/menu.js';
 import superMenu from '../models/superMenu.js';
 import order from '../models/order.js';
+import mongoose from 'mongoose';
 
 
 const index = async(req,res) =>
@@ -30,18 +31,13 @@ const index = async(req,res) =>
 
   
         // recent Orders
-        // let orders = await order.find({customer : req.user._id}).lean().limit(3)
-        // orders = await Promise.all(orders.map( async (e) =>{
-        //     // return helpers.getOrderById(e);
-        //     return await helpers.getItems(e)
-        // }))
+        let orders = await order.find({customer : req.user._id , subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')}).lean().limit(3)
+        orders = await Promise.all(orders.map( async (e) =>{
+            // return helpers.getOrderById(e);
+            return await helpers.getItems(e)
+        }))
 
         // get order items only
-
-        
-
-
-
 
         // promotions = await Promise.all(bars.map( async (e) =>{
         //     // get Promotions for a bar
