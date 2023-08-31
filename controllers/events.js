@@ -27,6 +27,7 @@ const store = async(req,res) =>
             venue : Joi.string().required(),
             date : Joi.string().required(),
             enddate : Joi.string().required(),
+            picture : Joi.any(),
          });
         const { error, value } = schema.validate(req.body);
         if(error) return res.status(400).json({
