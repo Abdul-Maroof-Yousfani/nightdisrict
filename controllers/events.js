@@ -23,6 +23,7 @@ const store = async(req,res) =>
             stock :Joi.number().required(),
             dj : Joi.string(),
             category : Joi.string(),
+            type : Joi.string(),
             venue : Joi.string().required(),
             date : Joi.string().required(),
             enddate : Joi.string().required(),
@@ -45,9 +46,14 @@ const store = async(req,res) =>
 
 
 
+
         if(req.body.hashtags)
         {
-            req.body.hashtags = JSON.parse(req.body.hashtags)
+            if(!type)
+            {
+                req.body.hashtags = JSON.parse(req.body.hashtags)
+
+            }
         }
         if(req.body.category)
         {
