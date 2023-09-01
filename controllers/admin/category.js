@@ -226,37 +226,16 @@ const parentCategory2 = async (req, res) => {
                     let filter = {};
 
                     // get item name from the bar
-                    if(req.query.barid)
-                    {
-                        filter.push = item._id
-                        filter.barId = req.query.barid
-                        // itemsdata = await menu.findOne({
-                        //     item : item._id,
-                        //     bar : req.query.barid
-                        // }).lean()
-                    }
-                    else
-                    {
-                        filter.item = item._id
-                        // filter.bar = req.query.barid
-                    }
-
+                   
                     
 
                     let itemsdata = await menu.findOne({
-                        $and : [filter]
-                    });
+                        item : item._id
+                    }).lean();
 
-                    console.log(itemsdata)
-
-                    
-                   
-                    if(itemsdata)
-                    {
-                        
                         // add variation data to
-                        let totalPrice = 0;
-                        item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
+                    let totalPrice = 0;
+                    item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
                             // get variation data
                             let newVariations = await pourtype.findOne({
                                 _id : va.variant
@@ -266,12 +245,13 @@ const parentCategory2 = async (req, res) => {
                             return va
                         }))
 
-                        item.price = totalPrice
+
+                    item.price = totalPrice
 
                         
                         // get reviews from the customer
 
-                        if(itemsdata.reviews)
+                    if(itemsdata.reviews)
                         {
                             item.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
                                 // get customer data
@@ -310,8 +290,6 @@ const parentCategory2 = async (req, res) => {
                             item.reviews = []
                         }
                        
-
-                    }
 
                     return item;
                     
