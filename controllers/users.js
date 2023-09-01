@@ -976,6 +976,85 @@ const myOrders = async(req,res) =>
     
 }
 
+const all = async(req,res) =>
+{
+    try
+    {
+ 
+        let data = await User.find({},{
+            username : 1,email: 1, dateofbirth: 1
+        }).lean()
+        let result = await helpers.paginate(data,req.params.page,req.params.limit);
+
+        let activities = [{
+            "Total Members" : data.length
+        },
+        {
+            "Total Active Members" : data.length
+        },
+        {
+            "Total Blocked Members" : data.length
+        }]
+
+        // let totalMembers = data.length;
+        // let totalActiveMembers = data.length;
+        // let totalBlockedMembers = data.length;
+
+
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : {activities,activeMembers:result.result , blockedMembers : result.result},
+            paginate : result.totalPages
+        })
+    }
+    catch(error)
+    {
+
+    }
+}
+
+
+const orders = async(req,res) =>
+{
+    try
+    {
+ 
+        let data = await User.find({},{
+            username : 1,email: 1, dateofbirth: 1
+        }).lean()
+        let result = await helpers.paginate(data,req.params.page,req.params.limit);
+
+        let activities = [{
+            "Total Members" : data.length
+        },
+        {
+            "Total Active Members" : data.length
+        },
+        {
+            "Total Blocked Members" : data.length
+        }]
+
+        // let totalMembers = data.length;
+        // let totalActiveMembers = data.length;
+        // let totalBlockedMembers = data.length;
+
+
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : {activities,activeMembers:result.result , blockedMembers : result.result},
+            paginate : result.totalPages
+        })
+    }
+    catch(error)
+    {
+
+    }
+}
+
+
+
 export default{
     home,
     register,
@@ -994,5 +1073,7 @@ export default{
     favouriteDrinks,
     social,
     review,
-    myOrders
+    myOrders,
+    all,
+    orders
 };

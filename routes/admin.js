@@ -68,4 +68,41 @@ router.put('/users/blockOrUnBlockUser',helpers.verifyAuthToken,admin.blockOrUnBl
 router.post('/page',page.store);
 router.get('/page/:slug',page.find);
 
+
+
+// Super Admin Home Page
+
+router.get('/home', admin.home);
+
+// HomePage Ends
+
+
+// All bars Related Data
+
+router.get('/bars', bar.all);
+
+// Ending Bar Related Data
+
+
+// All user Related Data
+
+router.get('/users', users.all);
+router.get('/users/:id', users.activities);
+
+
+// router.get('/menus', menu.all );
+
+
+
+
+// get admin User Activities
+// router.get('/home', admin.home);
+
+
+
+// 
+
+
+// Ending HomePage Here
+
 export default router;

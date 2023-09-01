@@ -5,6 +5,44 @@ import commonHelper from "../../helpers/commonHelper.js";
 import menu from "../../models/menu.js";
 import menuCategory from "../../models/menuCategory.js";
 import pourtype from "../../models/pourtype.js";
+import superMenu from "../../models/superMenu.js";
+
+
+
+
+// admin Panel Routes
+// Home Page Functions
+const home = async(req,res) =>
+{
+    let analytics  = []
+    try
+    {
+        let recentMenu = await menuCategory.find({}).limit(4);
+        let registeredBars = await bar.find({}).limit(4);
+        let menu = await superMenu.find({}).length;
+        let activeUsers = await users.find({},{
+            username : 1 , profile_picture:1
+        }).limit(5);
+        return res.status(200).json({
+            status:200,
+            message : "success",
+            data : {recentMenu,analytics,registeredBars,menu,activeUsers : activeUsers.length,userActivities:activeUsers}
+        })
+    }
+    catch(error)
+    {
+        console.log(error.message)
+        return res.status(500).json({
+            status:500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+//
+
+
+
 
 const inquiries = async (req, res) => {
     let Bar;
@@ -164,6 +202,7 @@ const barOwnersDetails = async (req, res) => {
 }
 
 export default {
+    home,
     barOwnersDetails,
     inquiries,
     updateInquiry,

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import fs from 'fs';
 import superMenu from '../../models/superMenu.js';
 import menuCategory from '../../models/menuCategory.js';
+import helpers from '../../utils/helpers.js';
 
 const store = async(req,res) =>
 {
@@ -257,7 +258,10 @@ const index = async(req,res) =>
 
 
         let data = await superMenu.find({}).select({ "picture" : 0 , "bar" : 0, "userType" : 0, "category" : 0, "subCategory" : 0  , "createdAt" : 0 , "updatedAt" : 0 }).lean();
-        data = await Promise.all(data.map(async(e) =>{
+        // paginate the code
+        let result = await helpers.paginate(data,req.params.page,req.params.limit);
+
+        let newData = await Promise.all(result.result.map(async(e) =>{
             if(e.categories.length)
             {
                 e.categories = await Promise.all(e.categories.map( async (category) =>{
@@ -277,7 +281,9 @@ const index = async(req,res) =>
         return res.json({
             status : 200,
             message : "success",
-            data
+            data : newData,
+            paginate :  result.totalPages
+
         })
           
     }
@@ -304,7 +310,7 @@ const show = async(req,res) =>{
                 }))
                
             }
-            if(data.subCategories.length)
+        if(data.subCategories.length)
             {
                 data.subCategories = await Promise.all(data.subCategories.map( async (sub) =>{
                     return await menuCategory.findOne({_id : sub}).select({"name" : 1 , "description" : 1 , "category_image" : 1})

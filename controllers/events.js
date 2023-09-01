@@ -231,17 +231,20 @@ const tickets = async(req,res) =>{
         let data = await ticket.find({
             user : req.user._id
         }).lean();
+        let results = await helpers.paginate(data,req.params.page,req.params.limit)
         //  let get events details
-        data =  await Promise.all(data.map(async(e) =>{
+        data =  await Promise.all(results.result.map(async(e) =>{
 
             e.event = await helpers.getEventById(e.event)
+            e.user = await helpers.getUserById(e.event)
             return e;   
         }))
 
         return res.json({
             status : 200,
             message : "success",
-            data
+            data,
+            paginate : results.totalPages
         })
 
     }

@@ -1404,6 +1404,30 @@ const analytics = async(req,res) =>
     }
 }
 
+const all = async(req,res) =>
+{
+    try
+    {
+        let data = await Bar.find({});
+        let results = await helpers.paginate(data,req.params.page,req.params.limit)
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : results.result,
+            paginate : results.totalPages
+
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data   : {}
+        })
+    }
+}
+
 export default {
     items,
     barProfile,
@@ -1423,5 +1447,6 @@ export default {
     home,
     analytics,
     app,
-    web
+    web,
+    all
 }
