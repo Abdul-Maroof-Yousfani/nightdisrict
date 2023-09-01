@@ -258,6 +258,8 @@ const tickets = async(req,res) =>{
     }
 }
 
+
+
 export  default{
     store,
     index,

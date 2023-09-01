@@ -12,6 +12,7 @@ import membership from '../models/membership.js';
 import ticket from '../models/ticket.js';
 import QRCode  from 'qrcode';
 import order from '../models/order.js';
+import payments from '../models/payments.js';
 
 const store = async (req, res) => {
     let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type,bar,amount} = req.body;
@@ -219,27 +220,41 @@ const payment = async(req,res) =>
 {
     try
     {
-        let data = await order.find({
+        let Order = await order.find({
             customer : req.user._id
-        });
-        // get neccessary details in the payment screen
-        data = await Promise.all(data.map(async(e) =>{
-            console.log(e)
+        }).lean()
+        let results = await helpers.paginate(Order,req.params.page,req.params.limit)
+        let data = await Promise.all(results.result.map( async (e) =>{
+            let order = await helpers.getOrderById(e)
+
+            let transaction  = await payments.findOne({
+                    order : e._id
+                },{
+                    paymentMethod : 1,
+                    amountPaid : 1,
+                    invoiceUrl : 1
+                })
+            order.transaction = transaction;
+           
+            return order;
+
         }))
-        return res.json({
+        
+        return res.status(200).json({
             status : 200,
-            message : 'success',
-            data
+            message : "succes",
+            data : data,
+            paginate : results.totalPages
         })
-    }
+    }   
     catch(error)
     {
-        return res.json({
-            status : 200,
+        return res.status(500).json({
+            status : 500,
             message : error.message,
             data : []
         })
-    }
+    }   
 }
 export default {
     store,

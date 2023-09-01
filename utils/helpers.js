@@ -673,6 +673,7 @@ const getOrderById = async(data) => {
         // let data = await order.findById(id).lean();
 
         data.subscriptionType = await orderType(data.subscriptionType);
+        data.bar = await getBarData(data.bar)
         data.customer = await getUserById(data.customer);
 
         
@@ -704,8 +705,7 @@ const getOrderById = async(data) => {
     }
     catch(error)
     {
-        console.log(error);
-        console.log(error.message)
+       return error;
     }
 }
 
