@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/attendance',helpers.verifyAuthToken,bouncer.attendance);
 router.get('/attendance',helpers.verifyAuthToken,bouncer.tickets);
+router.post('/forget',helpers.verifyAuthToken,bouncer.forget);
 
 
 

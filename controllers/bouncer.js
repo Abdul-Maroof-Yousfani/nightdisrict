@@ -99,8 +99,28 @@ const tickets = async(req,res) =>
     }
 }
 
+const forget = async(req,res) =>
+{
+    try
+    {
+        return res.json({
+            status : 200,
+            message : "Requesting generated Successfully!",
+            data : {} 
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data : {} 
+        })
+    }
+}
 
 export  default{
     attendance,
-    tickets
+    tickets,
+    forget
 }
