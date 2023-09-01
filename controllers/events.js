@@ -236,7 +236,7 @@ const tickets = async(req,res) =>{
         data =  await Promise.all(results.result.map(async(e) =>{
 
             e.event = await helpers.getEventById(e.event)
-            e.user = await helpers.getUserById(e.event)
+            e.user = await helpers.getUserById(e.user)
             return e;   
         }))
 
