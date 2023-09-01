@@ -196,17 +196,11 @@ const parentCategory2 = async (req, res) => {
                     })
                 }))
             }
-            console.log(e.items);
-            return;
-            
 
             // add a check here
 
-            
-           
             // get a subcategory
            
-
             if(e.items.length)
             {
                 e.items = await Promise.all(e.items.map( async (item) =>{
