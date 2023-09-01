@@ -732,6 +732,7 @@ const profile = async(req,res) =>{
 
 const favourite = async(req,res) =>
 {
+
     let { Bar , type , item , latitude , longitude } = req.body;
     let newDrinkdata = []
     try
@@ -798,12 +799,15 @@ const favourite = async(req,res) =>
             
             getElement.nearbybars = newDrinkdata
 
+            let barinfo = await helpers.getUserById(req.user._id);
+
+
             await data.save();
       
             return res.status(200).json({
                 status : 200,
                 message : "success",
-                data : getElement
+                data : barinfo
             })
         
         }
@@ -824,7 +828,7 @@ const favourite = async(req,res) =>
 
               await data.save();
 
-              let barinfo = await helpers.getBarData(Bar);
+              let barinfo = await helpers.getUserById(req.user._id);
 
               return res.status(200).json({
                     status : 200,
