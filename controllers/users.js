@@ -816,6 +816,8 @@ const favourite = async(req,res) =>
 
 const favouritebars = async(req,res) =>{
     let {bar,type} = req.body;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10; 
     let barData = []
     try
     {
@@ -829,9 +831,19 @@ const favouritebars = async(req,res) =>{
             message : "not found",
             data : {}
         })
+
+        // const totalBars = data.favouriteBars.length;
+        // const totalPages = Math.ceil(totalBars / pageSize);
+
+        // const startIndex = (page - 1) * pageSize;
+        // const endIndex = Math.min(startIndex + pageSize, totalBars);
+
+        // data = data.favouriteBars.slice(startIndex, endIndex);
+        let result = await helpers.paginate(data.favouriteBars,req.params.page,req.params.limit);
+
         
-        data.favouriteBars = await Promise.all(data.favouriteBars.map( async (e) =>{
-            let details =  await helpers.getBarById(e.bar)
+        data = await Promise.all(result.result.map( async (e) =>{
+            let details =  await helpers.getBarData(e.bar)
             barData.push(details)
 
         }))
@@ -839,7 +851,9 @@ const favouritebars = async(req,res) =>{
         return res.status(200).json({
             status : 200,
             message : "success",
-            data  : barData
+            data  : barData,
+            paginate : result.totalPages
+            
         })
     }
     catch(error)

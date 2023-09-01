@@ -1002,8 +1002,6 @@ const home = async(req,res) =>
     try
     {  
 
-       
-
         const orders = (await order.find({
             bar : req.user.barInfo
         })).length;

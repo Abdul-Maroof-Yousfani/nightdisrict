@@ -368,15 +368,17 @@ const getBarData = async(id) => {
 const nearbyBars = async(longitude,latitude) =>{
     try
     {   
-        let data  = await bar.find({location: {
+        let data  = await bar.find({
+            active : true,
+            location: {
 
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
                 $maxDistance: 10000
             }
-        }}).limit(15).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 , 'geometry' : 1 }).lean();
-        
+        }}).limit(15).sort({createdAt:-1}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 , 'geometry' : 1 , createdAt:1 }).lean();
+
         
         return data
 
