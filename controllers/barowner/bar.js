@@ -1450,6 +1450,53 @@ const all = async(req,res) =>
     }
 }
 
+const destroy = async(req,res) =>
+{
+    try
+    {
+        // let user
+        if(req.user.barInfo)
+        {
+            await Bar.findByIdAndUpdate({
+                _id : req.user.barInfo
+            },{
+                $set : {
+                    active : false  
+                }
+            },{
+                new : true
+            })
+
+            await User.findByIdAndUpdate({
+                _id : req.user._id
+            },{
+                $set : {
+                    isActive : false  
+                }
+            },{
+                new : true
+            })
+        }
+
+        
+
+
+        return res.status(200).json({
+            status : 200,
+            message : "Account Deleted Successfully!",
+            data 
+        })
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -1471,5 +1518,6 @@ export default {
     analytics,
     app,
     web,
-    all
+    all,
+    destroy
 }

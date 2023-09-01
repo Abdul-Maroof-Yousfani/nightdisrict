@@ -41,7 +41,8 @@ const social = async(req,res) =>{
 
        
         let data = await  User.findOne({
-            email : req.body.email
+            email : req.body.email,
+            isActive : true
         }).lean()
 
         if(!data)
@@ -256,7 +257,7 @@ const login = async (req, res) => {
         
         let user = {};
         user = await  User.findOne({
-            $or: [{ email: username }, { username: username }],
+        $or: [{ email: username }, { username: username } , {isActive : true}],
           }).lean();
 
         if (!user) {
