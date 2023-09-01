@@ -13,6 +13,7 @@ import users from '../models/users.js';
 import menu from '../models/menu.js';
 import reviews from '../models/reviews.js';
 import order from '../models/order.js';
+import superMenu from '../models/superMenu.js';
 
 const home = (req, res) => {
     res.send('Hello From Home');
@@ -731,7 +732,8 @@ const profile = async(req,res) =>{
 
 const favourite = async(req,res) =>
 {
-    let { Bar , type , item } = req.body;
+    let { Bar , type , item , latitude , longitude } = req.body;
+    let newDrinkdata = []
     try
     {
          //  add bar to the Favourites
@@ -760,11 +762,50 @@ const favourite = async(req,res) =>
 
       
 
-        if(type == "drink")
+        if( type == "drink")
         {
-            data = await users.findByIdAndUpdate({_id : req.user._id},{
-                $push: { "favouriteDrinks" : { "bar" : Bar , item : item } } 
-            },{new:true})
+         
+             
+            const index = data.favouriteDrinks.findIndex(favoriteBar => favoriteBar.bar.toString() === Bar &&  favoriteBar.item.toString() == item);
+
+            if (index === -1) {
+                // Bar is not in favorites, so add it
+                data.favouriteDrinks.push({bar:Bar , item});
+              } else {
+                // Bar is in favorites, so remove it
+                data.favouriteDrinks.splice(index, 1);
+              }
+
+            let getElement = await superMenu.findById({
+                _id : item
+            }).lean()
+            // get nearby bars
+            let nearbybars = await helpers.nearbyBars(longitude,latitude);
+            nearbybars = await Promise.all(nearbybars.map( async (e) =>{
+                let itemcheck = await menu.findOne({
+                    item : item,
+                    barId : e._id
+
+                })
+                if(itemcheck)
+                {
+                    e.item = await helpers.getItemById(item,e._id)
+                    newDrinkdata.push(e.item);
+                }
+                
+                
+            }))
+            
+            getElement.nearbybars = newDrinkdata
+
+            await data.save();
+      
+            return res.status(200).json({
+                status : 200,
+                message : "success",
+                data : getElement
+            })
+        
         }
         else if(type == "bar")
         {
@@ -781,8 +822,16 @@ const favourite = async(req,res) =>
                 data.favouriteBars.splice(index, 1);
               }
 
-            await data.save();
-           
+              await data.save();
+
+              let barinfo = await helpers.getBarData(Bar);
+
+              return res.status(200).json({
+                    status : 200,
+                    message : "success",
+                    data : barinfo
+                })
+            
 
             // await users.findByIdAndUpdate({_id : req.user._id},{
             //     $push: { "favouriteBars" : { Bar} } 
@@ -796,16 +845,11 @@ const favourite = async(req,res) =>
             // })
         }
 
-        let barinfo = await helpers.getBarData(Bar);
-
-        return res.status(200).json({
-            status : 200,
-            message : "success",
-            data : barinfo
-        })
+        
     }
     catch(error)
     {
+        console.log(error)
         return res.status(200).json({
             status : 500,
             message :error.message,
