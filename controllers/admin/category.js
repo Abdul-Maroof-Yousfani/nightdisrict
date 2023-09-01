@@ -193,7 +193,7 @@ const parentCategory2 = async (req, res) => {
                 e.items = await Promise.all(e.items.map(async(itemData) =>{
                     return await superMenu.findById({
                         _id : itemData.item
-                    })
+                    }).lean()
                 }))
             }
 
