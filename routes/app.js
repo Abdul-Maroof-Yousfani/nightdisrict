@@ -33,6 +33,8 @@ router.put("/user",helpers.verifyAuthToken , users.profile)
 
 // near by events
 
+router.post('/bars',helpers.verifyAuthToken, bar.nearby);
+
 router.post('/events',helpers.verifyAuthToken, events.nearby);
 
 router.get('/tickets', helpers.verifyAuthToken, events.tickets);

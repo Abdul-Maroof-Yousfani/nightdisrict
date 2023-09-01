@@ -17,6 +17,30 @@ import attendance from '../../models/attendance.js';
 
 
 
+const nearby = async(req,res) =>
+{
+    try
+    {
+        let data = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
+        let results = await helpers.paginate(data,req.params.page,req.params.limit);
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data : results.result,
+            paginate : results.totalPages
+        })
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+            data :[]
+        })
+    }
+    
+}
+
 
 const barProfile = async (req, res) => {
     try {
@@ -1429,6 +1453,7 @@ const all = async(req,res) =>
 }
 
 export default {
+    nearby,
     items,
     barProfile,
     barInfo,

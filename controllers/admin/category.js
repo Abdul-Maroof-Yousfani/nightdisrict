@@ -181,6 +181,169 @@ const update = async (req, res) => {
         })
     }
 }
+
+const parentCategory2 = async (req, res) => {
+    try {
+
+        let data = await menuCategory.find({ parent: null }).lean();
+        data = await Promise.all(data.map(async (e) => {
+            e.items = await menu.find({ category: e._id , barId : req.params.barid }).lean()
+            if(e.items.length)
+            {
+                e.items = await Promise.all(e.items.map(async(itemData) =>{
+                    return await superMenu.findById({
+                        _id : itemData.item
+                    })
+                }))
+            }
+            console.log(e.items);
+            return;
+            
+
+            // add a check here
+
+            
+           
+            // get a subcategory
+           
+
+            if(e.items.length)
+            {
+                e.items = await Promise.all(e.items.map( async (item) =>{
+
+                    // get categories and subcategories
+
+                    item.price = 0
+
+
+                    
+                    if(item.category)
+                    {
+                        let category = await menuCategory.findById({_id : item.category},{name : 1});
+                        item.category = category.name
+                    }
+                    if(item.subCategory)
+                    {
+                        let subCategory = await menuCategory.findById({_id : item.subCategory},{name : 1});
+                        item.subCategory = subCategory.name
+                    }
+
+
+                    let filter = {};
+
+                    // get item name from the bar
+                    if(req.query.barid)
+                    {
+                        filter.push = item._id
+                        filter.barId = req.query.barid
+                        // itemsdata = await menu.findOne({
+                        //     item : item._id,
+                        //     bar : req.query.barid
+                        // }).lean()
+                    }
+                    else
+                    {
+                        filter.item = item._id
+                        // filter.bar = req.query.barid
+                    }
+
+                    
+
+                    let itemsdata = await menu.findOne({
+                        $and : [filter]
+                    });
+
+                    console.log(itemsdata)
+
+                    
+                   
+                    if(itemsdata)
+                    {
+                        
+                        // add variation data to
+                        let totalPrice = 0;
+                        item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
+                            // get variation data
+                            let newVariations = await pourtype.findOne({
+                                _id : va.variant
+                            })
+                            va.name = newVariations.name
+                            totalPrice  = totalPrice + va.price
+                            return va
+                        }))
+
+                        item.price = totalPrice
+
+                        
+                        // get reviews from the customer
+
+                        if(itemsdata.reviews)
+                        {
+                            item.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
+                                // get customer data
+    
+                                // get customer data and review information
+    
+                                let userInfo = await users.findOne({_id : rev.customer});
+                                if(userInfo)
+                                {
+                                    rev.name = userInfo.username
+                                    rev.picture = userInfo.profile_picture
+                                }
+                 
+                                // get review information
+    
+                                let reviewInfor = await reviews.findOne({
+                                    _id : rev.review
+                                })
+                                if(reviewInfor)
+                                {
+                                    rev.message = reviewInfor.message
+                                    rev.count = reviewInfor.rating
+                                }
+                        
+    
+    
+                                return rev;
+    
+    
+                                
+    
+                            }))
+                        }
+                        else
+                        {
+                            item.reviews = []
+                        }
+                       
+
+                    }
+
+                    return item;
+                    
+
+                }))
+            }
+
+            return e
+
+        }))
+
+
+        return res.json({
+            message: "success",
+            data
+        })
+    }
+    catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error.message,
+            data: {}
+        })
+    }
+}
+
 const parentCategory = async (req, res) => {
     try {
 
@@ -190,7 +353,6 @@ const parentCategory = async (req, res) => {
 
             // add a check here
 
-       
             e.items = e.items ? e.items : []
             
            
@@ -387,6 +549,6 @@ export default {
     update,
     show,
     parentCategory,
-    getCategoryBasedItems
-
+    getCategoryBasedItems,
+    parentCategory2
 }

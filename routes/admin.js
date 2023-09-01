@@ -17,6 +17,7 @@ router.post("/category",category.store);
 router.put("/category/:_id",category.update);
 router.get("/category",category.index);
 router.get("/parentCategory",category.parentCategory);
+router.get("/parentCategory2",category.parentCategory2);
 router.post("/category/items",category.getCategoryBasedItems);
 router.get('/category/:_id',category.show)
 
