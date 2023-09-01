@@ -1484,7 +1484,7 @@ const destroy = async(req,res) =>
         return res.status(200).json({
             status : 200,
             message : "Account Deleted Successfully!",
-            data 
+            data : {}
         })
     }
     catch(error)

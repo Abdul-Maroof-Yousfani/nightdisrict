@@ -7,6 +7,7 @@ const router = express.Router();
 // Bar Profile
 
 router.get("/home" ,helper.verifyAuthToken, Bar.home);
+router.delete("/destroy",helper.verifyAuthToken, Bar.destroy);
 router.get('/home/app', helper.verifyAuthToken , Bar.app)
 router.get('/home/web', helper.verifyAuthToken , Bar.web)
 
