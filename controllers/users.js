@@ -738,9 +738,21 @@ const favourite = async(req,res) =>
         let data = await users.findById({
             _id : req.user._id
         })
+   
         if(!data)  return res.status(404).json({
             status : 404,
             message : "user not found",
+            data : {}
+        })
+
+
+        let bardata = await bar.findById({
+            _id : Bar
+        })
+   
+        if(!bardata)  return res.status(404).json({
+            status : 404,
+            message : "bar not found",
             data : {}
         })
 
@@ -759,30 +771,42 @@ const favourite = async(req,res) =>
 
             // check if already in Favourites ?
 
-            // const hasFavorited = data.favouriteBars.includes(bar);
-            
+            const index = data.favouriteBars.findIndex(favoriteBar => favoriteBar.bar.toString() === Bar);
 
-            await users.findByIdAndUpdate({_id : req.user._id},{
-                $push: { "favouriteBars" : { Bar} } 
-            },{new:true})
+            if (index === -1) {
+                // Bar is not in favorites, so add it
+                data.favouriteBars.push({bar:Bar});
+              } else {
+                // Bar is in favorites, so remove it
+                data.favouriteBars.splice(index, 1);
+              }
 
-            await bar.findByIdAndUpdate({
-                _id : Bar
-            },
-            {
-                $push: { "followers" : { "user" : req.user._id } } 
-            })
+            await data.save();
+           
+
+            // await users.findByIdAndUpdate({_id : req.user._id},{
+            //     $push: { "favouriteBars" : { Bar} } 
+            // },{new:true})
+
+            // await bar.findByIdAndUpdate({
+            //     _id : Bar
+            // },
+            // {
+            //     $push: { "followers" : { "user" : req.user._id } } 
+            // })
         }
+
+        let barinfo = await helpers.getBarData(Bar);
 
         return res.status(200).json({
             status : 200,
             message : "success",
-            data 
+            data : barinfo
         })
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message :error.message,
             data  : {}

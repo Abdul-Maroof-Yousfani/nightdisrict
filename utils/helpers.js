@@ -377,6 +377,7 @@ const nearbyBars = async(longitude,latitude) =>{
             }
         }}).limit(15).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 , 'geometry' : 1 }).lean();
         
+        
         return data
 
     }
