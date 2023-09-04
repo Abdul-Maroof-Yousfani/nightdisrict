@@ -257,8 +257,11 @@ const login = async (req, res) => {
         
         let user = {};
         user = await  User.findOne({
-        $or: [{ email: username }, { username: username } , {isActive : true}],
+        $or: [{ email: username }, { username: username }],
+        active : true
           }).lean();
+        
+
 
         if (!user) {
             return res.status(404).json({
