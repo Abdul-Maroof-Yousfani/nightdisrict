@@ -611,17 +611,26 @@ const getReviewById = async(id) =>
         }).lean()
 
 
-        await menu.findOneAndUpdate({
-            item : drink.item
-        },{
-            $push: { "reviews" : { "customer" : drink.item , "review" : drink._id } } 
-        },{
-            new : true
-        }).lean()
+
+
+
+        // await menu.findOneAndUpdate({
+        //     item : drink.item
+        // },{
+        //     $push: { "reviews" : { "customer" : drink.item , "review" : drink._id } } 
+        // },{
+        //     new : true
+        // }).lean()
 
         // update the response
-        
-        // drink.item = await getItemById(drink.item,drink.bar,drink.variation)
+
+       
+        drink.item = await getItemById(drink.item,drink.bar,drink.variation)
+
+
+        // console.log(drink.item)
+        // return;
+
         // console.log(drink.item);
         // return;
         // get order data
@@ -777,6 +786,7 @@ const  getItemById = async(id,bar,bought='') => {
             item : id,
             barId : bar
         }).select({favDrinks :0}).lean()
+
 
         data.superItem = id
         if(data.reviews)

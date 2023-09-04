@@ -6,6 +6,7 @@ import bar from '../controllers/barowner/bar.js';
 import users from '../controllers/users.js';
 import events from '../controllers/events.js';
 import order from '../controllers/order.js';
+import menu from '../controllers/menu.js';
 
 const router = express.Router();
 
@@ -65,7 +66,10 @@ router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
 
 
 
-// get menu
+// get menu and Reviews
+
+router.post('/menu/review',helpers.verifyAuthToken, menu.getReviewById);
+
 
 
 

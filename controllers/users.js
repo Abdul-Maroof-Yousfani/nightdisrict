@@ -1036,7 +1036,7 @@ const review  = async(req,res) =>{
 
         // get drink data
 
-        drink = await helpers.getReviewById(drink._id)
+        // drink = await helpers.getReviewById(drink._id)
         
         
 

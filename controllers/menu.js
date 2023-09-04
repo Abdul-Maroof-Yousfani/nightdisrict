@@ -3,6 +3,8 @@ import menuCategory from "../models/menuCategory.js";
 import Role from "../models/roles.js";
 import User from "../models/users.js";
 import Menu from '../models/menu.js';
+import helpers from '../utils/helpers.js';
+import reviews from '../models/reviews.js';
 
 const createMenuCat = async (req, res) => {
     try {
@@ -85,7 +87,40 @@ const createMenu = async (req, res) => {
     }
 }
 
+const getReviewById = async(req,res) =>
+{
+    let {bar,item} = req.body;
+    try
+    {
+        let data = await reviews.find({
+            bar : bar,
+            item :  item
+        }).lean();
+        let results = await helpers.paginate(data,req.query.page,req.query.limit);
+        data = await Promise.all(results.result.map( async (e) =>{
+            return helpers.getReviewById(e._id);
+        }))
+
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data,
+            paginate : results.totalPages
+        })
+
+    }
+    catch(error)
+    {
+        return res.statu(500).json({
+            status : 500,
+            message : error.message,
+            data : []
+        })
+    }
+}
+
 export default {
     createMenuCat,
-    createMenu
+    createMenu,
+    getReviewById,
 }

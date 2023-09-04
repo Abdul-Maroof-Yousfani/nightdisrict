@@ -951,32 +951,37 @@ const Menu = async(req,res) =>
       
 
 
-        const filters = [];
+        const filters = {};
 
-        filters.push({ bar });
+        filters.bar = bar 
 
         if (category) {
             filters.category = category;
         }
-        if (subCategory) {
+        if (subCategory) {  
             filters.subCategory = subCategory;
         }
 
+
         let results = await menu.find({
-            barId : bar
-        });
+            filters
+        }).lean();
 
         results = await helpers.paginate(results,page,limit);
         // console.log(results);
         // return res.json({results})
         let data = results.result;
 
-
+        let newData = [];
         
 
         data = await Promise.all(data.map( async (e) =>{
             return await helpers.getItemById(e.item,e.barId,'');
         }))
+
+
+
+
 
          return res.status(200).json({
             status : 200,
