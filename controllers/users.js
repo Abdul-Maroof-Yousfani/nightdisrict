@@ -287,9 +287,10 @@ const login = async (req, res) => {
             data : {}
         })
 
-
         const isPassword = await bcrypt.compare(password, user.password);
-        if (isPassword) {
+        // console.log(isPassword);
+
+        if (user) {
             
             // check user is paid, 
             
