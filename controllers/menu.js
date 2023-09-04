@@ -96,10 +96,10 @@ const getReviewById = async(req,res) =>
             bar : bar,
             item :  item
         }).limit(1).lean();
-        // let results = await helpers.paginate(data,req.query.page,req.query.limit);
-        data = await Promise.all(data.map( async (e) =>{
-            return helpers.getReviewById(e._id);
-        }))
+        // // let results = await helpers.paginate(data,req.query.page,req.query.limit);
+        // data = await Promise.all(data.map( async (e) =>{
+        //     return helpers.getReviewById(e._id);
+        // }))
 
         return res.status(200).json({
             status : 200,
