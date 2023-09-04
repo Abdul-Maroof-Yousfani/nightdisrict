@@ -132,6 +132,10 @@ const usersSchema = new mongoose.Schema({
         type : Boolean,
         default : true
     },
+    related_bar : {
+        type : mongoose.Types.ObjectId,
+        ref : 'bars'
+    },
     location:{
         type:{
             type:String,

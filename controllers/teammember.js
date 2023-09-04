@@ -75,6 +75,7 @@ const store = async (req, res) => {
             email : req.body.email,
             profile_picture : req.body.picture,
             role : req.body.type,
+            related_bar : req.body.bar
         });
         await user.save()
 

@@ -962,6 +962,7 @@ const favouriteDrinks = async(req,res) =>{
                 {
                     // check if bar has this item then get apply the method
                     console.log(itemcheck)
+                    
                     e.item = await helpers.getItemById(e.item,newBarData._id)
                     newDrinkdata.push(e.item);
                 }

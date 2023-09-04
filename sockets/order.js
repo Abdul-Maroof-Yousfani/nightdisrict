@@ -37,9 +37,7 @@ function initOrder() {
         }).lean()
         await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
-                    console.log("Order Statu")
 
-                    console.log(orderstatus);
                     if(orderstatus.orderStatus == 'new')
                     {
                         console.log(orderstatus.orderStatus)
@@ -80,9 +78,7 @@ function initOrder() {
         }).lean()
         await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
-                    console.log("Order Statu")
 
-                    console.log(orderstatus);
                     if(orderstatus.orderStatus == 'new')
                     {
                         console.log(orderstatus.orderStatus)
