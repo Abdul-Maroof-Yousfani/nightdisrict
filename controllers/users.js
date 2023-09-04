@@ -110,7 +110,6 @@ const social = async(req,res) =>{
     }
     catch(error)
     {
-        console.log(error)
         return res.status(500).json({
             status : 500,
             message : error.message
@@ -804,10 +803,12 @@ const favourite = async(req,res) =>
             
             // getElement.nearbybars = newDrinkdata
 
-            let barinfo = await helpers.getUserById(req.user._id);
 
 
             await data.save();
+
+            let barinfo = await helpers.getUserById(req.user._id);
+
       
             return res.status(200).json({
                 status : 200,
@@ -934,8 +935,11 @@ const favouriteDrinks = async(req,res) =>{
             data : {}
         })
 
+        let result = await helpers.paginate(data.favouriteDrinks,req.query.page,req.query.limit);
+
+
       
-        data.favouriteDrinks = await Promise.all(data.favouriteDrinks.map( async (e) =>{
+        data.favouriteDrinks = await Promise.all(result.result.map( async (e) =>{
 
             let barDetails = await bar.findById({_id : e.bar}).lean()
 
@@ -950,7 +954,8 @@ const favouriteDrinks = async(req,res) =>{
         return res.status(200).json({
             status : 200,
             message : "success",
-            data  : barData
+            data  : barData,
+            paginate : result.totalPages
         })
     }
     catch(error)
