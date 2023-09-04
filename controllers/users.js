@@ -948,7 +948,6 @@ const favouriteDrinks = async(req,res) =>{
         
 
             let getElement = await helpers.getItemById(e.item,e.bar)
-            console.log(getElement);
           
             // get nearby bars
             let nearbybars = await helpers.nearbyBars(longitude,latitude);
@@ -959,9 +958,10 @@ const favouriteDrinks = async(req,res) =>{
                     barId : newBarData._id
 
                 })
-                console.log(itemcheck)
                 if(itemcheck)
                 {
+                    // check if bar has this item then get apply the method
+                    console.log(itemcheck)
                     e.item = await helpers.getItemById(e.item,newBarData._id)
                     newDrinkdata.push(e.item);
                 }
@@ -984,6 +984,7 @@ const favouriteDrinks = async(req,res) =>{
     }
     catch(error)
     {
+        console.log(error);
         return res.status(500).json({
             status : 500,
             message :error.message,

@@ -1,6 +1,7 @@
 import {Server} from 'socket.io';
 import SimpleSchema from 'simpl-schema';
 import order from '../models/order.js';
+import helpers from '../utils/helpers.js';
 
 
 const messageSchema = new SimpleSchema({
@@ -23,17 +24,38 @@ function initOrder() {
         socket.on('orders', async(response) =>{
             
             // this socket is responsible to fetch all orders that are new
+            let newOrder = []
+            let totalOrders = []
+            let completed = []
+            let delivered = []
+            let preparing = []
             try
             {
-                let newOrder = await order.find({orderStatus:"new"}).lean()
-                let completed = await order.find({orderStatus:"completed"}).lean()
-                let delivered = await order.find({orderStatus:"delivered"}).lean()
-                let data = [ {new:newOrder,completed,delivered} ]
+                let orders = await order.find({}).lean()
+                await Promise.all(orders.map(async(e) =>{
+                    let orderstatus = await helpers.getOrderById(e);
+                    if(orderstatus.orderStatus == 'new')
+                    {
+                        newOrder.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'preparing')
+                    {
+                        preparing.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'completed')
+                    {
+                        completed.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'delivered')
+                    {
+                        delivered.push(orderstatus)
+                    }
+                }))
+                let data = {newOrder,preparing,completed,delivered} 
                 socket.emit('orders', data);
             }
             catch(error)
             {
-                console.log(error)
                 socket.emit('error', error.messgae);
             }   
             
