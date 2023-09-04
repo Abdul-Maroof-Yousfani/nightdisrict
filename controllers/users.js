@@ -979,7 +979,7 @@ const review  = async(req,res) =>{
         let checkMenu = await menu.findOne({
             item,
             barId : bar
-        })
+        }).lean()
 
         // adding a review to  a drink
 
@@ -987,22 +987,51 @@ const review  = async(req,res) =>{
         drink = await drink.save();
 
 
+        // // getProductByID
+
+
+        // let newIndex = checkMenu.reviews.findIndex(review => review.customer.toString() === req.user._id.toString());
+
+        // if (newIndex === -1) {
+        //     // Bar is not in favorites, so add it
+        //     checkMenu.reviews.push({customer:req.user._id , review :  drink._id});
+        // } 
+        // else 
+        // {
+        //     // Bar is in favorites, so remove it
+        //     checkMenu.reviews.splice(newIndex, 1);
+        // }
+
+
+        // await checkMenu.save();
+
+
         // update
-        let newData = await menu.findOneAndUpdate({
-            item,
-            barId: bar
-        },
-        {
-            $push : {
-                "reviews" : {
-                    customer : req.user._id,
-                    review : drink._id
-                },
+        // let newData = await menu.findOneAndUpdate({
+        //     item,
+        //     barId: bar
+        // },
+        // {
+        //     $push : {
+        //         "reviews" : {
+        //             customer : req.user._id,
+        //             review : drink._id
+        //         },
                 
-            }
-        },{
-            new: true
-        })
+        //     }
+        // },{
+        //     new: true
+        // })
+
+        // const index = data.favouriteDrinks.findIndex(favoriteBar => favoriteBar.bar.toString() === Bar &&  favoriteBar.item.toString() == item);
+
+        //     if (index === -1) {
+        //         // Bar is not in favorites, so add it
+        //         data.favouriteDrinks.push({bar:Bar , item});
+        //       } else {
+        //         // Bar is in favorites, so remove it
+        //         data.favouriteDrinks.splice(index, 1);
+        //       }
 
 
         // get drink data
