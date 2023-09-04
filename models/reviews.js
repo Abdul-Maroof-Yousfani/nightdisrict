@@ -43,4 +43,9 @@ const reviews = new mongoose.Schema({
 {
     timestamps : true
 });
+
+reviews.index({
+    item: 1,
+    bar : 1
+})
 export default mongoose.model('reviews', reviews);

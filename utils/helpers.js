@@ -625,7 +625,7 @@ const getReviewById = async(id) =>
         // update the response
 
        
-        drink.item = await getItemById(drink.item,drink.bar,drink.variation)
+        // drink.item = await getItemById(drink.item,drink.bar,drink.variation)
 
 
         // console.log(drink.item)
@@ -634,10 +634,10 @@ const getReviewById = async(id) =>
         // console.log(drink.item);
         // return;
         // get order data
-        let orderDetail = await order.findById({
-            _id : drink.Order
-        }).lean()
-        drink.Order = await getOrderById(orderDetail)
+        // let orderDetail = await order.findById({
+        //     _id : drink.Order
+        // }).lean()
+        // drink.Order = await getOrderById(orderDetail)
         // drink.bar = await getBarData(drink.bar)
         // drink.customer = await getUserById(drink.customer)
 
