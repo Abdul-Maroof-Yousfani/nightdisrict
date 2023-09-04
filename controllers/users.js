@@ -778,27 +778,27 @@ const favourite = async(req,res) =>
                 data.favouriteDrinks.splice(index, 1);
               }
 
-            let getElement = await superMenu.findById({
-                _id : item
-            }).lean()
+            // let getElement = await superMenu.findById({
+            //     _id : item
+            // }).lean()
             // get nearby bars
-            let nearbybars = await helpers.nearbyBars(longitude,latitude);
-            nearbybars = await Promise.all(nearbybars.map( async (e) =>{
-                let itemcheck = await menu.findOne({
-                    item : item,
-                    barId : e._id
+            // let nearbybars = await helpers.nearbyBars(longitude,latitude);
+            // nearbybars = await Promise.all(nearbybars.map( async (e) =>{
+            //     let itemcheck = await menu.findOne({
+            //         item : item,
+            //         barId : e._id
 
-                })
-                if(itemcheck)
-                {
-                    e.item = await helpers.getItemById(item,e._id)
-                    newDrinkdata.push(e.item);
-                }
+            //     })
+            //     if(itemcheck)
+            //     {
+            //         e.item = await helpers.getItemById(item,e._id)
+            //         newDrinkdata.push(e.item);
+            //     }
                 
                 
-            }))
+            // }))
             
-            getElement.nearbybars = newDrinkdata
+            // getElement.nearbybars = newDrinkdata
 
             let barinfo = await helpers.getUserById(req.user._id);
 
@@ -933,7 +933,7 @@ const favouriteDrinks = async(req,res) =>{
       
         data.favouriteDrinks = await Promise.all(data.favouriteDrinks.map( async (e) =>{
 
-            // let barDetails = await bar.findById({_id : e.bar})
+            let barDetails = await bar.findById({_id : e.bar}).lean()
 
             let itemData = await helpers.getItemById(e.item,e.bar, "")
             itemData.barname = barDetails.barName
@@ -951,6 +951,7 @@ const favouriteDrinks = async(req,res) =>{
     }
     catch(error)
     {
+        console.log(error);
         return res.status(500).json({
             status : 500,
             message :error.message,
@@ -972,6 +973,7 @@ const review  = async(req,res) =>{
         
         // get customer from the access token
 
+   
         body.customer = req.user._id;
 
         // add dat to the req.body
@@ -981,16 +983,47 @@ const review  = async(req,res) =>{
             barId : bar
         }).lean()
 
+        // check review if already given
+
+        let checkReview = await reviews.findOne({
+            customer : req.user._id,
+            item,
+            bar
+        })
+
+ 
+        if(checkReview) return res.status(409).json({
+            status : 409,
+            message : "review already given",
+        })
+
+        
+
+
+    
+
+        // check menu
+
+
+
+
+
+      
+
+
         // adding a review to  a drink
 
         let drink = new reviews(req.body);
         drink = await drink.save();
 
+ 
+
 
         // // getProductByID
 
 
-        // let newIndex = checkMenu.reviews.findIndex(review => review.customer.toString() === req.user._id.toString());
+
+
 
         // if (newIndex === -1) {
         //     // Bar is not in favorites, so add it
@@ -1003,25 +1036,25 @@ const review  = async(req,res) =>{
         // }
 
 
-        // await checkMenu.save();
+        // checkMenu = await checkMenu.save();
 
 
         // update
-        // let newData = await menu.findOneAndUpdate({
-        //     item,
-        //     barId: bar
-        // },
-        // {
-        //     $push : {
-        //         "reviews" : {
-        //             customer : req.user._id,
-        //             review : drink._id
-        //         },
+        let newData = await menu.findOneAndUpdate({
+            item,
+            barId: bar
+        },
+        {
+            $push : {
+                "reviews" : {
+                    customer : req.user._id,
+                    review : drink._id
+                },
                 
-        //     }
-        // },{
-        //     new: true
-        // })
+            }
+        },{
+            new: true
+        })
 
         // const index = data.favouriteDrinks.findIndex(favoriteBar => favoriteBar.bar.toString() === Bar &&  favoriteBar.item.toString() == item);
 
@@ -1036,7 +1069,11 @@ const review  = async(req,res) =>{
 
         // get drink data
 
-        // drink = await helpers.getReviewById(drink._id)
+        drink = await reviews.findById({
+            _id : drink._id
+        }).lean()
+
+        drink = await helpers.getBasicReview(drink)
         
         
 

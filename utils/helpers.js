@@ -464,7 +464,11 @@ const getBarMenus = async(bar,category = '',subCategory = '') =>
 // User iformation
 
 
-
+const getBasicUserData = async(id) =>
+{
+    let data = await users.findById({_id : id}).select({profile_picture : 1,username :1})
+    return data;
+}
 
 const getUserById = async(id) => {
     try
@@ -602,6 +606,26 @@ const orderType = async(id) =>
 
 // customer reviews on any item
 
+const getBasicReview = async(review) =>
+{
+    try
+    {
+        review.customer = await getBasicUserData(review.customer);
+        delete review.Order;
+        delete review.variation;
+        delete review.bar;
+        delete review.type;
+        delete review.item;
+        delete review.review;
+
+        return review;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
 const getReviewById = async(id) =>
 {
     try
@@ -609,9 +633,6 @@ const getReviewById = async(id) =>
         let drink = await reviews.findById({
             _id : id
         }).lean()
-
-
-
 
 
         // await menu.findOneAndUpdate({
@@ -623,21 +644,15 @@ const getReviewById = async(id) =>
         // }).lean()
 
         // update the response
-
-       
+        
         // drink.item = await getItemById(drink.item,drink.bar,drink.variation)
-
-
-        // console.log(drink.item)
-        // return;
-
         // console.log(drink.item);
         // return;
         // get order data
-        // let orderDetail = await order.findById({
-        //     _id : drink.Order
-        // }).lean()
-        // drink.Order = await getOrderById(orderDetail)
+        let orderDetail = await order.findById({
+            _id : drink.Order
+        }).lean()
+        drink.Order = await getOrderById(orderDetail)
         // drink.bar = await getBarData(drink.bar)
         // drink.customer = await getUserById(drink.customer)
 
@@ -786,7 +801,6 @@ const  getItemById = async(id,bar,bought='') => {
             item : id,
             barId : bar
         }).select({favDrinks :0}).lean()
-
 
         data.superItem = id
         if(data.reviews)
@@ -1187,7 +1201,9 @@ export default {
     getItemByCategory,
     // getBarFollowers
     bestSellingDrink,
-    getItemById2
+    getItemById2,
+    getBasicReview,
+    getBasicUserData
     
 
 }
