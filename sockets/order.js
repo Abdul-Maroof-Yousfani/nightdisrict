@@ -29,7 +29,7 @@ function initOrder() {
                 let completed = await order.find({orderStatus:"completed"}).lean()
                 let delivered = await order.find({orderStatus:"delivered"}).lean()
                 let data = [ {new:newOrder,completed,delivered} ]
-                socket.emit('data', data);
+                socket.emit('orders', data);
             }
             catch(error)
             {
@@ -46,8 +46,7 @@ function initOrder() {
             try
             {
                 let data = await order.find({orderStatus:"preparing"}).lean()
-                socket.emit('data', data);
-            }
+                socket.emit('orders', data);            }
             catch(error)
             {
                 socket.emit('error', error.messgae);
@@ -61,7 +60,7 @@ function initOrder() {
             try
             {
                 let data = await order.find({orderStatus:"completed"}).lean()
-                socket.emit('data', data);
+                socket.emit('orders', data);
             }
             catch(error)
             {
@@ -76,7 +75,8 @@ function initOrder() {
             try
             {
                 let data = await order.find({orderStatus:"delivered"}).lean()
-                socket.emit('data', data);
+                socket.emit('orders', data);
+
             }
             catch(error)
             {

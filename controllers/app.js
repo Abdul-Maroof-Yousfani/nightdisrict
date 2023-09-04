@@ -62,7 +62,10 @@ const index = async(req,res) =>
 
         // promotions = await helpers.nearbyPromotion(req.body.longitude,req.body.latitude,req.user.barInfo);
 
-        // orders = await Promise.all(orders)
+        // orders = await Promise.all(orders)   
+
+        console.log(promotions);
+        
 
        
 
