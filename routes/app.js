@@ -60,8 +60,8 @@ router.post('/review',helpers.verifyAuthToken,users.review);
 
 router.post('/favourite',helpers.verifyAuthToken, users.favourite)
 router.get('/favourite/bars',helpers.verifyAuthToken, users.favouritebars)
-router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
-router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
+router.post('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
+// router.get('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
 
 
 

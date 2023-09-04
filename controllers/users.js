@@ -921,6 +921,8 @@ const favouritebars = async(req,res) =>{
 }
 const favouriteDrinks = async(req,res) =>{
     let barData = []
+    let newDrinkdata = []
+    let {longitude,latitude} =  req.body;
     try
     {
         //  add bar to the Favourites
@@ -941,13 +943,35 @@ const favouriteDrinks = async(req,res) =>{
       
         data.favouriteDrinks = await Promise.all(result.result.map( async (e) =>{
 
-            let barDetails = await bar.findById({_id : e.bar}).lean()
+            // let barDetails = await superMenu.findById({_id : e.item}).lean()
 
-            let itemData = await helpers.getItemById(e.item,e.bar, "")
-            itemData.barname = barDetails.barName
-            itemData.logo =  barDetails.upload_logo
+        
+
+            let getElement = await superMenu.findById({
+                _id : e.item
+            }).lean()
+            // get nearby bars
+            let nearbybars = await helpers.nearbyBars(longitude,latitude);
+            nearbybars = await Promise.all(nearbybars.map( async (newBarData) =>{
+                
+                let itemcheck = await menu.findOne({
+                    item : e.item,
+                    barId : newBarData._id
+
+                })
+                console.log(itemcheck)
+                if(itemcheck)
+                {
+                    e.item = await helpers.getItemById(e.item,newBarData._id)
+                    newDrinkdata.push(e.item);
+                }
+                
+                
+            }))
             
-            barData.push(itemData)
+            getElement.nearbybars = newDrinkdata
+
+            barData.push(getElement)
 
         }))
         
