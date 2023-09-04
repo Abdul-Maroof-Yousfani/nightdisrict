@@ -807,7 +807,10 @@ const  getItemById = async(id,bar,bought='') => {
         {
             data.reviews = await Promise.all(data.reviews.map( async (e) =>
             {
-                return await getReviewById(e.review);
+                let newReview = await reviews.findById({
+                    _id : e.review
+                }).lean()
+                return await getReviewById(newReview);
             }))
         }
         else
