@@ -810,7 +810,7 @@ const  getItemById = async(id,bar,bought='') => {
                 let newReview = await reviews.findById({
                     _id : e.review
                 }).lean()
-                return await getReviewById(newReview);
+                return await getBasicReview(newReview);
             }))
         }
         else

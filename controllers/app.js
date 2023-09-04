@@ -39,7 +39,7 @@ const index = async(req,res) =>
         }))
 
         // get order items only
-        
+        // #
 
         promotions = await Promise.all(bars.map( async (e) =>{
             // get Promotions for a bar
@@ -64,7 +64,6 @@ const index = async(req,res) =>
 
         // orders = await Promise.all(orders)   
 
-        console.log(promotions);
         
 
        
