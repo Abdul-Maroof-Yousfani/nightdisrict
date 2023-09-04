@@ -694,6 +694,55 @@ const getItems = async(order) =>
     }   
 }
 
+const getSocketOrders = async() =>
+{
+    try
+    {
+            let newOrder = []
+            let totalOrders = []
+            let completed = []
+            let delivered = []
+            let preparing = []
+            try
+            {
+                let orders = await order.find({}).lean()
+                await Promise.all(orders.map(async(e) =>{
+                    let orderstatus = await helpers.getOrderById(e);
+                    console.log("Order Statu")
+
+                    console.log(orderstatus);
+                    if(orderstatus.orderStatus == 'new')
+                    {
+                        console.log(orderstatus.orderStatus)
+                        newOrder.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'preparing')
+                    {
+                        preparing.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'completed')
+                    {
+                        completed.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'delivered')
+                    {
+                        delivered.push(orderstatus)
+                    }
+                }))
+                let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+                return data;
+            }
+            catch(error)
+            {
+                return error.messgae;
+            } 
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
 const getOrderById = async(data) => {
     try
     {
@@ -1206,7 +1255,8 @@ export default {
     bestSellingDrink,
     getItemById2,
     getBasicReview,
-    getBasicUserData
+    getBasicUserData,
+    getSocketOrders
     
 
 }
