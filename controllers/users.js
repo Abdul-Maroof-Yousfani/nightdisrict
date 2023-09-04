@@ -947,9 +947,9 @@ const favouriteDrinks = async(req,res) =>{
 
         
 
-            let getElement = await superMenu.findById({
-                _id : e.item
-            }).lean()
+            let getElement = await helpers.getItemById(e.item,e.bar)
+            console.log(getElement);
+          
             // get nearby bars
             let nearbybars = await helpers.nearbyBars(longitude,latitude);
             nearbybars = await Promise.all(nearbybars.map( async (newBarData) =>{
@@ -984,7 +984,6 @@ const favouriteDrinks = async(req,res) =>{
     }
     catch(error)
     {
-        console.log(error);
         return res.status(500).json({
             status : 500,
             message :error.message,
