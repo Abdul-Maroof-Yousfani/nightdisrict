@@ -32,6 +32,7 @@ function initOrder() {
         let barId = socket.handshake.query.barId;
         currentUser = await helpers.getUserById(currentUser)
         // get bar info
+        
         let bar = await helpers.getBarData(barId)
 
         
@@ -44,9 +45,9 @@ function initOrder() {
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
             bar : barId
         }).lean()
+        console.log(orders);
         await Promise.all(orders.map(async(e) =>{
-                    let orderstatus = await helpers.getOrderById(e);
-
+            let orderstatus = await helpers.getOrderById(e);
                     if(orderstatus.orderStatus == 'new')
                     {
                         console.log(orderstatus.orderStatus)
@@ -113,7 +114,44 @@ function initOrder() {
             
 
         })
+        socket.on('myOrders',async(response) =>{
+            try
+            {
+                let customer = socket.handshake.query.customerid;
 
+                let orders = await order.find({
+                    subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+                    bar : barId,
+                    customer : customer
+                }).lean()
+                await Promise.all(orders.map(async(e) =>{
+                    let orderstatus = await helpers.getOrderById(e);
+                            if(orderstatus.orderStatus == 'new')
+                            {
+                                console.log(orderstatus.orderStatus)
+                                newOrder.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'preparing')
+                            {
+                                preparing.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'completed')
+                            {
+                                completed.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'delivered')
+                            {
+                                delivered.push(orderstatus)
+                            }
+                        }))
+                let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+                socket.emit('myOrders',data);
+            }
+            catch(error)
+            {
+                socket.emit('error',error.message);
+            }
+        })
         socket.on('onPrepare', async(response) =>{
 
             try
@@ -139,7 +177,7 @@ function initOrder() {
             }
             catch(error)
             {
-
+                console.log(error);
             }
 
         })

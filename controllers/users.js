@@ -1241,6 +1241,30 @@ const orders = async(req,res) =>
 }
 
 
+const details = async(req,res) =>
+{
+    let {id} =  req.params;
+    try
+    {
+        let data = await helpers.getUserById({
+            _id  : id
+        })
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.statu(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 
 export default{
     home,
@@ -1262,5 +1286,6 @@ export default{
     review,
     myOrders,
     all,
-    orders
+    orders,
+    details
 };

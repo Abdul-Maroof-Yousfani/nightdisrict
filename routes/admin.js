@@ -90,7 +90,7 @@ router.get('/bars', bar.all);
 
 router.get('/users', users.all);
 router.get('/users/:id', users.activities);
-
+router.get('/users/detail/:id', users.details);
 
 // router.get('/menus', menu.all );
 
