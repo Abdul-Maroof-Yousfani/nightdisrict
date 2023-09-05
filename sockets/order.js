@@ -33,7 +33,7 @@ function initOrder() {
         currentUser = await helpers.getUserById(currentUser)
         // get bar info
         
-        let bar = await helpers.getBarData(barId)
+        // let bar = await helpers.getBarData(barId)
 
         
         socket.emit('connected', 'Connected! Please subscribe to register event now!');
@@ -234,8 +234,18 @@ function initOrder() {
 
             try
             {
-                let data = await helpers.getBarById(response.bar)
+                let data;
+                if(response.bar)
+                {
+                    data = await helpers.getBarById(response.bar)
+                }
+                else
+                {
+                    data = null
+                }
+
                 socket.emit('getBar',data)
+
             }
             catch(error)
             {   
