@@ -415,7 +415,7 @@ const update = async(req,res) =>
             lastname : Joi.string(),
             about : Joi.string(),
             password : Joi.string(),
-            confirmPassword : Joi.string().required().valid(Joi.ref('password')).label("confirm password should match the password"),
+            confirmPassword : Joi.string().valid(Joi.ref('password')).label("confirm password should match the password"),
             dateofbirth : Joi.string(),
             overviewReport : Joi.boolean(),
             email_notification : Joi.boolean(),

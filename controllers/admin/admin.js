@@ -155,10 +155,18 @@ function getWeekOfMonth(date) {
         currentDate = addDays(currentDate, 1); // Move to the next day/week
       }
   
-      res.json(response);
+      res.json({
+        status : 200,
+        message : "success",
+        data : response
+      });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({
+        status : 500,
+        message : error.message,
+        data : {}
+      });
     }
   };
   
