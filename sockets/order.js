@@ -207,6 +207,21 @@ function initOrder() {
 
         })
 
+        socket.on('getBar', async(response) =>{
+
+            try
+            {
+                let data = await helpers.getBarById(response.bar)
+                socket.emit('getBar',data)
+            }
+            catch(error)
+            {   
+                socket.emit('error',error.message)
+            }
+
+        })
+
+
         socket.on('orderStatus', async(response) =>{
 
             try
