@@ -937,7 +937,10 @@ const favouriteDrinks = async(req,res) =>{
             message : "not found",
             data : {}
         })
-
+        if(!data.favouriteDrinks)
+        {
+            data.favouriteDrinks = []
+        }
         let result = await helpers.paginate(data.favouriteDrinks,req.query.page,req.query.limit);
 
 
@@ -947,9 +950,13 @@ const favouriteDrinks = async(req,res) =>{
             // let barDetails = await superMenu.findById({_id : e.item}).lean()
 
         
+            console.log("item " + e.item);
+            console.log("bar " + e.bar);
+
+
 
             let getElement = await helpers.getItemById(e.item,e.bar)
-          
+
             // get nearby bars
             let nearbybars = await helpers.nearbyBars(longitude,latitude);
             nearbybars = await Promise.all(nearbybars.map( async (newBarData) =>{
@@ -962,16 +969,18 @@ const favouriteDrinks = async(req,res) =>{
                 if(itemcheck)
                 {
                     // check if bar has this item then get apply the method
-                    console.log(itemcheck)
-                    
+                   
                     e.item = await helpers.getItemById(e.item,newBarData._id)
                     newDrinkdata.push(e.item);
+                 
                 }
                 
                 
             }))
+
+            // console.log(getElement);
             
-            getElement.nearbybars = newDrinkdata
+            getElement.nearbybardata = newDrinkdata  
 
             barData.push(getElement)
 
