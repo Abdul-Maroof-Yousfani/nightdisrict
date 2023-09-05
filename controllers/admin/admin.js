@@ -7,7 +7,7 @@ import menuCategory from "../../models/menuCategory.js";
 import pourtype from "../../models/pourtype.js";
 import superMenu from "../../models/superMenu.js";
 import order from "../../models/order.js";
-import { format, startOfWeek, addDays } from 'date-fns';
+import { format, addDays, getWeek, getMonth, startOfMonth, endOfMonth } from 'date-fns';
 
 
 
@@ -51,92 +51,117 @@ const home = async(req,res) =>
 
 // ... (other code)
 
-const analytics = async (req, res) => {
-  try {
-    const { timeframe } = req.query;
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
-      'September', 'October', 'November', 'December'
-    ];
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-    let matchStage = {};
-    let dateFormat = '';
-    let startDate = null;
-    let endDate = new Date(); // Default to today
+// ... (other code)
 
-    switch (timeframe) {
-      case 'weekly':
-        startDate = new Date(new Date() - 6 * 24 * 60 * 60 * 1000); // Last 7 days including today
-        dateFormat = 'EEEE'; // Day name
-        break;
-      case 'monthly':
-        startDate = new Date(new Date().setDate(1)); // First day of the current month
-        dateFormat = 'w'; // Week number
-        break;
-      case 'yearly':
-        startDate = new Date(new Date().setMonth(0, 1)); // January 1st of the current year
-        dateFormat = 'MMMM'; // Month name
-        break;
-      default:
-        // No filter, retrieve all data
-        break;
+function getWeekOfMonth(date) {
+    const startOfMonthDate = startOfMonth(date);
+    const currentDate = date;
+  
+    let week = 0;
+    let day = startOfMonthDate;
+  
+    while (day <= currentDate) {
+      week++;
+      day = addDays(day, 7);
     }
-
-    matchStage = {
-      $match: {
-        createdAt: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      },
-    };
-
-    // Calculate the gained and lost sales for the selected timeframe
-    const analytics = await order.aggregate([
-      matchStage,
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: dateFormat, date: '$createdAt' },
-          },
-          totalSales: { $sum: '$totalPrice' },
-        },
-      },
-    ]);
-
-    const response = {
-      totalSales: [],
-      timeframeData: [],
-    };
-
-    // Generate data for all days within the selected timeframe
-    const currentDate = new Date(startDate);
-    while (currentDate <= endDate) {
-      const formattedDate = format(currentDate, dateFormat);
-      const entry = analytics.find((entry) => entry._id === formattedDate);
-
-      if (entry) {
-        response.totalSales.push(entry.totalSales);
-      } else {
-        response.totalSales.push(0);
-      }
-
-      if (timeframe === 'weekly') {
-        response.timeframeData.push(dayNames[currentDate.getDay()]);
-      } else {
-        response.timeframeData.push(formattedDate);
-      }
-
-      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
-    }
-
-    res.json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+  
+    return week;
   }
-};
+
+  const analytics = async (req, res) => {
+    try {
+      const { timeframe } = req.query;
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+        'September', 'October', 'November', 'December'
+      ];
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  
+      let matchStage = {};
+      let dateFormat = '';
+      let startDate = null;
+      let endDate = new Date(); // Default to today
+  
+      switch (timeframe) {
+        case 'weekly':
+          startDate = addDays(endDate, -6); // Last 7 days
+          dateFormat = 'EEEE'; // Day of the week (e.g., Monday, Tuesday)
+          break;
+        case 'monthly':
+          startDate = startOfMonth(endDate); // Start of the current month
+          endDate = endOfMonth(endDate); // End of the current month
+          dateFormat = 'w'; // Week number within the month
+          break;
+        case 'yearly':
+          startDate = startOfMonth(new Date()); // Start of the current year
+          endDate = endOfMonth(new Date()); // End of the current year
+          dateFormat = 'MMMM'; // Month name
+          break;
+        default:
+          // No filter, retrieve all data
+          break;
+      }
+  
+      matchStage = {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+      };
+  
+      // Calculate the gained and lost sales for the selected timeframe
+      const analytics = await order.aggregate([
+        matchStage,
+        {
+          $group: {
+            _id: {
+              $dateToString: { format: dateFormat, date: '$createdAt' },
+            },
+            totalSales: { $sum: '$totalPrice' },
+          },
+        },
+      ]);
+  
+      const response = {
+        totalSales: [],
+        timeframeData: [],
+      };
+  
+      // Generate data for all days/weeks within the selected timeframe
+      let currentDate = new Date(startDate);
+      let weekCount = 1; // Initialize week count
+      while (currentDate <= endDate) {
+        const formattedDate = format(currentDate, dateFormat);
+        const entry = analytics.find((entry) => entry._id === formattedDate);
+  
+        if (entry) {
+          response.totalSales.push(entry.totalSales);
+        } else {
+          response.totalSales.push(0);
+        }
+  
+        if (timeframe === 'weekly') {
+          response.timeframeData.push(formattedDate);
+        } else if (timeframe === 'monthly') {
+          response.timeframeData.push(`Week ${weekCount}`);
+          weekCount++; // Increment week count
+        } else {
+          response.timeframeData.push(formattedDate);
+        }
+  
+        currentDate = addDays(currentDate, 1); // Move to the next day/week
+      }
+  
+      res.json(response);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
 
   
   
