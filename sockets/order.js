@@ -198,11 +198,14 @@ function initOrder() {
                     subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
                     bar : response.bar
                 }).lean()
+                newOrder = [];
+                preparing = [];
+                completed = [];
+                delivered = [];
                 await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
                             if(orderstatus.orderStatus == 'new')
                             {
-                                console.log(orderstatus.orderStatus)
                                 newOrder.push(orderstatus)
                             }
                             if(orderstatus.orderStatus == 'preparing')
@@ -219,6 +222,8 @@ function initOrder() {
                             }
                         }))
                 let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+
+                console.log(data);
         
                 socket.emit('orders',data);
                 socket.broadcast.emit('orders', data);
