@@ -14,6 +14,52 @@ const messageSchema = new SimpleSchema({
 //  The file belongs to the Real time Order management b/w Bartender and User Application buying drinks from the Bar on real time
 
 
+const myOrders = async(customerId) =>
+{
+    try
+    {
+        let customer = customerId;
+
+        newOrder = [];
+        preparing = [];
+        completed = [];
+        delivered = [];
+
+        let orders = await order.find({
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            customer : customer
+            }).lean()
+        await Promise.all(orders.map(async(e) =>{
+            let orderstatus = await helpers.getOrderById(e);
+            if(orderstatus.orderStatus == 'new')
+
+                            {
+                                console.log(orderstatus.orderStatus)
+                                newOrder.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'preparing')
+                            {
+                                preparing.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'completed')
+                            {
+                                completed.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'delivered')
+                            {
+                                delivered.push(orderstatus)
+                            }
+                        }))
+                let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+                return data;
+    }
+    catch(error)
+    {
+        return error.message;
+
+    }
+}
+
 
 function initOrder() {
     const io = new Server(5401, {
@@ -192,6 +238,8 @@ function initOrder() {
 
 
                 // ending a push notification to the user
+                let customerData = await myOrders(orderStatus.customer)
+                socket.broadcast.emit('myOrders',customerData);
 
 
                 let orders = await order.find({
@@ -227,10 +275,6 @@ function initOrder() {
                         
                 // hit a socket 
 
-
-                socket.broadcast.emit('myOrders',[]);
-
-                
 
 
                 socket.emit('orders',data);
