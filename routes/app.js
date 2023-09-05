@@ -7,6 +7,7 @@ import users from '../controllers/users.js';
 import events from '../controllers/events.js';
 import order from '../controllers/order.js';
 import menu from '../controllers/menu.js';
+import page from '../controllers/page.js';
 
 const router = express.Router();
 
@@ -76,6 +77,11 @@ router.post('/menu/review',helpers.verifyAuthToken, menu.getReviewById);
 
 
 //  Add a review to the Drink /Events Promotions
+
+
+// pages
+
+router.get('/page/faq',page.faqs);
 
 
 

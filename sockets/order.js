@@ -45,7 +45,6 @@ function initOrder() {
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
             bar : barId
         }).lean()
-        console.log(orders);
         await Promise.all(orders.map(async(e) =>{
             let orderstatus = await helpers.getOrderById(e);
                     if(orderstatus.orderStatus == 'new')
@@ -156,7 +155,7 @@ function initOrder() {
             try
             {
                 let updateOrder = await order.findByIdAndUpdate({
-                    _id  : response.id
+                    _id  : response.orderid
                 },{
                     $set : {
                         orderStatus : "preparing",
@@ -168,10 +167,37 @@ function initOrder() {
 
                 // set a push notification to the User
 
-                socket.emit('orderById',updateOrder);
+
+                // ending a push notification to the user
 
 
-                
+                let orders = await order.find({
+                    subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+                    bar : response.bar
+                }).lean()
+                await Promise.all(orders.map(async(e) =>{
+                    let orderstatus = await helpers.getOrderById(e);
+                            if(orderstatus.orderStatus == 'new')
+                            {
+                                console.log(orderstatus.orderStatus)
+                                newOrder.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'preparing')
+                            {
+                                preparing.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'completed')
+                            {
+                                completed.push(orderstatus)
+                            }
+                            if(orderstatus.orderStatus == 'delivered')
+                            {
+                                delivered.push(orderstatus)
+                            }
+                        }))
+                let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+        
+                socket.emit('orders',data);
 
             }
             catch(error)
@@ -180,6 +206,22 @@ function initOrder() {
             }
 
         })
+
+        socket.on('orderStatus', async(response) =>{
+
+            try
+            {
+                
+
+
+            }
+            catch(error)
+            {
+                console.log(error);
+            }
+
+        })
+
         socket.on('orderById', async(response) =>{
 
             try

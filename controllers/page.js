@@ -53,6 +53,40 @@ const find = async (req, res) => {
             slug
         })
         
+        
+        return res.json({
+            status : 200,
+            message  : "Success",
+            data
+            })
+        
+    
+    }   
+    catch(error)
+    {   
+        res.status(500).json({message:error.message})
+    }
+}
+const faqs = async (req, res) => {
+    let {slug} = req.params;
+
+    try
+    {
+        let data = [
+            {
+                "question": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod",
+                "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod"
+            },
+            {
+                "question": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod",
+                "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod"
+            },
+            {
+                "question": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod",
+                "answer": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod"
+            }
+        ]
+        
         return res.json({
             status : 200,
             message  : "Success",
@@ -69,5 +103,6 @@ const find = async (req, res) => {
 
 export default {
     store,
-    find
+    find,
+    faqs
 }
