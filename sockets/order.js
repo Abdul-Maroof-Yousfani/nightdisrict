@@ -188,6 +188,7 @@ function initOrder() {
                      },
                 ];
                 socket.emit('orderStatus',newData)
+                socket.broadcast.emit('orderStatus', newData);
 
 
                 // ending a push notification to the user
