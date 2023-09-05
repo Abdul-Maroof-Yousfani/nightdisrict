@@ -211,7 +211,27 @@ function initOrder() {
 
             try
             {
-                let orderStatus  = order
+                let orderStatus  = await order.findById({
+                    _id  : response.orderid
+                })
+                let data = [
+                    {
+                    status : 1,
+                    message : "order recieved",
+                    active : orderStatus.orderStatus == 'new'? true : false
+                    },
+                    {
+                        status : 2,
+                        message : "preparing your order",
+                        active : orderStatus.orderStatus == 'preparing'? true : false
+                        },
+                    {
+                        status : 3,
+                        message : "Ready to pickup",
+                        active : orderStatus.orderStatus == 'completed'? true : false
+                     },
+                ];
+                socket.emit('orderStatus',data)
 
 
             }

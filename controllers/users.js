@@ -1295,6 +1295,35 @@ const setNotification = async(req,res)=>{
     }
 }
 
+const destroy = async(req,res) =>
+{
+    try
+    {
+        let data = await users.findByIdAndUpdate({
+            _id : req.user._id,
+        },{
+            $set : {
+                isActive : false
+            }
+        },{
+            new:true
+        })
+
+        return res.status(200).json({
+            status : 200,
+            message  :'success',
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message  : error.message,
+            data : {}
+        })
+    }
+}
 
 export default{
     home,
@@ -1318,5 +1347,6 @@ export default{
     all,
     orders,
     details,
-    setNotification
+    setNotification,
+    destroy
 };
