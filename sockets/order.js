@@ -116,7 +116,7 @@ function initOrder() {
         socket.on('myOrders',async(response) =>{
             try
             {
-                let customer = response.customer;
+                let customer = response.customerId;
 
                 let orders = await order.find({
                     subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
