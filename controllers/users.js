@@ -1297,10 +1297,12 @@ const setNotification = async(req,res)=>{
 
 const destroy = async(req,res) =>
 {
+    let {_id} = req.user
     try
     {
+       
         let data = await users.findByIdAndUpdate({
-            _id : req.user._id,
+            _id 
         },{
             $set : {
                 isActive : false
@@ -1309,6 +1311,7 @@ const destroy = async(req,res) =>
             new:true
         })
 
+     
         return res.status(200).json({
             status : 200,
             message  :'success',

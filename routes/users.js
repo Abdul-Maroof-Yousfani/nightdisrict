@@ -22,7 +22,7 @@ router.post("/change-password" ,userController.changePassword);
 // update profile
 
 router.post('/:id',userController.profile);
-router.delete('/:id',userController.destroy);
+router.delete('/',helpers.verifyAuthToken ,userController.destroy);
 
 
 
