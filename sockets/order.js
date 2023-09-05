@@ -224,7 +224,15 @@ function initOrder() {
                 let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
 
                 console.log(data);
-        
+                        
+                // hit a socket 
+
+
+                socket.broadcast.emit('myOrders',[]);
+
+                
+
+
                 socket.emit('orders',data);
                 socket.broadcast.emit('orders', data);
 
