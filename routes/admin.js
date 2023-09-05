@@ -56,6 +56,8 @@ router.get('/user/activities',helpers.verifyAuthToken,users.activities);
 
 router.get('/bar/inquiries',helpers.verifyAuthToken,admin.inquiries)
 router.put('/bar/inquiries/:_id',helpers.verifyAuthToken,admin.updateInquiry)
+router.get('/bar/details/:id',helpers.verifyAuthToken,bar.getBarStats);
+
 
 //user activities
 
@@ -91,6 +93,7 @@ router.get('/bars', bar.all);
 router.get('/users', users.all);
 router.get('/users/:id', users.activities);
 router.get('/users/detail/:id', users.details);
+
 
 // router.get('/menus', menu.all );
 

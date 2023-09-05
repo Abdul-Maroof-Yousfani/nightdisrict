@@ -14,6 +14,7 @@ import menu from '../models/menu.js';
 import reviews from '../models/reviews.js';
 import order from '../models/order.js';
 import superMenu from '../models/superMenu.js';
+import payments from '../models/payments.js';
 
 const home = (req, res) => {
     res.send('Hello From Home');
@@ -1249,15 +1250,27 @@ const details = async(req,res) =>
         let data = await helpers.getUserById({
             _id  : id
         })
+        let getOrders = await order.find({
+            customer : id
+        }).lean()
+        let results = await helpers.paginate(getOrders,req.query.page,req.query.limit)
+        let newOrders = await Promise.all(results.result.map(  async (e) =>{
+            e  = await helpers.getOrderById(e)
+            e.transaction = await payments.findOne({
+                order  : e._id 
+            })
+            return e;
+        }))
         return res.json({
             status : 200,
             message : "success",
-            data
+            data : newOrders,
+            paginate : results.totalPages
         })
     }
     catch(error)
     {
-        return res.statu(500).json({
+        return res.status(500).json({
             status : 500,
             message : error.message,
             data : {}

@@ -118,10 +118,10 @@ function initOrder() {
             try
             {
                 let customer = socket.handshake.query.customerid;
+                console.log(customer)
 
                 let orders = await order.find({
                     subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-                    bar : barId,
                     customer : customer
                 }).lean()
                 await Promise.all(orders.map(async(e) =>{

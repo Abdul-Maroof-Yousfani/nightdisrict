@@ -14,6 +14,7 @@ import helpers from '../../utils/helpers.js';
 import event from '../../models/event.js';
 import promotion from '../../models/promotion.js';
 import attendance from '../../models/attendance.js';
+import teamMember from '../../models/team.js';
 
 
 
@@ -1502,6 +1503,45 @@ const destroy = async(req,res) =>
     }
 }
 
+const getBarStats = async(req,res) =>
+{
+    try
+    {   
+        let data  = await bar.findById(
+            {
+                _id : req.params.id
+            }
+        )
+        data  = await helpers.getBarById(data._id);
+        
+        // add a team member
+
+        let team  = await teamMember.find({
+            bar : req.params.id
+        });
+        team = await Promise.all(team.map(async(e) =>{
+            return await helpers.getUserById(e.user)
+        }))
+        data.team = team;
+
+
+        return res.json({
+            status : 200,
+            message : 'success',
+            data
+        })
+    }
+    catch(error)
+    {
+        console.log(error.message);
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -1524,5 +1564,6 @@ export default {
     app,
     web,
     all,
-    destroy
+    destroy,
+    getBarStats
 }
