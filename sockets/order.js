@@ -20,10 +20,10 @@ const myOrders = async(customerId) =>
     {
         let customer = customerId;
 
-        newOrder = [];
-        preparing = [];
-        completed = [];
-        delivered = [];
+        let newOrder = [];
+        let preparing = [];
+        let completed = [];
+        let delivered = [];
 
         let orders = await order.find({
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
@@ -239,6 +239,7 @@ function initOrder() {
 
                 // ending a push notification to the user
                 let customerData = await myOrders(orderStatus.customer)
+                console.log(customerData);
                 socket.broadcast.emit('myOrders',customerData);
 
 
@@ -271,7 +272,6 @@ function initOrder() {
                         }))
                 let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
 
-                console.log(data);
                         
                 // hit a socket 
 
