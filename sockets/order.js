@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import order from '../models/order.js';
 import helpers from '../utils/helpers.js';
 import mongoose from 'mongoose';
+import { response } from 'express';
 
 
 const messageSchema = new SimpleSchema({
@@ -26,6 +27,13 @@ function initOrder() {
         let preparing = [];
         let completed = [];
         let delivered = [];
+
+        let currentUser = socket.handshake.query.userid;
+        let barId = socket.handshake.query.barId;
+        currentUser = await helpers.getUserById(currentUser)
+        // get bar info
+        let bar = await helpers.getBarData(barId)
+
         
         socket.emit('connected', 'Connected! Please subscribe to register event now!');
 
@@ -33,7 +41,8 @@ function initOrder() {
         // adding socket data here
 
         let orders = await order.find({
-            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            bar : barId
         }).lean()
         await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
@@ -102,6 +111,58 @@ function initOrder() {
         socket.emit('orders',data);
               
             
+
+        })
+
+        socket.on('onPrepare', async(response) =>{
+
+            try
+            {
+                let updateOrder = await order.findByIdAndUpdate({
+                    _id  : response.id
+                },{
+                    $set : {
+                        orderStatus : "preparing",
+                        estimatedTime : response.estimatedTime
+                    }
+                },{
+                    new :true
+                })
+
+                // set a push notification to the User
+
+                socket.emit('orderById',updateOrder);
+
+
+                
+
+            }
+            catch(error)
+            {
+
+            }
+
+        })
+        socket.on('orderById', async(response) =>{
+
+            try
+            {
+                let orderData = await order.findById({
+                    _id  : response.id
+                }).lean()
+                orderData = await helpers.getOrderById(orderData)
+
+                // set a push notification to the User
+
+                socket.emit('order',orderData);
+
+                
+
+            }
+            catch(error)
+            {
+                socket.emit('error',error.message);
+            }
 
         })
 

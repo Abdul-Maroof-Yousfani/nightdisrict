@@ -6,6 +6,8 @@ import menu from "../../models/menu.js";
 import menuCategory from "../../models/menuCategory.js";
 import pourtype from "../../models/pourtype.js";
 import superMenu from "../../models/superMenu.js";
+import order from "../../models/order.js";
+import { format, startOfWeek, addDays } from 'date-fns';
 
 
 
@@ -19,7 +21,8 @@ const home = async(req,res) =>
     {
         let recentMenu = await menuCategory.find({}).limit(4);
         let registeredBars = await bar.find({}).limit(4);
-        let menu = await superMenu.find({}).length;
+        let menu = await superMenu.find({});
+        menu = menu.length
         let activeUsers = await users.find({},{
             username : 1 , profile_picture:1
         }).limit(5);
@@ -41,7 +44,111 @@ const home = async(req,res) =>
 }
 //
 
+// app.js
+// ... (other code)
 
+// Route to fetch analytics data with filtering options
+
+// ... (other code)
+
+const analytics = async (req, res) => {
+  try {
+    const { timeframe } = req.query;
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
+      'September', 'October', 'November', 'December'
+    ];
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    let matchStage = {};
+    let dateFormat = '';
+    let startDate = null;
+    let endDate = new Date(); // Default to today
+
+    switch (timeframe) {
+      case 'weekly':
+        startDate = new Date(new Date() - 6 * 24 * 60 * 60 * 1000); // Last 7 days including today
+        dateFormat = 'EEEE'; // Day name
+        break;
+      case 'monthly':
+        startDate = new Date(new Date().setDate(1)); // First day of the current month
+        dateFormat = 'w'; // Week number
+        break;
+      case 'yearly':
+        startDate = new Date(new Date().setMonth(0, 1)); // January 1st of the current year
+        dateFormat = 'MMMM'; // Month name
+        break;
+      default:
+        // No filter, retrieve all data
+        break;
+    }
+
+    matchStage = {
+      $match: {
+        createdAt: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      },
+    };
+
+    // Calculate the gained and lost sales for the selected timeframe
+    const analytics = await order.aggregate([
+      matchStage,
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: dateFormat, date: '$createdAt' },
+          },
+          totalSales: { $sum: '$totalPrice' },
+        },
+      },
+    ]);
+
+    const response = {
+      totalSales: [],
+      timeframeData: [],
+    };
+
+    // Generate data for all days within the selected timeframe
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      const formattedDate = format(currentDate, dateFormat);
+      const entry = analytics.find((entry) => entry._id === formattedDate);
+
+      if (entry) {
+        response.totalSales.push(entry.totalSales);
+      } else {
+        response.totalSales.push(0);
+      }
+
+      if (timeframe === 'weekly') {
+        response.timeframeData.push(dayNames[currentDate.getDay()]);
+      } else {
+        response.timeframeData.push(formattedDate);
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+    }
+
+    res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+  
+  
+  
+  
+  
+  
+  // ... (other code)
+  
+  
+  // ... (other code)
+  
 
 
 const inquiries = async (req, res) => {
@@ -207,5 +314,6 @@ export default {
     inquiries,
     updateInquiry,
     getUserActivities,
-    blockOrUnBlockUser
+    blockOrUnBlockUser,
+    analytics
 }

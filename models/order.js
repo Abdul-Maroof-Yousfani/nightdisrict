@@ -16,6 +16,10 @@ const orderSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref:"bars",
     },
+    estimatedTime : {
+        type : String,
+        default : "10 Minutes"
+    },
     items:[
         {
             item:{

@@ -74,6 +74,7 @@ router.get('/page/:slug',page.find);
 // Super Admin Home Page
 
 router.get('/home', admin.home);
+router.get('/analytics', admin.analytics);
 
 // HomePage Ends
 
