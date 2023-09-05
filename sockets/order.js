@@ -220,7 +220,8 @@ function initOrder() {
                         }))
                 let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
         
-                socket.emit('orders',data);
+                // socket.emit('orders',data);
+                socket.broadcast.emit('orders', data);
 
             }
             catch(error)
