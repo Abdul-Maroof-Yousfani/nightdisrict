@@ -220,7 +220,7 @@ function initOrder() {
                         }))
                 let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
         
-                // socket.emit('orders',data);
+                socket.emit('orders',data);
                 socket.broadcast.emit('orders', data);
 
             }
@@ -260,9 +260,9 @@ function initOrder() {
 
             try
             {
-                let orderStatus  = await order.findById({
-                    _id  : response.orderid
-                })
+                let orderStatus  = await order.findOne({
+                    customer  : response.customerId
+                }).sort({ updatedAt : -1})
                 let data = [
                     {
                     status : 1,
