@@ -158,7 +158,7 @@ function initOrder() {
                     _id  : response.orderid
                 },{
                     $set : {
-                        orderStatus : "preparing",
+                        orderStatus : response.status,
                         estimatedTime : response.estimatedTime
                     }
                 },{
@@ -166,6 +166,28 @@ function initOrder() {
                 })
 
                 // set a push notification to the User
+
+                let orderStatus  = await order.findById({
+                    _id  : updateOrder._id
+                })
+                let newData = [
+                    {
+                    status : 1,
+                    message : "order recieved",
+                    active : orderStatus.orderStatus == 'new'? true : false
+                    },
+                    {
+                        status : 2,
+                        message : "preparing your order",
+                        active : orderStatus.orderStatus == 'preparing'? true : false
+                        },
+                    {
+                        status : 3,
+                        message : "Ready to pickup",
+                        active : orderStatus.orderStatus == 'completed'? true : false
+                     },
+                ];
+                socket.emit('orderStatus',newData)
 
 
                 // ending a push notification to the user
