@@ -211,7 +211,7 @@ function initOrder() {
 
             try
             {
-                
+                let orderStatus  = order
 
 
             }

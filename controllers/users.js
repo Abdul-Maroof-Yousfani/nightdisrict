@@ -1278,6 +1278,23 @@ const details = async(req,res) =>
     }
 }
 
+const setNotification = async(req,res)=>{
+    try {
+        const result = await users.findByIdAndUpdate({_id: req.user._id},{$set: {notification: req.body.notification}}, {new: true});
+        return res.json({
+            status : 200,
+            message : "success",
+            data : result
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 
 export default{
     home,
@@ -1300,5 +1317,6 @@ export default{
     myOrders,
     all,
     orders,
-    details
+    details,
+    setNotification
 };

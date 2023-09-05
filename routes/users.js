@@ -35,6 +35,11 @@ router.get("/type/:type" , userController.userByType);
 router.get("/order",helpers.verifyAuthToken ,userController.myOrders);
 
 
+// set Notification
+
+router.put("/setNotification", helpers.verifyAuthToken, userController.setNotification);
+
+
 
 
 export default router;
