@@ -338,6 +338,10 @@ function initOrder() {
                     subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
                     customer : customer
                 }).lean()
+                newOrder = []
+                preparing = []
+                completed = []
+                delivered = []
                 await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
                             if(orderstatus.orderStatus == 'new')

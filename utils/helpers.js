@@ -778,7 +778,7 @@ const getOrderById = async(data) => {
             else if(data.subscriptionType == 'buy_drink')
             {
     
-                return await getItemById(e.item,data.bar,e.variant,e.totalQuantity)
+                return await getItemById(e.item,data.bar,e.variant,e.qty)
             }
             else if(data.subscriptionType == 'promotion')
             {
@@ -930,7 +930,6 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         data.variation = await Promise.all(data.variation.map(async(e) =>{
             let itemTypes = await pourtype.findById({_id : e.variant}).lean()
             itemTypes.price = e.price
-            itemTypes.qty = e.qty
             return itemTypes;
         }))
 
