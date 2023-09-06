@@ -4,6 +4,8 @@ import order from '../models/order.js';
 import helpers from '../utils/helpers.js';
 import mongoose from 'mongoose';
 import { response } from 'express';
+import reviews from '../models/reviews.js';
+import menu from '../models/menu.js';
 
 
 const messageSchema = new SimpleSchema({
@@ -82,13 +84,96 @@ const deliveredOrders = async(bar) =>
 
 const addReview = async(req) =>
 {
+    let {item,variation,customer,rating,bar,message,Order} = req
+    let body = req
+
     try
     {
+        // check item, if item exists
+        
+        // get customer from the access token
 
+   
+        body.customer = body.user;
+
+        // add dat to the req.body
+
+        let checkMenu = await menu.findOne({
+            item,
+            barId : bar
+        }).lean()
+
+        // check review if already given
+
+        let checkReview = await reviews.findOne({
+            customer : req.user._id,
+            item,
+            bar
+        })
+
+ 
+        if(checkReview) return res.status(409).json({
+            status : 409,
+            message : "review already given",
+        })
+
+        
+
+
+    
+
+        // check menu
+
+
+
+
+
+      
+
+
+        // adding a review to  a drink
+
+        let drink = new reviews(req.body);
+        drink = await drink.save();
+
+
+
+
+        // update
+        let newData = await menu.findOneAndUpdate({
+            item,
+            barId: bar
+        },
+        {
+            $push : {
+                "reviews" : {
+                    customer : req.user._id,
+                    review : drink._id
+                },
+                
+            }
+        },{
+            new: true
+        })
+
+
+        // get drink data
+
+        drink = await reviews.findById({
+            _id : drink._id
+        }).lean()
+
+        drink = await helpers.getBasicReview(drink)
+
+        return drink
     }
     catch(error)
     {
-        
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
     }
 }
 
@@ -451,13 +536,20 @@ function initOrder() {
 
         })
 
+
         socket.on('report', async(response) =>{
             
             // this socket is responsible to fetch all orders that are new
             try
             {
-                let data = await deliveredOrders(barId)
+                let data = await addReview(response)
+
+
                 socket.emit('delivered', data);
+
+                let socketData = await myOrders(response.user)
+
+                socket.emit('myOrders',socketData)
 
             }
             catch(error)
