@@ -754,11 +754,10 @@ const getOrderById = async(data) => {
 
 
         // adding Review to Root of the Order
-
         let orderReviews = await reviews.findOne({
-            order : data._id
+            Order : data._id
         }).lean();
-        // console.log(orderReviews)
+        console.log(orderReviews)
         if(orderReviews)
         {
             data.review = await getBasicReview(orderReviews)
@@ -779,7 +778,7 @@ const getOrderById = async(data) => {
             else if(data.subscriptionType == 'buy_drink')
             {
     
-                return await getItemById(e.item,data.bar,e.variant)
+                return await getItemById(e.item,data.bar,e.variant,e.totalQuantity)
             }
             else if(data.subscriptionType == 'promotion')
             {
@@ -859,7 +858,7 @@ const getItemById2 =  async(id) =>
     }
 }
 
-const  getItemById = async(id,bar,bought='') => {
+const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     try
     {
         let data = await menu.findOne({
@@ -921,6 +920,7 @@ const  getItemById = async(id,bar,bought='') => {
         data.pictures = data.item.pictures
 
         data.buy = bought
+        data.totalQuantity = totalQuantity
 
         
         delete data.item;

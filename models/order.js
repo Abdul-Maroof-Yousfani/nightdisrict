@@ -64,6 +64,10 @@ const orderSchema = new mongoose.Schema({
         type : Number,
         default : 0
     },
+    totalQuantity : {
+        type : Number,
+        default : 0
+    },
     cardId :{
         type:mongoose.Schema.Types.ObjectId,
         default:null

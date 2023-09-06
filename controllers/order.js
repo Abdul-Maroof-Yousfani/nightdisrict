@@ -69,12 +69,15 @@ const store = async (req, res) => {
 
 
         let amountPaid = 0;
+        let totalqty = 0;
         
         items.map((e) =>{
             amountPaid += Number(e.price)
+            totalqty += Number(e.qty)
         })
 
         let totalAmount = amountPaid + tip
+        
 
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
@@ -88,7 +91,8 @@ const store = async (req, res) => {
             type,
             amount : amountPaid,
             bar : mongoose.Types.ObjectId(bar),
-            totalPrice : totalAmount
+            totalPrice : totalAmount,
+            totalQuantity : totalqty
 
         }
         );
