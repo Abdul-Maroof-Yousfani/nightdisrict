@@ -1436,7 +1436,7 @@ const all = async(req,res) =>
 {
     try
     {
-        let data = await Bar.find({});
+        let data = await Bar.find({active: true});
         let results = await helpers.paginate(data,req.params.page,req.params.limit)
         return res.status(200).json({
             status : 200,
