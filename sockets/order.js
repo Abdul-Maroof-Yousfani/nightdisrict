@@ -168,7 +168,6 @@ const addReview = async(req) =>
 
         drink = await helpers.getBasicReview(drink)
 
-  
 
         return drink
     }
@@ -183,13 +182,17 @@ const addReview = async(req) =>
     }
 }
 
-const allOrders = async(req) =>
+const allOrders = async(bar) =>
 {
     try
     {
+        let newOrder = []
+        let preparing = []
+        let completed = []
+        let delivered = []
         let orders = await order.find({
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-            bar : barId
+            bar : bar
         }).lean()
         await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
