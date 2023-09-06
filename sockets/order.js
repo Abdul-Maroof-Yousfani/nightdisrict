@@ -50,13 +50,45 @@ const myOrders = async(customerId) =>
                                 delivered.push(orderstatus)
                             }
                         }))
-                let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
-                return data;
+        let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+        return data;
     }
     catch(error)
     {
         return error.message;
 
+    }
+}
+
+const deliveredOrders = async(bar) =>
+{
+    try
+    {
+        let orders = await order.find({
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            bar : bar,
+            orderStatus : "delivered"
+        }).lean()
+        orders  = await Promise.all(orders.map(async(e) =>{
+            return  await helpers.getOrderById(e);
+        }))
+        return orders;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
+const addReview = async(req) =>
+{
+    try
+    {
+
+    }
+    catch(error)
+    {
+        
     }
 }
 
@@ -86,13 +118,12 @@ function initOrder() {
 
 
         // adding socket data here
-
         let orders = await order.find({
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
             bar : barId
         }).lean()
         await Promise.all(orders.map(async(e) =>{
-            let orderstatus = await helpers.getOrderById(e);
+                    let orderstatus = await helpers.getOrderById(e);
                     if(orderstatus.orderStatus == 'new')
                     {
                         console.log(orderstatus.orderStatus)
@@ -114,6 +145,7 @@ function initOrder() {
         let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
 
         socket.emit('orders',data);
+   
         socket.on('orders', async(response) =>{
             
             // this socket is responsible to fetch all orders that are new
@@ -153,12 +185,14 @@ function initOrder() {
                     }
                 }))
         let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
-
+        console.log(data);
         socket.emit('orders',data);
               
             
 
         })
+
+
         socket.on('myOrders',async(response) =>{
             try
             {
@@ -405,8 +439,25 @@ function initOrder() {
             // this socket is responsible to fetch all orders that are new
             try
             {
-                let data = await order.find({orderStatus:"delivered"}).lean()
-                socket.emit('orders', data);
+                let data = await deliveredOrders(barId)
+                socket.emit('delivered', data);
+
+            }
+            catch(error)
+            {
+                socket.emit('error', error.messgae);
+            }   
+            
+
+        })
+
+        socket.on('report', async(response) =>{
+            
+            // this socket is responsible to fetch all orders that are new
+            try
+            {
+                let data = await deliveredOrders(barId)
+                socket.emit('delivered', data);
 
             }
             catch(error)

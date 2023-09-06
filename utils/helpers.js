@@ -752,6 +752,22 @@ const getOrderById = async(data) => {
         data.bar = await getBarData(data.bar)
         data.customer = await getUserById(data.customer);
 
+
+        // adding Review to Root of the Order
+
+        let orderReviews = await reviews.findOne({
+            order : data._id
+        }).lean();
+        // console.log(orderReviews)
+        if(orderReviews)
+        {
+            data.review = await getBasicReview(orderReviews)
+        }
+        else
+        {
+            data.review = null
+        }
+
         
         // get items details in order
 
