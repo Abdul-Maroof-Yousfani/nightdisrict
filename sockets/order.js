@@ -96,6 +96,8 @@ const addReview = async(req) =>
    
         body.customer = body.user;
 
+
+
         // add dat to the req.body
 
         let checkMenu = await menu.findOne({
@@ -106,16 +108,17 @@ const addReview = async(req) =>
         // check review if already given
 
         let checkReview = await reviews.findOne({
-            customer : req.user._id,
+            customer : body.customer,
             item,
             bar
         })
 
+
  
-        if(checkReview) return res.status(409).json({
-            status : 409,
-            message : "review already given",
-        })
+        // if(checkReview) return res.status(409).json({
+        //     status : 409,
+        //     message : "review already given",
+        // })
 
         
 
@@ -133,7 +136,7 @@ const addReview = async(req) =>
 
         // adding a review to  a drink
 
-        let drink = new reviews(req.body);
+        let drink = new reviews(body);
         drink = await drink.save();
 
 
@@ -147,7 +150,7 @@ const addReview = async(req) =>
         {
             $push : {
                 "reviews" : {
-                    customer : req.user._id,
+                    customer : customer,
                     review : drink._id
                 },
                 
@@ -165,16 +168,58 @@ const addReview = async(req) =>
 
         drink = await helpers.getBasicReview(drink)
 
+  
+
         return drink
     }
     catch(error)
     {
+        console.log(error)
         return res.status(500).json({
             status : 500,
             message : error.message,
             data : {}
         })
     }
+}
+
+const allOrders = async(req) =>
+{
+    try
+    {
+        let orders = await order.find({
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            bar : barId
+        }).lean()
+        await Promise.all(orders.map(async(e) =>{
+                    let orderstatus = await helpers.getOrderById(e);
+                    if(orderstatus.orderStatus == 'new')
+                    {
+                        console.log(orderstatus.orderStatus)
+                        newOrder.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'preparing')
+                    {
+                        preparing.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'completed')
+                    {
+                        completed.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'delivered')
+                    {
+                        delivered.push(orderstatus)
+                    }
+                }))
+        let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+        return data;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+    
+
 }
 
 
@@ -230,6 +275,9 @@ function initOrder() {
         let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
 
         socket.emit('orders',data);
+
+        let newOrders = await deliveredOrders(barId)
+        socket.emit('delivered', newOrders);
    
         socket.on('orders', async(response) =>{
             
@@ -352,8 +400,11 @@ function initOrder() {
                         active : orderStatus.orderStatus == 'completed'? true : false
                      },
                 ];
-                socket.emit('orderStatus',newData)
+                socket.emit('orderStatus',newData);
                 socket.broadcast.emit('orderStatus', newData);
+
+                let deliveredOrders = await deliveredOrders(barId)
+                socket.emit('delivered', deliveredOrders);
 
 
                 // ending a push notification to the user
@@ -537,18 +588,19 @@ function initOrder() {
         })
 
 
-        socket.on('report', async(response) =>{
+        socket.on('review', async(response) =>{
             
             // this socket is responsible to fetch all orders that are new
             try
             {
+               
                 let data = await addReview(response)
 
 
-                socket.emit('delivered', data);
 
                 let socketData = await myOrders(response.user)
-
+                let orders = await allOrders(response.bar)
+                socket.emit('orders',orders)
                 socket.emit('myOrders',socketData)
 
             }
