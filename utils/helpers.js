@@ -930,6 +930,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         data.variation = await Promise.all(data.variation.map(async(e) =>{
             let itemTypes = await pourtype.findById({_id : e.variant}).lean()
             itemTypes.price = e.price
+            itemTypes.qty = e.qty
             return itemTypes;
         }))
 
