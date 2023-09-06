@@ -74,6 +74,7 @@ const store = async (req, res) => {
             amountPaid += Number(e.price)
         })
 
+        let totalAmount = amountPaid + tip
 
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
@@ -86,7 +87,8 @@ const store = async (req, res) => {
             tip,
             type,
             amount : amountPaid,
-            bar : mongoose.Types.ObjectId(bar)
+            bar : mongoose.Types.ObjectId(bar),
+            totalPrice : totalAmount
 
         }
         );
