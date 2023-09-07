@@ -1753,6 +1753,33 @@ const analyticsByBarId = async(req,res) =>
     }
 }
 
+const suspendRespond = async(req,res) =>
+{
+    try
+    {
+        let data = await bar.findByIdAndUpdate({
+            _id : req.params.id
+        },{
+            $set : {
+                isSuspended : true
+            }
+        })
+        return res.json({
+            status  : 200,
+            message : 'success',
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status  : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -1778,5 +1805,6 @@ export default {
     destroy,
     getBarStats,
     analyticsByBarId,
-    getBarGeometry
+    getBarGeometry,
+    suspendRespond
 }

@@ -110,6 +110,10 @@ const bar = new mongoose.Schema({
         type : String,
         default : ''
     },
+    isSuspended : {
+        type : Boolean,
+        default : true
+    },
     instagramUrl:{
         type : String,
         default : ''

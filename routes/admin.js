@@ -85,6 +85,7 @@ router.get('/analytics', admin.analytics);
 
 router.get('/bars', bar.all);
 router.get('/bar/:id/analytics', bar.analyticsByBarId);
+router.put('/bar/:id/suspend', bar.suspendRespond);
 
 // Ending Bar Related Data
 
