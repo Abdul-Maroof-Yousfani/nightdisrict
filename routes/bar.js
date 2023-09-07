@@ -18,6 +18,7 @@ router.get("/analytics" ,helper.verifyAuthToken, Bar.analytics);
 router.put("/barProfile" ,helper.verifyAuthToken, Bar.barProfile);
 router.put("/barInfo/:id" , helper.verifyAuthToken, Bar.barInfo);
 router.put("/detailInfo/:id" ,helper.verifyAuthToken, Bar.detailInfo);
+router.put("/geometry" ,helper.verifyAuthToken, Bar.getBarGeometry);
 router.put("/allInfo/:id" ,helper.verifyAuthToken, Bar.updateBarInfo);
 
 router.post("/category" ,helper.verifyAuthToken, Bar.selectCategory);

@@ -264,6 +264,11 @@ const updateBarInfo = async (req, res) => {
         let checkRole = await Role.findById({ _id: result.role });
 
 
+        // chec if we are receiving geo
+
+        
+
+
 
         if (req.files) {
             let logo = req.files.upload_logo;
@@ -419,6 +424,44 @@ const updateBarInfo = async (req, res) => {
             data: error.message
         })
     }
+}
+
+const getBarGeometry = async(req,res) =>
+{
+    let {geo} = req.body;
+    try
+    {
+
+        let location = {
+            type : "Polygon",
+            coordinates:geo
+        }
+
+        let data  = await  bar.findByIdAndUpdate({
+            _id : req.user.barInfo
+        },{
+            $set : {
+                geometry : location
+            }
+        },{
+            new : true
+        })
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : []
+        })
+    }   
+
 }
 
 
@@ -1734,5 +1777,6 @@ export default {
     all,
     destroy,
     getBarStats,
-    analyticsByBarId
+    analyticsByBarId,
+    getBarGeometry
 }
