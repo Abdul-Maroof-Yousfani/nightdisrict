@@ -1479,12 +1479,16 @@ const all = async(req,res) =>
 {
     try
     {
-        let data = await Bar.find({active: true});
+        let data = await Bar.find({active: true}).lean();
         let results = await helpers.paginate(data,req.params.page,req.params.limit)
+        let newData = await Promise.all(results.result.map( async (e) =>{
+            e.owner = await helpers.getUserById(e.owner);
+            return e;
+        }));
         return res.status(200).json({
             status : 200,
             message : "success",
-            data : results.result,
+            data : newData,
             paginate : results.totalPages
 
         })
