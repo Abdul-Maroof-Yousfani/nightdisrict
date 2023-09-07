@@ -1558,8 +1558,10 @@ const getBarStats = async(req,res) =>
             {
                 _id : req.params.id
             }
-        )
+        ).lean()
         data  = await helpers.getBarById(data._id);
+
+        data.owner = await helpers.getUserById(data.owner);
         
         // add a team member
 
