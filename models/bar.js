@@ -137,7 +137,7 @@ const bar = new mongoose.Schema({
 
         },
         coordinates: {
-          type: [[[Number]]], // Coordinates of the polygon
+          type: [[Number]], // Coordinates of the polygon
           default: [],
         },
         default: []
