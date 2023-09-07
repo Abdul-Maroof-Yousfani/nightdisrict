@@ -1481,8 +1481,27 @@ const all = async(req,res) =>
     {
         let data = await Bar.find({active: true}).lean();
         let results = await helpers.paginate(data,req.params.page,req.params.limit)
+        // top menus
+
+  
+
         let newData = await Promise.all(results.result.map( async (e) =>{
             e.owner = await helpers.getUserById(e.owner);
+            let topMenus = await menu.find({
+                barId : e._id
+            }).limit(3).lean()
+            if(topMenus)
+            {
+                topMenus = await Promise.all(topMenus.map(async(item) =>{
+                    return  await helpers.getItemById(item.item,e._id)
+                }))
+                e.topMenus = topMenus
+            }
+            else
+            {
+                e.topMenus = []
+            }
+          
             return e;
         }));
         return res.status(200).json({
