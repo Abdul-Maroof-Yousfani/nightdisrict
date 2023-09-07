@@ -84,6 +84,7 @@ router.get('/analytics', admin.analytics);
 // All bars Related Data
 
 router.get('/bars', bar.all);
+router.get('/bar/:id/analytics', bar.analyticsByBarId);
 
 // Ending Bar Related Data
 

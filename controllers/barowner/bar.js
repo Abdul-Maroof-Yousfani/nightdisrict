@@ -1542,6 +1542,174 @@ const getBarStats = async(req,res) =>
     }
 }
 
+
+const analyticsByBarId = async(req,res) =>
+{
+    let {id} = req.params;
+    let graph  = {}
+    try
+    {
+        const totalMenuSalesCount = 1500;
+        const totalTicketCounts = 1200;
+        const eventAttendanceCount = 300;
+        const averagingEventRatingsCount = 4.5;
+        const bestSellingMenuPieChart = []; // Data for pie chart
+        // const mostPopularMenuCategories = ["Appetizers", "Main Course", "Desserts"];
+        // const bestSellingEvents = ["Event A", "Event B", "Event C"];
+
+        const demoGraphicsMalePercentage = 60;
+        const demoGraphicsFemalePercentage = 40;
+
+        // get best selling menu
+
+        let menuData = await superMenu.find({}).limit(6).lean();
+        let count = 0;
+        menuData = menuData.map((menu) => {
+        count += 20;
+        menu.value = count;
+        return menu;
+        });
+
+        const totalMenuSales = menuData.reduce((sum, menu) => sum + menu.value, 0);
+
+        const menuColors = ['#FFA500', '#FF0000', '#87CEEB', '#FFC0CB', '#008000', '#0000FF']; // Colors for each rank
+
+        const bestSellingMenuWithPercentageAndColor = menuData.map((menu, index) => {
+
+
+        const percentage = (menu.value / totalMenuSales) * 100;
+
+        let backgroundColor;
+        if (percentage >= 30) {
+            backgroundColor = menuColors[0]; // Highest percentage color
+        } else if (percentage >= 25) {
+            backgroundColor = menuColors[1];
+        } else if (percentage >= 20) {
+            backgroundColor = menuColors[2];
+        } else if (percentage >= 15) {
+            backgroundColor = menuColors[3];
+        } else if (percentage >= 10) {
+            backgroundColor = menuColors[4];
+        } else {
+            backgroundColor = menuColors[5]; // Lowest percentage color
+        }
+
+        return {
+            label: menu.menu_name, // Assuming 'name' is the property containing the menu label
+            value: menu.value,
+            percentage: percentage,
+            backgroundColor: backgroundColor
+          };
+    })
+
+        const demoGraphicsArray = [
+            {
+              label: 'Male',
+              percentage: demoGraphicsMalePercentage,
+              color: '#FFA500'
+            },
+            {
+              label: 'Female',
+              percentage: demoGraphicsFemalePercentage,
+              color: '#FF0000'
+            }
+          ];
+        // const userAgeDistribution = {
+        //     'Baby Boomers': 20,
+        //     'GenX': 30,
+        //     'GenY': 25,
+        //     'GenZ': 25
+        //  };
+
+        const userAgeDistribution = {
+            'Baby Boomers': {
+              percentage: 20,
+              color: '#FFA500'
+            },
+            'GenX': {
+              percentage: 30,
+              color: '#FF0000'
+            },
+            'GenY': {
+              percentage: 25,
+              color: '#87CEEB'
+            },
+            'GenZ': {
+              percentage: 25,
+              color: '#008000'
+            }
+          };
+
+        const ageDistributionArray = Object.entries(userAgeDistribution).map(([ageGroup, data]) => ({
+            ageGroup,
+            percentage: data.percentage,
+            color: data.color
+          }));
+
+        const colors = ['#FFA500', '#FF0000', '#87CEEB', '#008000'];
+
+        const sortedAgeDistribution = Object.entries(userAgeDistribution).sort((a, b) => b[1] - a[1]);
+
+    
+
+
+        sortedAgeDistribution.forEach((entry, index) => {
+            const [ageGroup] = entry;
+            userAgeDistribution[ageGroup] = {
+              percentage: entry[1],
+              color: colors[index] || '#808080' // Use gray for extra items
+            };
+          });
+
+
+        //   get list of evetns
+
+        let events = await event.find({}).select({ name :1, picture : 1 }).limit(3).lean()
+        events = events.map((e) =>{
+            e.totalAttendance = 10
+            e.rating = 5
+            return e;
+        })
+        let menu = await menuCategory.find({}).select({ name :1, category_image : 1 }).limit(3).lean()
+        events = events.map((e) =>{
+            e.totalAttendance = 10
+            return e;
+        })
+
+        
+
+          
+
+        const analyticsData = {
+            totalMenuSalesCount,
+            totalTicketCounts,
+            eventAttendanceCount,
+            averagingEventRatingsCount,
+            bestSellingMenuPieChart : bestSellingMenuWithPercentageAndColor,
+            mostPopularMenuCategories  : menu,
+            bestSellingEvents: events,
+            demoGraphics: demoGraphicsArray,
+            userAgeDistribution : ageDistributionArray
+        };
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data : analyticsData
+
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message : error.message,
+            data : {}
+
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -1565,5 +1733,6 @@ export default {
     web,
     all,
     destroy,
-    getBarStats
+    getBarStats,
+    analyticsByBarId
 }
