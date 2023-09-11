@@ -244,8 +244,6 @@ const parentCategory2 = async (req, res) => {
 
                     item.price = 0
 
-
-                    
                     if(item.category)
                     {
                         let category = await menuCategory.findById({_id : item.category},{name : 1});

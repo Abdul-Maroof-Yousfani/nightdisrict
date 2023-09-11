@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import roles from "../models/roles.js";
 import mongoose from "mongoose";
 import fs from 'fs';
+import team from "../models/team.js";
 
 
 
@@ -178,7 +179,73 @@ const index = async(req,res) =>
 }
 
 
+const remove = async(req,res) =>
+{
+    let {user} = req.body;
+    try
+    {  
+        let checkMember = await team.findOne({
+            bar : req.user.barInfo,
+            user
+        })
+        if(!checkMember)
+        {
+            return res.status(404).json({
+                status : 404,
+                message : "User Not Found"
+            })
+        }
+        await team.findOneAndRemove({
+            bar : req.user.barInfo,
+            user
+        }).lean()
+
+        let data2  = await roles.find(
+            {
+                $or:  [ {name : "bartender"} , { name : "bouncer" } ]
+            }
+        ).lean();
+   
+        data2 = await Promise.all(data2.map( async(e) =>{
+            
+              e.members = await teamMember.find({
+                    type : e._id,
+                    bar :  req.user.barInfo
+              }).lean()
+              e.members.detail = await Promise.all(e.members.map( async (detail) =>{
+                    detail.user = await users.findOne({_id : detail.user}).lean();
+                    detail.user.todaytip = 0
+                    detail.user.todaytipEarned = 0
+                    detail.user.amountWithdraw = 0
+                    return detail;
+                    
+              }))
+
+              return e
+        }))
+        
+   
+        return res.json({
+            status : 200,
+            message : "success",
+            data:data2
+        })
+
+    }
+    catch(error)
+    {
+        console.log(error)
+        return res.json({
+            message :error.message,
+            data : []
+        })
+    }
+}
+
+
+
 export default {
    store,
+   remove,
    index
 }
