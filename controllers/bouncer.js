@@ -65,8 +65,15 @@ const tickets = async(req,res) =>
 {
     try
     {
-        let data = await Attendance.find({}).lean()
+        let data = await Attendance.find({
+            bouncer : req.user._id
+        }).lean()
         data = await Promise.all(data.map(async(e) =>{
+
+            
+            e.count = await (await order.find({ "items.item" : e.event })).length
+            e.scanned = await (await Attendance.find({ "event" : e.event })).length
+
 
             // order id
             e.ticket = await ticket.findOne({
@@ -76,6 +83,9 @@ const tickets = async(req,res) =>
                 _id : e.customer
             })
             e.event = await helpers.getEventById(e.event)
+
+
+
 
             // get order data
             return e;
@@ -91,6 +101,7 @@ const tickets = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error)
         return res.status(200).json({
             status : 200,
             message : error.message,
