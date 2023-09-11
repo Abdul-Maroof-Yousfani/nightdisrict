@@ -90,6 +90,23 @@ const index = async (req, res) => {
         data = await Promise.all(data.map(async (e) => {
             let categories = await menuCategory.find({ parent: e._id }).lean()
             e.subcategories = categories
+            if(e.name == 'Spirits' || e.name == 'spirits')
+            {
+                // get All three Servings, 
+                let servings = await pourtype.find({
+
+                })
+                e.servings = servings
+
+            }
+            else
+            {
+                let servings = await pourtype.find({
+                    name : "default"
+                })
+                e.servings = servings
+
+            }
 
             e.subcategories = await Promise.all(e.subcategories.map(async (item) => {
                 item.items = await superMenu.find({ subCategory: item._id })
@@ -188,7 +205,23 @@ const parentCategory2 = async (req, res) => {
         let data = await menuCategory.find({ parent: null }).lean();
         data = await Promise.all(data.map(async (e) => {
         
-            
+            if(e.name == 'Spirits' || e.name == 'spirits')
+            {
+                // get All three Servings, 
+                let servings = await pourtype.find({
+
+                })
+                e.servings = servings
+
+            }
+            else
+            {
+                let servings = await pourtype.find({
+                    name : "default"
+                })
+                e.servings = servings
+
+            }
             e.items = await menu.find({ category: e._id , barId : req.query.barid }).lean()
             if(e.items.length)
             {
@@ -323,6 +356,23 @@ const parentCategory = async (req, res) => {
 
         let data = await menuCategory.find({ parent: null }).lean();
         data = await Promise.all(data.map(async (e) => {
+            if(e.name == 'Spirits' || e.name == 'spirits')
+            {
+                // get All three Servings, 
+                let servings = await pourtype.find({
+
+                })
+                e.servings = servings
+
+            }
+            else
+            {
+                let servings = await pourtype.find({
+                    name : "default"
+                })
+                e.servings = servings
+
+            }
             e.items = await superMenu.find({ category: e._id }).lean()
 
             // add a check here
