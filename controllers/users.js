@@ -291,8 +291,16 @@ const login = async (req, res) => {
         })
 
         const isPassword = await bcrypt.compare(password, user.password);
-        // console.log(isPassword);
-
+        if(!isPassword)
+        {
+            return res.status(400).json({
+                status: "error",
+                message: "Invalid Password",
+                data: null,
+                trace: "Invalid Password"
+            })
+        }
+        
         if (user) {
             
             // check user is paid, 
