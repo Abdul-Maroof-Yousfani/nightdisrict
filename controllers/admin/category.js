@@ -89,6 +89,7 @@ const index = async (req, res) => {
         let data = await menuCategory.find({ parent: null }).lean();
         data = await Promise.all(data.map(async (e) => {
             let categories = await menuCategory.find({ parent: e._id }).lean()
+       
             e.subcategories = categories
             if(e.name == 'Spirits' || e.name == 'spirits')
             {
@@ -109,7 +110,11 @@ const index = async (req, res) => {
             }
 
             e.subcategories = await Promise.all(e.subcategories.map(async (item) => {
-                item.items = await superMenu.find({ subCategory: item._id })
+                if(item.name == 'Gin')
+                {
+                    console.log(item)
+                }
+                item.items = await superMenu.find({ subCategories: item._id })
                 item.items = item.items ? item.items : []
                 return item
             }));
