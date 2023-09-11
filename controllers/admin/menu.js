@@ -49,7 +49,7 @@ const store = async(req,res) =>
         
                 let image = e;
           
-                const dirOne = "/public/menu";
+                const dirOne = "public/menu";
                   fileName = `${Date.now()}_` + image.name;
                   imageNameOne = `${dirOne}/${fileName}`;
                   if (!fs.existsSync(dirOne)) {

@@ -1048,20 +1048,41 @@ const Menu = async(req,res) =>
 const home = async(req,res) =>
 {
     let graph  = {}
+    const currentDate = new Date();
+
+
     try
     {  
 
+
         const orders = (await order.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
         const events =  (await event.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
-        const menuSales =  (await event.find({
-            bar : req.user.barInfo
+        const menuSales =  (await order.find({
+            bar : req.user.barInfo,
+            subscriptionType : "642a6f6e17dc8bc505021545",
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
         const attendence =  (await attendance.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
 
   
@@ -1074,7 +1095,6 @@ const home = async(req,res) =>
         let averageEventRating = 0;
         // const drinks = await Drink.find();
 
-        const currentDate = new Date();
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
