@@ -1169,22 +1169,37 @@ const home = async(req,res) =>
 const app = async(req,res) =>
 {
     let graph  = {}
+    const currentDate = new Date();
+
     try
     {  
-
-       
-
         const orders = (await order.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
         const events =  (await event.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
         const menuSales =  (await event.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
         const attendence =  (await attendance.find({
-            bar : req.user.barInfo
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
         })).length;
 
   
@@ -1197,14 +1212,19 @@ const app = async(req,res) =>
         let averageEventRating = 0;
         // const drinks = await Drink.find();
 
-        const currentDate = new Date();
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
       
 
 
-        let salesData = await order.find({}).lean();
+        let salesData = await order.find({
+            bar : req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+              }
+        }).lean();
         // // salesData  = await Promise.all(salesData.map( async (e) =>{
         //     return await helpers.getOrderById(e);
         // // }))
@@ -1212,38 +1232,44 @@ const app = async(req,res) =>
 
 
         const hourlySales = await order.aggregate([
-           
             {
-              $group: {
-                _id: {
-                  $hour: '$timestamp'
+                $match: {
+                    bar: req.user.barInfo,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $hour: '$createdAt' // Use 'createdAt' field instead of '$timestamp'
+                    },
+                    sales: { $sum: '$amount' }, // Adjust the field name if necessary
                 },
-                sales: { $sum: '$amount' },
-              },
             },
             {
-              $sort: {
-                _id: 1
-              }
+                $sort: {
+                    _id: 1
+                }
             },
-          ]);
+        ]);
+        
       
-          const salesDataArray = Array.from({ length: 24 }, (_, index) => ({
+        const salesDataArray = Array.from({ length: 24 }, (_, index) => ({
             key: `${index.toString().padStart(2, '0')}:00`,
             value: 0
-          }));
-      
-         hourlySales.forEach(item => {
-      if (item._id !== null) {
-        const hour = item._id;
-        const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
-        const index = salesDataArray.findIndex(data => data.key === formattedHour);
-        if (index !== -1) {
-          salesDataArray[index].value = item.sales;
-        }
-      }
-    });
-
+        }));
+        
+        hourlySales.forEach(item => {
+            const hour = item._id;
+            const formattedHour = `${hour.toString().padStart(2, '0')}:00`; // Format to "HH:00"
+            const index = salesDataArray.findIndex(data => data.key === formattedHour);
+            if (index !== -1) {
+                salesDataArray[index].value = item.sales;
+            }
+        });
          res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
         
 
