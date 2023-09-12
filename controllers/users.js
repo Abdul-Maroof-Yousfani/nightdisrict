@@ -124,7 +124,6 @@ const register = async (req, res) => {
         
         let role = req.body.role;
 
-
         let result = await Role.findOne({name: role});
         if(!result){
             return res.status(404).json({
@@ -142,7 +141,8 @@ const register = async (req, res) => {
             password: {type: String , required: true},
             address : {type : String, required : false},
             longitude : {type : String, required : false},
-            latitude : {type : String, required : false}
+            latitude : {type : String, required : false},
+            dateofbirth : {type : String, required : false}
         }).newContext();
         
         const userExist = await User.findOne({ $or: [{ email: body.email }, { username: body.username }] });

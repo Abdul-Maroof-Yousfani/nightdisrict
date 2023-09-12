@@ -48,7 +48,7 @@ const store = async (req, res) => {
         if (req.files) {
             let image = req.files.category_image;
 
-            const dirOne = "/public/menuCat";
+            const dirOne = "public/menuCat";
             imageNameOne = `${dirOne}/${Date.now()}_` + image.name;
             if (!fs.existsSync(dirOne)) {
                 fs.mkdirSync(dirOne, { recursive: true });
@@ -570,7 +570,29 @@ const show = async (req, res) => {
         })
     }
 }
+const category = async(req,res) =>
+{
+    try
+    {
+        let data = await menuCategory.find({parent : null});
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.status(500).json({
+            status : 500,
+            message :error.message,
+            data : []
+        })
+    }
+}
+
 export default {
+    category,
     store,
     index,
     update,

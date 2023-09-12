@@ -17,10 +17,24 @@ const attendance = async(req,res) =>
 
     try
     {
+
+        let checkAttendance = await Attendance.findOne({
+            order:Order,
+            customer
+        })
+        if(checkAttendance)
+        {
+            return res.status(200).json({
+                status : 409,
+                message : 'attendance Already Marked',
+                data : checkAttendance
+            })   
+        }
+
+
         let orderData = await order.findById({
             _id : Order
         })
-
 
 
         let data  = await Attendance({

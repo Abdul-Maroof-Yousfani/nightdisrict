@@ -29,6 +29,7 @@ router.post("/category" ,helper.verifyAuthToken, Bar.selectCategory);
 // Menus (Adding item to the Menu)
 
 router.post("/item" ,helper.verifyAuthToken, Bar.addItem)
+router.put("/item/:id" ,helper.verifyAuthToken, Bar.update)
 router.get("/item/:bar" , Bar.items)
 
 // Ending Menu Code

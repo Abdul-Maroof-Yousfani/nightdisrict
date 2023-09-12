@@ -8,6 +8,7 @@ import events from '../controllers/events.js';
 import order from '../controllers/order.js';
 import menu from '../controllers/menu.js';
 import page from '../controllers/page.js';
+import category from '../controllers/admin/category.js';
 
 const router = express.Router();
 
@@ -58,7 +59,7 @@ router.post('/review',helpers.verifyAuthToken,users.review);
 
 // Setting Bar and Drinks As Favourite
 
-
+router.post('/categories',category.category);
 router.post('/favourite',helpers.verifyAuthToken, users.favourite)
 router.get('/favourite/bars',helpers.verifyAuthToken, users.favouritebars)
 router.post('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)

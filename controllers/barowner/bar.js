@@ -1045,6 +1045,147 @@ const Menu = async(req,res) =>
     }
 }
 
+const update = async (req, res) => {
+    let { title, description, type, category, subcategory, variation } = req.body;
+
+    try {
+        let schema = Joi.object({
+            menu: Joi.array(),
+            title: Joi.string(),
+            description: Joi.string(),
+            type: Joi.string(),
+            category: Joi.string(),
+            subcategory: Joi.string(),
+            variation: Joi.array()
+        });
+        const { error, value } = schema.validate(req.body);
+        if (error) return res.status(400).json({ message: error.message, data: {} })
+
+        if (type) {
+            // add item to the main Menu
+
+            // get category from super menu
+            let categoryImage = await menuCategory.findById({
+                _id : category
+            })
+
+
+            let mainMenu = new superMenu({
+                barId: req.user.barInfo,
+                user: req.user._id,
+                menu_name: title,
+                description,
+                category,
+                subCategory : subcategory,
+                pictures : [categoryImage.category_image]
+
+            })
+            mainMenu = await mainMenu.save()
+
+            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
+
+          
+
+            if(mainMenu.category)
+                    {
+                        let category = await menuCategory.findById({_id : mainMenu.category},{name : 1});
+                        mainMenu.category = category.name
+                    }
+                    if(mainMenu.subCategory)
+                    {
+                        let subCategory = await menuCategory.findById({_id : mainMenu.subCategory},{name : 1});
+                        mainMenu.subCategory = subCategory.name
+                    }
+
+
+      
+
+            // then add item to the Bar
+            let data = new menu(
+                {
+                    "barId": req.user.barInfo,
+                    "item": mainMenu._id,
+                    "category": category,
+                    "subCategory": subcategory,
+                    variation
+                }
+            )
+            data = await data.save();
+
+            
+            let itemsdata = await menu.findOne({
+                item : mainMenu._id
+            }).lean()
+
+            let totalPrice = 0;
+            mainMenu.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
+                            // get variation data
+            let newVariations = await pourtype.findOne({
+                                _id : va.variant
+                            })
+                            va.name = newVariations.name
+                            totalPrice  = totalPrice + va.price
+                            return va
+                        }))
+
+            itemsdata.price = totalPrice
+
+            if(itemsdata.reviews)
+                        {
+                            mainMenu.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
+                                // get customer data
+    
+                                // get customer data and review information
+    
+                                let userInfo = await users.findOne({_id : rev.customer});
+                                if(userInfo)
+                                {
+                                    rev.name = userInfo.username
+                                    rev.picture = userInfo.profile_picture
+                                }
+                 
+                                // get review information
+    
+                                let reviewInfor = await reviews.findOne({
+                                    _id : rev.review
+                                })
+                                if(reviewInfor)
+                                {
+                                    rev.message = reviewInfor.message
+                                    rev.count = reviewInfor.rating
+                                }
+                        
+    
+    
+                                return rev;
+    
+    
+                                
+    
+                            }))
+                        }
+
+
+            // get item structure as parent item
+            
+            return res.json({ status: 200, message: "success", data : mainMenu })
+
+        }
+        if (!menu) {
+            return res.status(400).json({ status: 400, message: "Menu is required", data: {} })
+        }
+        let data = await menu.insertMany(req.body.menu)
+        // await data.save()
+
+        return res.json({status: 200 , message: "success", data })
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ status: 500 , message: error.message })
+    }
+
+}
+
 const home = async(req,res) =>
 {
     let graph  = {}
@@ -1893,5 +2034,6 @@ export default {
     getBarStats,
     analyticsByBarId,
     getBarGeometry,
-    suspendRespond
+    suspendRespond,
+    update
 }

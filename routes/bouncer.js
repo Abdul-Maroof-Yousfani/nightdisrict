@@ -9,5 +9,4 @@ router.get('/attendance',helpers.verifyAuthToken,bouncer.tickets);
 router.post('/forget',bouncer.forget);
 
 
-
 export default router;
