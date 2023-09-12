@@ -72,31 +72,23 @@ function getWeekOfMonth(date) {
   const analytics = async (req, res) => {
     try {
       const { timeframe } = req.query;
-      const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
-        'September', 'October', 'November', 'December'
-      ];
       const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   
       let matchStage = {};
-      let dateFormat = '';
       let startDate = null;
       let endDate = new Date(); // Default to today
   
       switch (timeframe) {
         case 'weekly':
           startDate = addDays(endDate, -6); // Last 7 days
-          dateFormat = 'EEEE'; // Day of the week (e.g., Monday, Tuesday)
           break;
         case 'monthly':
           startDate = startOfMonth(endDate); // Start of the current month
           endDate = endOfMonth(endDate); // End of the current month
-          dateFormat = 'w'; // Week number within the month
           break;
         case 'yearly':
           startDate = startOfMonth(new Date()); // Start of the current year
           endDate = endOfMonth(new Date()); // End of the current year
-          dateFormat = 'MMMM'; // Month name
           break;
         default:
           // No filter, retrieve all data
@@ -112,63 +104,43 @@ function getWeekOfMonth(date) {
         },
       };
   
-      // Calculate the gained and lost sales for the selected timeframe
-      const analytics = await order.aggregate([
-        matchStage,
-        {
-          $group: {
-            _id: {
-              $dateToString: { format: dateFormat, date: '$createdAt' },
-            },
-            totalSales: { $sum: '$totalPrice' },
-          },
-        },
-      ]);
+      // Retrieve data from the database
+      const rawData = await order.aggregate([matchStage]);
   
-      const response = {
-        totalSales: [],
-        timeframeData: [],
-      };
+      // Initialize arrays for totalSales and timeframeData
+      const totalSales = new Array(7).fill(0); // Initialize with 0 values
+      const timeframeData = [];
   
-      // Generate data for all days/weeks within the selected timeframe
-      let currentDate = new Date(startDate);
-      let weekCount = 1; // Initialize week count
-      while (currentDate <= endDate) {
-        const formattedDate = format(currentDate, dateFormat);
-        const entry = analytics.find((entry) => entry._id === formattedDate);
+      // Process the data and calculate daily sales
+      rawData.forEach(entry => {
+        const dayIndex = entry.createdAt.getDay(); // Get the day index (0 for Sunday, 1 for Monday, etc.)
+        totalSales[dayIndex] += entry.totalPrice;
+      });
   
-        if (entry) {
-          response.totalSales.push(entry.totalSales);
-        } else {
-          response.totalSales.push(0);
-        }
-  
-        if (timeframe === 'weekly') {
-          response.timeframeData.push(formattedDate);
-        } else if (timeframe === 'monthly') {
-          response.timeframeData.push(`Week ${weekCount}`);
-          weekCount++; // Increment week count
-        } else {
-          response.timeframeData.push(formattedDate);
-        }
-  
-        currentDate = addDays(currentDate, 1); // Move to the next day/week
+      // Create an array of day names starting from the current day
+      for (let i = 0; i < 7; i++) {
+        const dayIndex = (endDate.getDay() + i) % 7;
+        timeframeData.push(dayNames[dayIndex]);
       }
   
       res.json({
-        status : 200,
-        message : "success",
-        data : response
+        status: 200,
+        message: "success",
+        data: {
+          totalSales,
+          timeframeData,
+        },
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({
-        status : 500,
-        message : error.message,
-        data : {}
+        status: 500,
+        message: error.message,
+        data: {}
       });
     }
   };
+  
   
 
   
