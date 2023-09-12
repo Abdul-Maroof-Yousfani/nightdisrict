@@ -1100,39 +1100,55 @@ const home = async(req,res) =>
 
       
 
-
-        let salesData = await order.find({}).lean();
+        let salesData = await order.find({
+            bar: req.user.barInfo,
+            createdAt: {
+                $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
+                $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
+            }
+        }).limit(5).sort({ createdAt: -1 }).lean();
         // // salesData  = await Promise.all(salesData.map( async (e) =>{
         //     return await helpers.getOrderById(e);
         // // }))
 
 
 
+
         const hourlySales = await order.aggregate([
-           
             {
-              $group: {
-                _id: {
-                  $hour: '$timestamp'
+                $match: {
+                    bar: req.user.barInfo,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        $hour: '$createdAt' // Make sure this matches the actual field name in your data
+                    },
+                    sales: { $sum: '$totalPrice' },
                 },
-                sales: { $sum: '$amount' },
-              },
             },
             {
-              $sort: {
-                _id: 1
-              }
+                $sort: {
+                    _id: 1
+                }
             },
-          ]);
+        ]);
+        //   console.log(hourlySales)
       
           const salesDataArray = Array.from({ length: 24 }, (_, index) => {
             const hour = ('0' + index).slice(-2) + ':00';
-            return { [hour]: 10 };
+            const sales = hourlySales.find(item => item._id === index);
+            return { [hour]: sales ? sales.sales : 0 };
           });
           hourlySales.forEach(item => {
             const hourIndex = item._id; // Use the hour as index
             const hour = ('0' + hourIndex).slice(-2) + ':00';
-            salesDataArray[hourIndex] = { [hour]: 10 };
+            salesDataArray[hourIndex] = { [hour]: item.sales };
           });
 
          res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
