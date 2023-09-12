@@ -309,7 +309,7 @@ const login = async (req, res) => {
             delete user.password;
             delete user.verificationToken;
             delete user.fcm;
-            // user.verificationToken = token;
+            user.verificationToken = token;
             user.fcm = fcm;
 
             // get bar info
