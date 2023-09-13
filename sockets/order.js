@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { response } from 'express';
 import reviews from '../models/reviews.js';
 import menu from '../models/menu.js';
-
+import tournamentLog from '../models/applicationLogs.js';
 
 const messageSchema = new SimpleSchema({
     bar: String,
@@ -282,6 +282,17 @@ function initOrder() {
 
         socket.emit('orders',data);
 
+        socket.on('devLog',async(response) =>{
+            let data = JSON.stringify(response)
+            let log = new tournamentLog({
+                text: data
+            });
+            console.log(log)
+
+            log = await log.save();
+            socket.emit('devLog',log)
+        })
+
 
    
         socket.on('orders', async(response) =>{
@@ -425,6 +436,7 @@ function initOrder() {
                 }
 
                 socket.emit('getBar',data)
+                socket.broadcast.emit('getBar',data)
 
             }
             catch(error)

@@ -1069,20 +1069,21 @@ const update = async (req, res) => {
                 _id : category
             })
 
+            
 
-            let mainMenu = new superMenu({
-                barId: req.user.barInfo,
-                user: req.user._id,
-                menu_name: title,
-                description,
-                category,
-                subCategory : subcategory,
-                pictures : [categoryImage.category_image]
+            // let mainMenu = new superMenu({
+            //     barId: req.user.barInfo,
+            //     user: req.user._id,
+            //     menu_name: title,
+            //     description,
+            //     category,
+            //     subCategory : subcategory,
+            //     pictures : [categoryImage.category_image]
 
-            })
-            mainMenu = await mainMenu.save()
+            // })
+            // mainMenu = await mainMenu.save()
 
-            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
+            // mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
 
           
 
