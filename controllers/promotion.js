@@ -102,6 +102,16 @@ const store = async(req,res) =>
             req.body.menu = JSON.parse(req.body.menu);
         }
 
+        // update promot picture
+
+        let menuPicture = req.body.menu[0].item;
+
+        let itemDetail = await superMenu.findById({
+            _id  : menuPicture
+        })
+
+        req.body.picture = itemDetail.pictures[0]
+
        
 
         let data  = new promotion(req.body);
@@ -110,6 +120,7 @@ const store = async(req,res) =>
         data = await promotion.findById({
             _id : data._id
         }).lean()
+        
 
 
         data = await helpers.getPromotionById(data,req.user.barInfo)
