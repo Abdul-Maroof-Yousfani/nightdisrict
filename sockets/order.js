@@ -285,7 +285,7 @@ function initOrder() {
         socket.on('devLog',async(response) =>{
             let data = JSON.stringify(response)
             let log = new tournamentLog({
-                text: data
+                string: data
             });
             console.log(log)
 
@@ -437,6 +437,7 @@ function initOrder() {
 
                 socket.emit('getBar',data)
                 socket.broadcast.emit('getBar',data)
+                console.log(data)
 
             }
             catch(error)
