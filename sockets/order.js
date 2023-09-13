@@ -453,7 +453,8 @@ function initOrder() {
             try
             {
                 let orderStatus  = await order.findOne({
-                    customer  : response.customerId
+                    customer  : response.customerId,
+                    subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
                 }).sort({ updatedAt : -1})
                 let data = [
                     {
