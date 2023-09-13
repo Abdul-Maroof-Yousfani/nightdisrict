@@ -892,8 +892,8 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
 
         // get item from super categories
 
-        data.min = 10;
-        data.max = 50;
+        data.min = data.variation[0].price;
+        data.max = data.variation[data.variation.length -1].price;
         data.barDetail = await getBarData(bar);
         
 
