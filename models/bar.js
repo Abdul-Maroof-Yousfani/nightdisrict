@@ -86,7 +86,7 @@ const bar = new mongoose.Schema({
     },
     active: {
         type: Boolean,
-        default: 'true'
+        default: 'false'
     },
     events: [
         {

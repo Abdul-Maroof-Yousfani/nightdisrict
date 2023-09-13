@@ -441,7 +441,8 @@ const getBarGeometry = async(req,res) =>
             _id : req.user.barInfo
         },{
             $set : {
-                geometry : location
+                geometry : location,
+                active : true
             }
         },{
             new : true
