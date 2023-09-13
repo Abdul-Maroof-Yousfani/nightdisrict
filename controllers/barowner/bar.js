@@ -1633,13 +1633,17 @@ const analytics = async(req,res) =>
 
         //   get list of evetns
 
-        let events = await event.find({}).select({ name :1, picture : 1 }).limit(3).lean()
+        let events = await event.find({
+            bar : req.user.barInfo
+        }).select({ name :1, picture : 1 }).limit(3).lean()
         events = events.map((e) =>{
             e.totalAttendance = 10
             e.rating = 5
             return e;
         })
-        let menu = await menuCategory.find({}).select({ name :1, category_image : 1 }).limit(3).lean()
+        let menu = await menuCategory.find({
+            bar : req.user.barInfo
+        }).select({ name :1, category_image : 1 }).limit(3).lean()
         events = events.map((e) =>{
             e.totalAttendance = 10
             return e;
