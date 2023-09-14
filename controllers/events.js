@@ -193,7 +193,7 @@ const nearby = async(req,res) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 10000
+                $maxDistance: 200000
             }
         }}).lean();
         // convert data to a proper event Page

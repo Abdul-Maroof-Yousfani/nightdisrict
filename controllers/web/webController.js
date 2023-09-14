@@ -22,7 +22,7 @@ const nearby = async(req,res) =>
                 $near: {
                     $geometry: { type: "Point", coordinates: [longitude, latitude] },
                     $minDistance: 0,
-                    $maxDistance: 10000
+                    $maxDistance: 200000
                 }
             }}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1});
         return res.status(200).json({

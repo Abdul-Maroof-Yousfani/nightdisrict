@@ -375,7 +375,7 @@ const nearbyBars = async(longitude,latitude) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 10000
+                $maxDistance: 200000
             }
         }}).limit(15).sort({createdAt:-1}).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating" :1 , 'geometry' : 1 , createdAt:1 }).lean();
 
@@ -398,7 +398,7 @@ const nearbyEvents = async(longitude,latitude) =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 1000
+                $maxDistance: 200000
             }
         }}).limit(10).lean();
         data = await Promise.all(data.map( async (e) =>{
@@ -557,7 +557,7 @@ const nearbyPromotion = async(longitude,latitude,bar='') =>{
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
                 $minDistance: 0,
-                $maxDistance: 100
+                $maxDistance: 200000
             }
         }}).lean();
         data = await Promise.all(data.map( async (e) =>{
