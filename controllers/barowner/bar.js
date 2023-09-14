@@ -998,7 +998,7 @@ const Menu = async(req,res) =>
 
         const filters = {};
 
-        filters.bar = bar 
+        filters.barId = bar 
 
         if (category) {
             filters.category = category;
@@ -1007,10 +1007,12 @@ const Menu = async(req,res) =>
             filters.subCategory = subCategory;
         }
 
+        console.log(filters);
 
-        let results = await menu.find({
+
+        let results = await menu.find(
             filters
-        }).lean();
+        ).lean();
 
         results = await helpers.paginate(results,page,limit);
         // console.log(results);
