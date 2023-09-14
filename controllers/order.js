@@ -10,35 +10,36 @@ import Order from '../models/order.js';
 import mongoose, { mongo } from 'mongoose';
 import membership from '../models/membership.js';
 import ticket from '../models/ticket.js';
-import QRCode  from 'qrcode';
+import QRCode from 'qrcode';
 import order from '../models/order.js';
 import payments from '../models/payments.js';
 
+import orderSocket from '../sockets/order.js';
+
 const store = async (req, res) => {
-    let {subscriptionType,items,transactionId,paymentStatus,invoice_url,customer,paymentMethod,cardDetail,tip,type,bar,amount} = req.body;
-    let paymentCode,cardId;
-    let orderNo  = Math.floor(Math.random() * 10000000);
-    try
-    {
+    let { subscriptionType, items, transactionId, paymentStatus, invoice_url, customer, paymentMethod, cardDetail, tip, type, bar, amount } = req.body;
+    let paymentCode, cardId;
+    let orderNo = Math.floor(Math.random() * 10000000);
+    try {
         const orderSchema = Joi.object({
-            subscriptionType:Joi.string().required(),
+            subscriptionType: Joi.string().required(),
             items: Joi.array().required(),
-            price : Joi.string(),
-            amount : Joi.number(),
-            type : Joi.string(),
-            bar : Joi.string(),
-            transactionId:Joi.string().required(),
-            paymentStatus:Joi.string(),
-            invoice_url:Joi.string(),
-            paymentMethod : Joi.string(),
-            tip : Joi.number()
+            price: Joi.string(),
+            amount: Joi.number(),
+            type: Joi.string(),
+            bar: Joi.string(),
+            transactionId: Joi.string().required(),
+            paymentStatus: Joi.string(),
+            invoice_url: Joi.string(),
+            paymentMethod: Joi.string(),
+            tip: Joi.number()
             // cardDetail : Joi.object().unknown(true).required(),
-        }); 
-        
-        
-        
-        const {error} = orderSchema.validate(req.body);
-        if(error) return res.status(400).json({ message : error.message ,  data : {}   })
+        });
+
+
+
+        const { error } = orderSchema.validate(req.body);
+        if (error) return res.status(400).json({ message: error.message, data: {} })
 
 
         // check users and see if card exists
@@ -54,114 +55,149 @@ const store = async (req, res) => {
         //     cardId = cardexists._id
         // }
 
-  
+
         // Check Payment Types
 
         paymentCode = await helpers.checkPaymentType(subscriptionType);
         subscriptionType = await helpers.checkPaymentType(subscriptionType);
-   
+
         paymentCode = paymentCode.code
         subscriptionType = subscriptionType._id
 
 
-      
+
         // check Customers
 
 
         let amountPaid = 0;
         let totalqty = 0;
-        
-        items.map((e) =>{
+
+        items.map((e) => {
             amountPaid += Number(e.price)
             totalqty += Number(e.qty)
         })
 
         let totalAmount = amountPaid + tip
-        
+
 
         // let transactionExist = await Payment.findOne({transactionId: transactionId}).lean()
         // if(transactionExist) return res.json({message : "Order Already Exists",payment : {}})
-        let orderData =  new Order(
+        let orderData = new Order(
             {
-            subscriptionType,
-            orderNo,
-            items,
-            customer : req.user._id,
-            tip,
-            type,
-            amount : amountPaid,
-            bar : mongoose.Types.ObjectId(bar),
-            totalPrice : totalAmount,
-            totalQuantity : totalqty
+                subscriptionType,
+                orderNo,
+                items,
+                customer: req.user._id,
+                tip,
+                type,
+                amount: amountPaid,
+                bar: mongoose.Types.ObjectId(bar),
+                totalPrice: totalAmount,
+                totalQuantity: totalqty
 
-        }
+            }
         );
 
         await orderData.save();
 
-        if(orderData)
-        {
+        if(paymentCode == "buy_drink"){
+            const socket = orderSocket.getIoInstance();
+        let newOrder = [];
+        let preparing = [];
+        let completed = [];
+        let delivered = [];
+
+        // adding socket data here
+
+        let orders = await order.find({
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
+        }).lean()
+        await Promise.all(orders.map(async(e) =>{
+                    let orderstatus = await helpers.getOrderById(e);
+
+                    if(orderstatus.orderStatus == 'new')
+                    {
+                        console.log(orderstatus.orderStatus)
+                        newOrder.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'preparing')
+                    {
+                        preparing.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'completed')
+                    {
+                        completed.push(orderstatus)
+                    }
+                    if(orderstatus.orderStatus == 'delivered')
+                    {
+                        delivered.push(orderstatus)
+                    }
+                }))
+        let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+        socket.emit('orders',data);
+        }
+
+        
+
+        if (orderData) {
             let order = orderData.id;
 
-    
+
             let paymentData = {
                 order,
-                userId  : req.user._id,
+                userId: req.user._id,
                 transactionId,
                 amountPaid,
                 paymentMethod,
                 invoice_url,
             }
-            const payment = new  Payment(paymentData)
-            await  payment.save();
+            const payment = new Payment(paymentData)
+            await payment.save();
 
-                
 
-        
-            if(payment)
-            {
+
+
+            if (payment) {
 
                 // send user an email
 
-                let userData = await User.findById({_id:mongoose.Types.ObjectId(customer)}).lean();
-                
+                let userData = await User.findById({ _id: mongoose.Types.ObjectId(customer) }).lean();
+
                 // let response = await helper.sendSubscriptionEmail(userData.email);
-                
+
 
                 // update user subscription status and membership
                 // check item is a membership plan
-                let checkMembership = await membership.findOne({_id: items[0].item}).lean()
-                if(paymentCode == "buy_membership")
-                {
-                    let paymentDetail = await User.findByIdAndUpdate({_id:req.user._id},{$set:{paymentStatus:"paid", membership:items[0].item}}).lean()
-                    await membership.findByIdAndUpdate({_id: items[0].item},{$push : {subscriptions:[{user:mongoose.Types.ObjectId(customer)}]}})
+                let checkMembership = await membership.findOne({ _id: items[0].item }).lean()
+                if (paymentCode == "buy_membership") {
+                    let paymentDetail = await User.findByIdAndUpdate({ _id: req.user._id }, { $set: { paymentStatus: "paid", membership: items[0].item } }).lean()
+                    await membership.findByIdAndUpdate({ _id: items[0].item }, { $push: { subscriptions: [{ user: mongoose.Types.ObjectId(customer) }] } })
                 }
-                else if(paymentCode == "buy_ticket")
-                {
+                else if (paymentCode == "buy_ticket") {
                     // store data into the Tickets table, and create nested document in the User
 
                     // Generate a Unqiue QRCODE!
 
                     // create a Qr code string, which can be converted to json
-                    
+
                     let jsonData = {
                         user: req.user._id,
                         event: items[0].item,
-                        order : order,
-                      };
+                        order: order,
+                    };
 
                     jsonData = JSON.stringify(jsonData);
 
                     // const qrCodeData = req.user._id.toString();
                     const qrCodeImage = await QRCode.toDataURL(jsonData);
 
-                
+
                     let tickets = new ticket({
-                        "event" : items[0].item,
-                        "user" : req.user._id,
-                        "qrcode" : qrCodeImage,
-                        "order" : order,
-                        "price" : amountPaid
+                        "event": items[0].item,
+                        "user": req.user._id,
+                        "qrcode": qrCodeImage,
+                        "order": order,
+                        "price": amountPaid
                     })
                     await tickets.save();
 
@@ -170,97 +206,90 @@ const store = async (req, res) => {
 
 
                 }
-                
+
                 await User.findByIdAndUpdate({
-                        _id : req.user._id
-                    },{$set : { "currently_active_card" : cardId } })
-                
+                    _id: req.user._id
+                }, { $set: { "currently_active_card": cardId } })
+
 
 
                 // call helper to get order information
-                let orderData = await Order.findById({_id : order}).lean();
+                let orderData = await Order.findById({ _id: order }).lean();
 
                 orderData = await helpers.getOrderById(orderData)
-                
-               
+
+
                 return res.json({
-                    message  : "Success",
-                    data : orderData
+                    message: "Success",
+                    data: orderData
                 })
             }
-    
+
         }
-    }   
-    catch(error)
-    {   
-        res.status(500).json({message:error.message})
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message })
     }
 }
 
-const show = async(req,res) =>
-{
-    try
-    {   
+const show = async (req, res) => {
+    try {
         let order = await Order.findById(req.params._id).lean();
         // console.log(order);
         order = await helpers.getOrderById(order)
         return res.status(200).json({
-            status : 200,
-            message : "success",
-            data :  order
+            status: 200,
+            message: "success",
+            data: order
         })
 
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(500).json({
-            status : 500,
-            message : error.message,
-            data :  {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 
-    
+
 }
-const payment = async(req,res) =>
-{
-    try
-    {
+const payment = async (req, res) => {
+    try {
         let Order = await order.find({
-            customer : req.user._id
+            customer: req.user._id
         }).lean()
-        let results = await helpers.paginate(Order,req.params.page,req.params.limit)
-        let data = await Promise.all(results.result.map( async (e) =>{
+        let results = await helpers.paginate(Order, req.params.page, req.params.limit)
+        let data = await Promise.all(results.result.map(async (e) => {
             let order = await helpers.getOrderById(e)
 
-            let transaction  = await payments.findOne({
-                    order : e._id
-                },{
-                    paymentMethod : 1,
-                    amountPaid : 1,
-                    invoiceUrl : 1
-                })
+            let transaction = await payments.findOne({
+                order: e._id
+            }, {
+                paymentMethod: 1,
+                amountPaid: 1,
+                invoiceUrl: 1
+            })
             order.transaction = transaction;
-           
+
             return order;
 
         }))
-        
+
         return res.status(200).json({
-            status : 200,
-            message : "succes",
-            data : data,
-            paginate : results.totalPages
+            status: 200,
+            message: "succes",
+            data: data,
+            paginate: results.totalPages
         })
-    }   
-    catch(error)
-    {
+    }
+    catch (error) {
         return res.status(500).json({
-            status : 500,
-            message : error.message,
-            data : []
+            status: 500,
+            message: error.message,
+            data: []
         })
-    }   
+    }
 }
 export default {
     store,

@@ -226,9 +226,16 @@ const allOrders = async(bar) =>
 
 }
 
+let io;
 
+function getIoInstance() {
+    if (!io) {
+      throw new Error('Socket.io has not been initialized yet.');
+    }
+    return io;
+  }
 function initOrder() {
-    const io = new Server(5401, {
+    io = new Server(5401, {
         cors: {
             origin: '*'
         }
@@ -540,4 +547,5 @@ function initOrder() {
 
 }
 
-export default { initOrder };
+export default { initOrder,
+    getIoInstance };
