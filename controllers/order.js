@@ -109,7 +109,7 @@ const store = async (req, res) => {
 
         // adding socket data here
 
-        let orders = await order.find({
+        let orders = await order.find({ bar: orderData.bar ,
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
         }).lean()
         await Promise.all(orders.map(async(e) =>{
