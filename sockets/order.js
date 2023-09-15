@@ -432,16 +432,10 @@ function initOrder() {
 
             try
             {
-                let data;
-                if(response.bar)
-                {
-                    data.barData = await helpers.getBarById(response.bar)
-                    data.status = response.status
-                }
-                else
-                {
-                    data = null
-                }
+                let data = {};
+                
+                data.barData = await helpers.getBarById(response.bar)
+                data.status = response.status
 
                 socket.emit('getBar',data)
                 socket.broadcast.emit('getBar',data)
