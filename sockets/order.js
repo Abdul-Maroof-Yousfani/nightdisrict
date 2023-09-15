@@ -435,7 +435,8 @@ function initOrder() {
                 let data;
                 if(response.bar)
                 {
-                    data = await helpers.getBarById(response.bar)
+                    data.barData = await helpers.getBarById(response.bar)
+                    data.status = response.status
                 }
                 else
                 {
