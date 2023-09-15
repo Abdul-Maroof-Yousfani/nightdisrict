@@ -137,6 +137,8 @@ const register = async (req, res) => {
         let body = req.body;
         let userSchema = new SimpleSchema({
             username: {type: String , required: false},
+            firstname:  {type: String , required: false},
+            lastname:  {type: String , required: false},
             email: {type: String , required: false},
             password: {type: String , required: true},
             address : {type : String, required : false},
