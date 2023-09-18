@@ -393,7 +393,7 @@ const nearbyBars = async(longitude,latitude) =>{
 const nearbyEvents = async(longitude,latitude) =>{
     try
     {   
-        let data  = await event.find({location: {
+        let data  = await event.find({date: {$gt: new Date()},location: {
 
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
