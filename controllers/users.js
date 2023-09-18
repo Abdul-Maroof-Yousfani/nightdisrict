@@ -390,14 +390,13 @@ const selectMembership = async (req,res) =>{
         
         let result = await User.findByIdAndUpdate({_id : userId} , {$set:{membership:mongoose.Types.ObjectId(req.body.membership) , barInfo:barID._id}},{new:true});
 
-        if(result.membership){
-            result.membership = await Membership.findOne({_id : result.membership}).lean();
-        }
+        var subscription;
+        subscription = await Membership.findOne({_id : req.body.membership}).lean();
 
         return res.status(200).json({
             status: "success",
             message: "Membership assigned to User Successfully",
-            data: result
+            data: subscription
         })
     } catch (error) {
         return res.status(500).json({
