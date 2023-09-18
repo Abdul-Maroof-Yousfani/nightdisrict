@@ -318,6 +318,10 @@ const login = async (req, res) => {
             let bardetails   = await bar.findOne({_id : user.barInfo}).lean();
             user.barDetails = bardetails
 
+            if(user.membership){
+                user.membership = await Membership.findOne({_id : user.membership}).lean();
+            }
+
             // add user attended Parties in the Code
 
             if(user.barInfo)
@@ -381,6 +385,10 @@ const selectMembership = async (req,res) =>{
         }).save()
         
         let result = await User.findByIdAndUpdate({_id : userId} , {$set:{membership:mongoose.Types.ObjectId(req.body.membership) , barInfo:barID._id}},{new:true});
+
+        if(result.membership){
+            result.membership = await Membership.findOne({_id : result.membership}).lean();
+        }
 
         return res.status(200).json({
             status: "success",
