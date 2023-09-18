@@ -188,7 +188,7 @@ const nearby = async(req,res) =>{
     let {longitude,latitude}  = req.body;
     try
     {   
-        let data  = await event.find({location: {
+        let data  = await event.find({date: {$gt: new Date()},location: {
 
             $near: {
                 $geometry: { type: "Point", coordinates: [longitude, latitude] },
