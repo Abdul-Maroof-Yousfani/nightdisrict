@@ -97,6 +97,10 @@ const social = async(req,res) =>{
             return res.status(403).json({ status : 403,message : "Only Customers are allowed to logged In!"})
         }
         
+        if(data.membership){
+            data.membership = await Membership.findOne({_id : data.membership}).lean();
+        }
+
 
 
         return res.json({ status : 200, message : "success" , data })
