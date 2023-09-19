@@ -227,7 +227,8 @@ const parentCategory2 = async (req, res) => {
                 e.servings = servings
 
             }
-            e.items = await menu.find({ category: e._id , barId : req.query.barid }).lean()
+            e.items = await menu.find({ category: e._id , barId : req.query.barId }).lean()
+            console.log(e.items);
             if(e.items.length)
             {
                 e.items = await Promise.all(e.items.map(async(itemData) =>{
