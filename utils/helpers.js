@@ -859,6 +859,27 @@ const getItemById2 =  async(id) =>
     }
 }
 
+const getPromotionItems = async(bar,item) =>
+{
+    try
+    {
+        const currentTime = new Date();
+
+        let data = await promotion.findOne({
+            from: { $lte: currentTime },
+            to: { $gte: currentTime },
+            'menu.item': item,
+            bar
+          }) 
+        return data?data.discount : 0
+    }
+    catch(error)
+    {
+        return 0
+
+    }
+}
+
 const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     try
     {
@@ -866,6 +887,10 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
             item : id,
             barId : bar
         }).select({favDrinks :0}).lean()
+
+        // check if item is in the Discount List
+
+        data.discount = await getPromotionItems(bar,id)
 
         data.superItem = id
         if(data.reviews)
@@ -942,6 +967,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     }
     catch(error)
     {
+        console.log(error);
         return error.message
     }
 }
@@ -1273,7 +1299,8 @@ export default {
     getItemById2,
     getBasicReview,
     getBasicUserData,
-    getSocketOrders
+    getSocketOrders,
+    getPromotionItems
     
 
 }
