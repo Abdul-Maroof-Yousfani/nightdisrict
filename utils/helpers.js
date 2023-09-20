@@ -121,11 +121,11 @@ async function verifyAuthToken(req, res, next) {
 
         // Checking and Adding user to req object.
         req.user = await User.findOne({ verificationToken: req.token }).lean();
-        if (!req.isActive) return res.status(403).json({
-            status: "error",
-            message: "Your Account has been Deleted",
-            data: null
-        });
+        // if (!req.isActive) return res.status(403).json({
+        //     status: "error",
+        //     message: "Your Account has been Deleted",
+        //     data: null
+        // });
         if (!req.user) return res.status(403).json({
             status: "error",
             message: "Invalid sign-in token! Please log-in again to continue.",
