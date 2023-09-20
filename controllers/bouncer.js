@@ -24,7 +24,7 @@ const attendance = async(req,res) =>
         })
         if(checkAttendance)
         {
-            return res.status(500).json({
+            return res.json({
                 status : 500,
                 message : 'attendance Already Marked',
                 data : checkAttendance
@@ -66,7 +66,7 @@ const attendance = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.json({
             status : 500,
             message : error.message,
             data : {}
@@ -114,9 +114,8 @@ const tickets = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error)
-        return res.status(200).json({
-            status : 200,
+        return res.json({
+            status : 500,
             message : error.message,
             data : {}
         })
