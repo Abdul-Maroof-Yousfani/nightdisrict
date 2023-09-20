@@ -17,7 +17,7 @@ import payments from '../models/payments.js';
 import orderSocket from '../sockets/order.js';
 
 const store = async (req, res) => {
-    let { subscriptionType, items, transactionId, paymentStatus, invoice_url, customer, paymentMethod, cardDetail, tip, type, bar, amount } = req.body;
+    let { subscriptionType, items, transactionId, paymentStatus, invoice_url, customer, paymentMethod, cardDetail, tip, type, bar, amount  , instruction} = req.body;
     let paymentCode, cardId;
     let orderNo = Math.floor(Math.random() * 10000000);
     try {
@@ -32,7 +32,8 @@ const store = async (req, res) => {
             paymentStatus: Joi.string(),
             invoice_url: Joi.string(),
             paymentMethod: Joi.string(),
-            tip: Joi.number()
+            tip: Joi.number(),
+            instruction : Joi.string(),
             // cardDetail : Joi.object().unknown(true).required(),
         });
 
@@ -93,7 +94,8 @@ const store = async (req, res) => {
                 amount: amountPaid,
                 bar: mongoose.Types.ObjectId(bar),
                 totalPrice: totalAmount,
-                totalQuantity: totalqty
+                totalQuantity: totalqty,
+                instruction
 
             }
         );

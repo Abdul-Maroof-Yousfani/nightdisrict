@@ -121,6 +121,11 @@ async function verifyAuthToken(req, res, next) {
 
         // Checking and Adding user to req object.
         req.user = await User.findOne({ verificationToken: req.token }).lean();
+        if (!req.isActive) return res.status(403).json({
+            status: "error",
+            message: "Your Account has been Deleted",
+            data: null
+        });
         if (!req.user) return res.status(403).json({
             status: "error",
             message: "Invalid sign-in token! Please log-in again to continue.",
@@ -844,6 +849,96 @@ const getEventById = async(id) =>{
 
 // get item details
 
+
+const createMenu = async(data) =>
+{
+    try
+    {
+
+    }
+    catch(error)
+    {
+
+    }
+}
+
+const findCategory = async(category) =>
+{
+    try
+    {
+        let data = await menuCategory.findOne({
+            name : category
+        })
+        return data;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
+const createCategory = async(data) =>
+{
+    try
+    {   
+        // check if category already exists
+        let checkCat = await findCategory(data.colE)
+        if(checkCat)
+        {
+            console.log(checkCat)
+            return;
+        }
+        let subcategories = []
+        let category = checkCat?checkCat._id:""
+        if(!checkCat)
+        {   
+            // create a new Category
+            let categoryData = new menuCategory({
+                name : data.colE
+            })
+            categoryData = await categoryData.save();  
+            category = categoryData._id;
+        }
+        
+
+        // create child Categories
+
+        let checkChildCategory1 = await findCategory(data.colG)
+        if(!checkChildCategory1)
+        {
+            let subCategory1 = new menuCategory({
+                name : data.colE,
+                parent : category
+            })
+            subCategory1 = await subCategory1.save();  
+            subcategories.push(subCategory1._id)
+        }
+        let checkChildCategory2 = await findCategory(data.colI)
+        if(!checkChildCategory2)
+        {
+            let subCategory2 = new menuCategory({
+                name : data.colI,
+                parent : category
+            })
+            subCategory2 = await subCategory2.save();  
+            subcategories.push(subCategory2._id)
+        }
+
+        console.log(`category ${category}`);
+        console.log(`subcategories ${subcategories}`);
+        return 
+     
+    }
+    catch(error)
+    {
+        console.log(error);
+        return error.message
+    }
+}
+
+
+
+
 const getItemById2 =  async(id) =>
 {
     try
@@ -863,6 +958,7 @@ const getPromotionItems = async(bar,item) =>
 {
     try
     {
+
         const currentTime = new Date();
 
         let data = await promotion.findOne({
@@ -871,10 +967,13 @@ const getPromotionItems = async(bar,item) =>
             'menu.item': item,
             bar
           }) 
+
+
         return data?data.discount : 0
     }
     catch(error)
     {
+        console.log(error);
         return 0
 
     }
@@ -1300,7 +1399,8 @@ export default {
     getBasicReview,
     getBasicUserData,
     getSocketOrders,
-    getPromotionItems
+    getPromotionItems,
+    createCategory
     
 
 }

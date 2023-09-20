@@ -4,6 +4,8 @@ import fs from 'fs';
 import superMenu from '../../models/superMenu.js';
 import menuCategory from '../../models/menuCategory.js';
 import helpers from '../../utils/helpers.js';
+import excel from 'exceljs';
+
 
 const store = async(req,res) =>
 {
@@ -333,9 +335,67 @@ const show = async(req,res) =>{
     }
 }
 
+const importProduct = async(req,res) =>
+{
+  try
+  {
+    
+    if (!req.files) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const buffer = req.files.file.data
+    // console.log();
+    // return;
+
+    const workbook = new excel.Workbook();
+    workbook.xlsx.load(buffer).then(async(workbook) => {
+      const worksheet = workbook.getWorksheet(1); // Assuming the data is in the first sheet
+
+      const extractedData = [];
+
+      worksheet.eachRow(async(row, rowNumber) => {
+        if (rowNumber !== 1) {
+          const colB = row.getCell(2).value; // Get the value of cell B
+          const colC = row.getCell(3).value; // Get the value of cell C
+          const colE = row.getCell(5).value; // Get the value of cell E
+          const colG = row.getCell(7).value; // Get the value of cell G
+          const colI = row.getCell(9).value; // Get the value of cell I
+          const colJ = row.getCell(10).value; // Get the value of cell J
+
+          // Extract data from specific columns (B, C, E, G, I, J)
+
+          // create categories sub categories
+          let data = { colB, colC, colE, colG, colI, colJ };
+
+
+
+          extractedData.push(data);
+        }
+      });
+      
+      await Promise.all(extractedData.map(async(e) =>{
+         await helpers.createCategory(e)
+
+      }))
+
+
+      
+
+
+      res.json({ products: extractedData });
+    });
+  }
+  catch(error)
+  {
+    console.log(error)
+    res.status(500).json({ error });
+  }
+}
+
 export  default{
     store,
     update,
     index,
-    show
+    show,
+    importProduct
 }

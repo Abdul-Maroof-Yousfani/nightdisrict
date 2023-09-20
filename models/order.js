@@ -84,6 +84,10 @@ const orderSchema = new mongoose.Schema({
     bartender:{
         type: mongoose.Schema.Types.ObjectId,
         ref : "users",
+    },
+    instruction : {
+        type : String,
+        default : ""
     }
 
 },{timestamps:true})

@@ -11,6 +11,14 @@ import users from '../controllers/users.js';
 import bar from '../controllers/barowner/bar.js';
 import admin from '../controllers/admin/admin.js';
 import page from '../controllers/page.js';
+import multer from 'multer';
+import excel from 'exceljs';
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+
+
 const router = express.Router();
 router.get('/users/barOwnersDetails', helpers.verifyAuthToken, admin.barOwnersDetails)
 router.post("/category",category.store);
@@ -20,6 +28,13 @@ router.get("/parentCategory",category.parentCategory);
 router.get("/parentCategory2",category.parentCategory2);
 router.post("/category/items",category.getCategoryBasedItems);
 router.get('/category/:_id',category.show)
+
+
+// Import Menu From Excel
+
+router.post('/import/products',menu.importProduct)
+
+
 
 router.post("/menu",helpers.verifyAuthToken,menu.store);
 router.get("/menu/:_id",helpers.verifyAuthToken,menu.show);
