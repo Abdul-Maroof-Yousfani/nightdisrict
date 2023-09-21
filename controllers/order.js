@@ -33,7 +33,7 @@ const store = async (req, res) => {
             invoice_url: Joi.string(),
             paymentMethod: Joi.string(),
             tip: Joi.number(),
-            instruction : Joi.string(),
+            instruction : Joi.string().allow(''),
             // cardDetail : Joi.object().unknown(true).required(),
         });
 

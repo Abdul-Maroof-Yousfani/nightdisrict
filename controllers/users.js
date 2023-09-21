@@ -79,7 +79,6 @@ const social = async(req,res) =>{
             new:true
         }).lean()
 
-        console.log(data);
 
 
         let myEvents = await helpers.getUserEvents(data._id);
