@@ -91,7 +91,7 @@ const barProfile = async (req, res) => {
 
 const barInfo = async (req, res) => {
     let body = req.body;
-    let barId = req.params.id;
+    let barId = req.user.barInfo;
     let userId = req.user._id;
     let {longitude,latitude} = req.body;
 
@@ -215,7 +215,8 @@ const barInfo = async (req, res) => {
 }
 
 const detailInfo = async (req, res) => {
-    let barId = req.params.id;
+    let barId =  req.user.barInfo;
+
     let body = req.body;
     try {
         let userId = req.user._id;
@@ -256,7 +257,7 @@ const detailInfo = async (req, res) => {
 
 const updateBarInfo = async (req, res) => {
     let body = req.body;
-    let barId = req.params.id;
+    let barId = req.user.barInfo;
     let {longitude,latitude} = req.body
     try {
         let userId = req.user._id;
