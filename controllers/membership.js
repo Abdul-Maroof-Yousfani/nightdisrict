@@ -10,12 +10,14 @@ const index = async (req, res) => {
         let data = await Membership.find();
 
         return res.send({
+            status : 200,
             message: "success",
             data
         })
     }
     catch (error) {
-        return res.status(500).send({
+        return res.status(200).send({
+            status : 500,
             message: error.message,
             data: []
         })
@@ -35,13 +37,15 @@ const userMembership = async (req, res) => {
             }
             return e
         })
-        return res.send({
+        return res.status(200).send({
+            status : 200,
             message: "success",
             data
         })
     }
     catch (error) {
-        return res.status(500).send({
+        return res.status(200).send({
+            status : 500,
             message: error.message,
             data: []
         })
@@ -53,8 +57,8 @@ const createMembership = async (req, res) => {
         let { name } = req.body;
         const membershipExists = await Membership.findOne({ name });
         if (membershipExists) {
-            return res.status(409).json({
-                status: "error",
+            return res.status(200).json({
+                status: 409,
                 message: "Membership Already Exists",
                 data: null,
             });
