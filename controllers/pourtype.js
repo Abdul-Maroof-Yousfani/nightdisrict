@@ -36,6 +36,7 @@ const index = async(req,res) =>
     {   
         let data = await pourtype.find({})
         return res.json({
+                status : 200,
                 message : "success",
                 data
             })
@@ -43,6 +44,7 @@ const index = async(req,res) =>
     catch(error)
     {
         return res.json({
+            status : 500,
             message : error.message,
             data
         })
