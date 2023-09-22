@@ -230,15 +230,35 @@ const cronJob = async (req, res) => {
 
                                         // Listen for the 'end' event when all attachment data is received
                                         data.content.on('end', function () {
+                                            const contentType = data.params.type; // Get the content type
+
                                             const buffer = Buffer.concat(bufs);
                                             let attachmentString = buffer.toString('base64'); // Convert buffer to base64 string
                                             attachmentString = Buffer.from(attachmentString, "base64");
-                                            let date = Date.now() + '.jpg';
-                                            fs.writeFileSync(`public/attachment/${date}`, attachmentString)
-                                            const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
+                                            let fileExtension;
+
+                                            if (contentType === 'application/pdf') {
+                                                fileExtension = 'pdf';
+                                            } else if (contentType === 'application/msword' || contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                                                fileExtension = 'docx';
+                                            } else {
+                                                // Handle other attachment types as needed
+                                            }
+
+                                            if(fileExtension)
+                                            {
+                                                let date = Date.now() + '.jpg';
+                                                fs.writeFileSync(`public/attachment/${date}`, attachmentString)
+                                                const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
+                                                mail.Attachments.push(fileUrl);
+
+
+
+
+                                            }
+
 
                                             // Add the file URL to your mail object
-                                            mail.Attachments.push(fileUrl);
 
                                             // Release the attachment data resources
                                             data.release();

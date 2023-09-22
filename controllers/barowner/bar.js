@@ -547,6 +547,7 @@ const addItem = async (req, res) => {
             let totalPrice = 0;
             mainMenu.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
                             // get variation data
+                            console.log(va);
             let newVariations = await pourtype.findOne({
                                 _id : va.variant
                             })
@@ -1068,6 +1069,17 @@ const update = async (req, res) => {
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(400).json({ message: error.message, data: {} })
 
+        // check menu exists
+
+        let checkMenu = await menu.findOne({
+            bar : req.user.barInfo,
+            item : req.params.id
+        })  
+        if(!checkMenu)
+        {
+            return res.json({ status: 404, message: "not found", data : {} })
+        }
+
         if (type) {
             // add item to the main Menu
 
@@ -1076,21 +1088,25 @@ const update = async (req, res) => {
                 _id : category
             })
 
-            
 
-            // let mainMenu = new superMenu({
-            //     barId: req.user.barInfo,
-            //     user: req.user._id,
-            //     menu_name: title,
-            //     description,
-            //     category,
-            //     subCategory : subcategory,
-            //     pictures : [categoryImage.category_image]
+            let mainMenu = await superMenu.findByIdAndUpdate({
+                _id  : req.params.id
+            },{
+                set : {
+                    barId: req.user.barInfo,
+                    user: req.user._id,
+                    menu_name: title,
+                    description,
+                    category,
+                    subCategory : subcategory,
+                    pictures : [categoryImage.category_image]
+    
+                }
+            },{
+                new : true
+            })
 
-            // })
-            // mainMenu = await mainMenu.save()
-
-            // mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
+            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
 
           
 
@@ -1109,16 +1125,23 @@ const update = async (req, res) => {
       
 
             // then add item to the Bar
-            let data = new menu(
+            let data = await menu.findOneAndUpdate(
                 {
-                    "barId": req.user.barInfo,
-                    "item": mainMenu._id,
-                    "category": category,
-                    "subCategory": subcategory,
-                    variation
+                    item : req.params.id
+                },{
+                    $set : {
+                        "barId": req.user.barInfo,
+                        "item": mainMenu._id,
+                        "category": category,
+                        "subCategory": subcategory,
+                        variation
+                    }
+                },
+                {
+                    new : true
                 }
+                
             )
-            data = await data.save();
 
             
             let itemsdata = await menu.findOne({
@@ -1193,7 +1216,6 @@ const update = async (req, res) => {
     }
 
 }
-
 const home = async(req,res) =>
 {
     let graph  = {}
