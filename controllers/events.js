@@ -8,6 +8,7 @@ import bar from '../models/bar.js';
 import helpers from '../utils/helpers.js';
 import menuCategory from '../models/menuCategory.js';
 import ticket from '../models/ticket.js';
+import mongoose from 'mongoose';
 
 const store = async(req,res) =>
 {   
@@ -184,16 +185,14 @@ const update = async(req,res) =>
               req.body.picture = `/events/${imageNameOne}`
           }
 
-        
         let data = await event.findByIdAndUpdate({
-            _id : req.params.id
+            _id : mongoose.Types.ObjectId(req.params.id)
         },{
-            set : req.body
+            $set : req.body
         },
         {
             new : true
         })
-    
 
         // get event data 
 
@@ -209,7 +208,7 @@ const update = async(req,res) =>
     {
         console.log(error)
 
-        res.status(500).json({
+        res.status(200).json({
             status:500,
             message : error.message,
             data : {}
