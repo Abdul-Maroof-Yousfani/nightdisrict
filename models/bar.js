@@ -122,6 +122,10 @@ const bar = new mongoose.Schema({
         type : String,
         default : ''
     },
+    hash_tags : {
+        type : Array,
+        default : []
+    },
     location:{
         type:{
             type:String,

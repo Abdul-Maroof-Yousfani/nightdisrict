@@ -269,8 +269,6 @@ const updateBarInfo = async (req, res) => {
 
         
 
-
-
         if (req.files) {
             let logo = req.files.upload_logo;
             
@@ -376,6 +374,11 @@ const updateBarInfo = async (req, res) => {
 
         if (req.body.barHours) {
             req.body.barHours = JSON.parse(req.body.barHours)
+        }
+        if(req.body.hash_tags)
+        {
+            req.body.hash_tags = req.body.hash_tags.replace(/'/g, '"');
+            req.body.hash_tags = JSON.parse(req.body.hash_tags)
         }
         // if(req.body.barHours)
         // {
