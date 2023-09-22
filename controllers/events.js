@@ -103,6 +103,120 @@ const store = async(req,res) =>
     }
 }
 
+const update = async(req,res) =>
+{   
+    let imageNameOne,thumbPath = "";
+    try
+    {   
+        const schema = Joi.object({
+            name: Joi.string().required(),
+            description: Joi.string().required(),
+            price: Joi.number().required(),
+            hashtags: Joi.string(),
+            repeat: Joi.boolean(),
+            stock :Joi.number().required(),
+            dj : Joi.string(),
+            category : Joi.string(),
+            venue : Joi.string().required(),
+            date : Joi.string().required(),
+            enddate : Joi.string().required(),
+         });
+        const { error, value } = schema.validate(req.body);
+        if(error) return res.status(400).json({
+              status: 400,
+              message: error.message,
+              data: {}
+        })
+
+        // add Auth Token in Events
+        req.body.bar = req.user.barInfo
+
+        // get bar coordinates and location
+
+        let checkEvent = await event.findById({
+            _id  : req.params.id
+        })
+        if(!checkEvent)
+        {
+            return res.status(200).json({
+                status: 404,
+                error : "Event not found",
+                message: "Event not found",
+                data: {}
+              });
+        }
+
+
+        let bardata = await bar.findById({_id : req.body.bar});
+        req.body.address = bardata.address
+        req.body.location = bardata.location
+
+
+
+        if(req.body.hashtags)
+        {
+            req.body.hashtags = JSON.parse(req.body.hashtags)
+        }
+        if(req.body.category)
+        {
+            req.body.category = JSON.parse(req.body.category)
+        }
+
+        if (req.files) {
+            let image = req.files.picture;
+        
+                const dirOne = "public/events";
+                imageNameOne = `${Date.now()}_`+ image.name;
+                thumbPath = `${dirOne}/${imageNameOne}`;
+              if (!fs.existsSync(dirOne)) {
+                fs.mkdirSync(dirOne, { recursive: true });
+              }
+              image.mv(thumbPath, error => {
+                if (error) {
+                  return res.status(400).json({
+                    status: 400,
+                    error: error.message,
+                    data: ""
+                  });
+                }
+              });
+
+              req.body.picture = `/events/${imageNameOne}`
+          }
+
+        
+        let data = await event.findByIdAndUpdate({
+            _id : req.params.id
+        },{
+            set : req.body
+        },
+        {
+            new : true
+        })
+    
+
+        // get event data 
+
+        data = await helpers.getEventById(data._id);
+
+        res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        console.log(error)
+
+        res.status(500).json({
+            status:500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 const index = async(req,res) =>
 {
     let {live,today,upcomming}  = [];
@@ -262,6 +376,7 @@ const tickets = async(req,res) =>{
 
 export  default{
     store,
+    update,
     index,
     view,
     nearby,
