@@ -133,6 +133,151 @@ const store = async(req,res) =>
         return res.status(500).json({ message : error.message , data : {} })
     }
 }
+const update = async(req,res) =>
+{
+    let {title,from,to,price,repeat,category,menu,infinity,discount} = req.body;
+
+
+    let imageNameOne,thumbPath = "";
+    try
+    {
+         const schema = Joi.object({
+            title: Joi.string().required(),
+            from: Joi.string().required(),
+            to: Joi.any(),
+            infinity : Joi.any(),
+            price: Joi.number(),
+            repeat: Joi.boolean(),
+            category : Joi.string().required(),
+            menu : Joi.any(),
+            discount : Joi.any()
+            
+         });
+
+
+        const { error, value } = schema.validate(req.body);
+        
+        if(error) return res.status(400).json({message : error.message , data : {}})
+
+        //  check promotion for specific bar
+        let checkPromotion = await promotion({
+            bar : req.user.barInfo,
+            _id : req.params.id
+        })
+        if(!checkPromotion)
+        {
+            return res.status(200).json({
+                status : 404,
+                message : 'Promotion not Found',
+                data : {}
+            })
+        }
+
+
+        // check if end date or either infinity is defined
+        if(!infinity && !to)
+        {
+            return res.status(400).json({
+                status : 400,
+                message : 'please either set enddate or an infinity for the promotion',
+                data : {}
+            })
+        }
+        // if both are set in the fields
+        if(infinity && to)
+        {
+            return res.status(400).json({
+                status : 400,
+                message : 'please either set enddate or an infinity for the promotion',
+                data : {}
+            })
+        }
+
+
+
+        //  check if Already Promotion is Availabe in with this time
+        let query = {
+            "from" : from,
+            "to" : to
+        }
+        query = to?query:{ "from" : from, "infinity" : true }
+
+        // let checkDateRange = await promotion.findOne(query)
+        // if(checkDateRange) return res.status(409).json({message : "Promotion Already Exist" , data : {}})
+
+
+        // adding auth as bar_id
+        req.body.bar = req.user.barInfo
+
+
+        // adding bar location in promotion
+
+        let bardata = await bar.findById({_id : req.user.barInfo});
+        // req.body.address = bardata.address
+        req.body.location = bardata.location
+
+        if (req.files) {
+            let image = req.files.picture;
+        
+                const dirOne = "public/promotions";
+                imageNameOne = `${Date.now()}_`+ image.name;
+                thumbPath = `${dirOne}/${imageNameOne}`;
+              if (!fs.existsSync(dirOne)) {
+                fs.mkdirSync(dirOne, { recursive: true });
+              }
+              image.mv(thumbPath, error => {
+                if (error) {
+                  return res.status(400).json({
+                    status: 400,
+                    error: error.message,
+                    data: ""
+                  });
+                }
+              });
+
+              req.body.picture = `/promotions/${imageNameOne}`
+          }
+        if(req.body.menu)
+        {
+            req.body.menu = JSON.parse(req.body.menu);
+        }
+
+        // update promot picture
+
+        let menuPicture = req.body.menu[0].item;
+
+        let itemDetail = await superMenu.findById({
+            _id  : menuPicture
+        })
+
+        req.body.picture = itemDetail.pictures[0]
+
+       
+
+        let data  = await promotion.findOneAndUpdate({_id : req.params.id},{
+            $set : req.body
+        },{
+            new:true
+        })
+
+
+        data = await promotion.findById({
+            _id : data._id
+        }).lean()
+        
+
+
+        data = await helpers.getPromotionById(data,req.user.barInfo)
+
+        return res.status(200).json({ status:200, message : 'success' , data })
+         
+    }
+    catch(error)
+    {
+        console.log(error)
+        return res.status(500).json({ message : error.message , data : {} })
+    }
+}
 const index = async(req,res) =>
 {
     try
@@ -254,5 +399,6 @@ export default {
    store,
    index,
    show,
-   getPromotions
+   getPromotions,
+   update
 }
