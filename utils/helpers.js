@@ -1039,6 +1039,10 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         data.item = await superMenu.findById({
             _id : data.item
         })
+        if(!data.item)
+        {
+            console.log(id);
+        }
         data.name = data.item.menu_name
         data.description = data.item.menu_name
         data.description = data.item.description

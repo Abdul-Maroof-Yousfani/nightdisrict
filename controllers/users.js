@@ -125,6 +125,8 @@ const social = async(req,res) =>{
 const register = async (req, res) => {
     
     try {
+
+
         
         let role = req.body.role;
 

@@ -4,6 +4,7 @@ import users from '../models/users.js';
 import Attendance from '../models/attendance.js';
 import ticket from '../models/ticket.js';
 import helpers from '../utils/helpers.js';
+import event from '../models/event.js';
 
 
 const attendance = async(req,res) =>
@@ -17,14 +18,33 @@ const attendance = async(req,res) =>
 
     try
     {
+        // check event and bouncers are from the same bar
+
+        let checkEvent = await event.findOne({
+            bar : req.user.related_bar,
+            _id : event
+        })
+        if(!checkEvent)
+        {
+            return res.status(500).json({
+                status : 500,
+                message : 'Event not Related to Specific Bar',
+                data : []
+            }) 
+        }
+
 
         let checkAttendance = await Attendance.findOne({
             order:Order,
             customer
         })
+
+
+
+        
         if(checkAttendance)
         {
-            return res.json({
+            return res.status(500).json({
                 status : 500,
                 message : 'attendance Already Marked',
                 data : checkAttendance
@@ -66,7 +86,7 @@ const attendance = async(req,res) =>
     }
     catch(error)
     {
-        return res.json({
+        return res.statu(500).json({
             status : 500,
             message : error.message,
             data : {}

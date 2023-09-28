@@ -22,6 +22,7 @@ import bartenderRoute from './routes/bartender.js';
 import orderSocket from './sockets/order.js';
 import inApp from './routes/inapp.js';
 import bouncerRoute from './routes/bouncer.js';
+import notificationRoute from './routes/notification.js';
 
 import Menu from './models/menu.js';
 
@@ -78,6 +79,8 @@ app.use('/api/order',orderRoute);
 app.use('/api/web',webRoute);
 
 
+
+
 // route to remove items that are not is supermenu
 
 app.use('/remove-items', async(req,res) =>{
@@ -120,6 +123,8 @@ app.use('/remove-items', async(req,res) =>{
     });
 
 }) 
+
+app.use('/notification-handler',notificationRoute);
 
 
 

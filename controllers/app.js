@@ -22,7 +22,8 @@ const index = async(req,res) =>
     let events = []
 
     try
-    {
+    {   
+        console.log(req.user._id);
         let bars = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
     
         // events
