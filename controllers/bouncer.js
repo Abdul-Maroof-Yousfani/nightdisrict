@@ -26,7 +26,7 @@ const attendance = async(req,res) =>
         })
         if(!checkEvent)
         {
-            return res.status(500).json({
+            return res.status(200).json({
                 status : 500,
                 message : 'Event not Related to Specific Bar',
                 data : []
@@ -44,7 +44,7 @@ const attendance = async(req,res) =>
         
         if(checkAttendance)
         {
-            return res.status(500).json({
+            return res.status(200).json({
                 status : 500,
                 message : 'attendance Already Marked',
                 data : checkAttendance
@@ -87,7 +87,7 @@ const attendance = async(req,res) =>
     catch(error)
     {
         console.log(error);
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
