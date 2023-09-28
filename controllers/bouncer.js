@@ -4,7 +4,7 @@ import users from '../models/users.js';
 import Attendance from '../models/attendance.js';
 import ticket from '../models/ticket.js';
 import helpers from '../utils/helpers.js';
-import event from '../models/event.js';
+import Event from '../models/event.js';
 
 
 const attendance = async(req,res) =>
@@ -20,7 +20,7 @@ const attendance = async(req,res) =>
     {
         // check event and bouncers are from the same bar
 
-        let checkEvent = await event.findOne({
+        let checkEvent = await Event.findOne({
             bar : req.user.related_bar,
             _id : event
         })
@@ -86,7 +86,8 @@ const attendance = async(req,res) =>
     }
     catch(error)
     {
-        return res.statu(500).json({
+        console.log(error);
+        return res.status(500).json({
             status : 500,
             message : error.message,
             data : {}
