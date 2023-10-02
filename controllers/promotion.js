@@ -157,7 +157,7 @@ const update = async(req,res) =>
 
         const { error, value } = schema.validate(req.body);
         
-        if(error) return res.status(400).json({message : error.message , data : {}})
+        if(error) return res.status(200).json({ status : 400, message : error.message , data : {}})
 
         //  check promotion for specific bar
         let checkPromotion = await promotion({
@@ -177,7 +177,7 @@ const update = async(req,res) =>
         // check if end date or either infinity is defined
         if(!infinity && !to)
         {
-            return res.status(400).json({
+            return res.status(200).json({
                 status : 400,
                 message : 'please either set enddate or an infinity for the promotion',
                 data : {}
@@ -186,7 +186,7 @@ const update = async(req,res) =>
         // if both are set in the fields
         if(infinity && to)
         {
-            return res.status(400).json({
+            return res.status(200).json({
                 status : 400,
                 message : 'please either set enddate or an infinity for the promotion',
                 data : {}
@@ -227,7 +227,7 @@ const update = async(req,res) =>
               }
               image.mv(thumbPath, error => {
                 if (error) {
-                  return res.status(400).json({
+                  return res.status(200).json({
                     status: 400,
                     error: error.message,
                     data: ""
@@ -274,8 +274,7 @@ const update = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error)
-        return res.status(500).json({ message : error.message , data : {} })
+        return res.status(200).json({ status : 500, message : error.message , data : {} })
     }
 }
 const index = async(req,res) =>
@@ -332,6 +331,7 @@ const index = async(req,res) =>
         //         return e
         // }))
         return res.json({
+            status : 200,
             message : "success",
             data
         })
@@ -339,8 +339,9 @@ const index = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
+
             message : "error",
             data : {}
         })
@@ -363,7 +364,7 @@ const show = async(req,res) =>
     catch(error)
     {
 
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -387,7 +388,7 @@ const getPromotions = async(req,res) => {
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : []

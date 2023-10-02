@@ -16,7 +16,7 @@ const store = async(req,res) =>
                 type : Joi.string()
          });
         const { error, value } = schema.validate(req.body);
-        if(error) return res.status(400).json({
+        if(error) return res.status(200).json({
               status: 400,
               message: error.message,
               data: {}
@@ -34,7 +34,7 @@ const store = async(req,res) =>
     }
     catch(error)
     {
-        res.status(500).json({
+        res.status(200).json({
             status : 500,
             message : error.message,
             data : {}

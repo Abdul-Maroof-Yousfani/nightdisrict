@@ -23,7 +23,7 @@ const store = async (req, res) => {
         });
         // const  {error} = validate.schema(req.body);
         const { error, value } = schema.validate(req.body);
-        if(error) return res.status(400).json({ message : error.message ,data : {} })
+        if(error) return res.status(200).json({ status:500, message : error.message ,data : {} })
 
 
         // // update code
@@ -36,7 +36,7 @@ const store = async (req, res) => {
 
         let checkUser = await users.findOne({email : req.body.email})
         
-        if(checkUser) return res.status(409).json( {
+        if(checkUser) return res.status(200).json( {
                 status : 409,
                 message : "User with this Emaily Already Exists",
                 data : {}
@@ -57,7 +57,7 @@ const store = async (req, res) => {
               }
               image.mv(thumbPath, error => {
                 if (error) {
-                  return res.status(400).json({
+                  return res.status(200).json({
                     status: 400,
                     error: error.message,
                     data: ""
@@ -118,6 +118,7 @@ const store = async (req, res) => {
 
 
         return res.json({
+            status : 200,
             message : "success",
             data  : data2
         })
@@ -125,8 +126,8 @@ const store = async (req, res) => {
     }
     catch(error)
     {
-        console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message : error.message,
             data : {}
         })
@@ -164,6 +165,7 @@ const index = async(req,res) =>
               return e
         }))
         return res.json({
+            status : 200,
             message : "success",
             data
         })
@@ -172,6 +174,7 @@ const index = async(req,res) =>
     catch(error)
     {
         return res.json({
+            status : 500,
             message :error.message,
             data : []
         })
@@ -190,7 +193,7 @@ const remove = async(req,res) =>
         })
         if(!checkMember)
         {
-            return res.status(404).json({
+            return res.status(200).json({
                 status : 404,
                 message : "User Not Found"
             })
@@ -236,6 +239,7 @@ const remove = async(req,res) =>
     {
         console.log(error)
         return res.json({
+            status : 200,
             message :error.message,
             data : []
         })

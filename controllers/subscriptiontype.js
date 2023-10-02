@@ -10,10 +10,10 @@ const store = async(req,res) =>
             code: Joi.string().required()
          });
          let {error,value} = schema.validate(req.body);
-         if(error) return res.status(400).json({ message : error.message }) 
+         if(error) return res.status(200).json({ status : 400, message : error.message }) 
          
          let alreadyExist = await subscriptiontype.findOne({code : code})
-         if(alreadyExist) return res.status(409).json({ message : "Already Exists" , data : alreadyExist })
+         if(alreadyExist) return res.status(200).json({ status : 409, message : "Already Exists" , data : alreadyExist })
 
          let data = new subscriptiontype(req.body);
          await data.save();
@@ -25,7 +25,8 @@ const store = async(req,res) =>
     }
     catch(error)
     {
-        res.status(500).json({
+        res.status(200).json({
+            status : 500,
             message : error.message,
             data : {}
         })

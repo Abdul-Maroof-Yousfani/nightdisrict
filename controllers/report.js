@@ -24,7 +24,7 @@ const store = async(req,res) =>
     }
     catch(err)
     {
-        return res.status(500).send({
+        return res.status(200).send({
             status : 500,
             status: err.message,
             data : {}

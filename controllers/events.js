@@ -259,13 +259,15 @@ const index = async(req,res) =>
         }))
 
         return res.json({
+            status : 200,
             message : "success",
             data : [{live,today,upcomming}] 
         })
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message : error.message,
             data  : []
         })
@@ -290,7 +292,8 @@ const view = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message : error.message,
             data  : []
         })
@@ -329,7 +332,7 @@ const nearby = async(req,res) =>{
     catch(error)
     {
         return res.status(200).json({
-            status : 200,
+            status : 500,
             message : error.message,
             data : {}
         })
@@ -364,7 +367,7 @@ const tickets = async(req,res) =>{
     catch(error)
     {
         return res.json({
-            status : 200,
+            status : 500,
             message : error.message,
             data : []
         })

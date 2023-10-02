@@ -10,8 +10,8 @@ const createRole = async(req,res) =>
         let {name} = req.body;   
         const roleExists = await Role.findOne({name});
         if (roleExists) {
-            return res.status(409).json({
-                status: "error",
+            return res.status(200).json({
+                status: 409,
                 message: "Role Already Exists",
                 data: null,
             });
@@ -27,7 +27,7 @@ const createRole = async(req,res) =>
     catch(err)
     {
         return res.send({
-            status: "error",
+            status: 500,
             message: err.message,
         })
     }

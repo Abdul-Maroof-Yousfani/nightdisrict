@@ -15,7 +15,7 @@ const store = async (req, res) => {
 
           
             const { error, value } = schema.validate(req.body); 
-            if(error) return res.status(400).json({ message : error.message , data : {} })
+            if(error) return res.status(200).json({ status : 400, message : error.message , data : {} })
 
             if (req.files) {
                 let image = req.files.picture;
@@ -28,7 +28,7 @@ const store = async (req, res) => {
                   }
                   image.mv(thumbPath, error => {
                     if (error) {
-                      return res.status(400).json({
+                      return res.status(200).json({
                         status: 400,
                         error: error.message,
                         data: ""
@@ -57,7 +57,7 @@ const store = async (req, res) => {
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status:500,
             message : error.message,
             data : {}
@@ -78,6 +78,7 @@ const index = async(req,res) =>
     catch(error)
     {
         return res.json({
+            status : 500,
             message : error.message,
             data
         })
@@ -90,6 +91,7 @@ const view  = async(req,res) =>
     {
         let data = await post.findById(_id);
         return res.json({
+            status : 200,
             message : "success",
             data
         })
@@ -97,6 +99,7 @@ const view  = async(req,res) =>
     catch(error)
     {
         return res.json({
+            status : 500,
             message : error.message,
             data : {}
         })

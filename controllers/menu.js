@@ -34,7 +34,8 @@ const createMenuCat = async (req, res) => {
             })
         }
     } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
+            status: 500,
             message: "error",
             data: error.message
         })
@@ -80,7 +81,8 @@ const createMenu = async (req, res) => {
 
         }
     } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: "error",
             data: error.message
         })
@@ -114,7 +116,7 @@ const getReviewById = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : []

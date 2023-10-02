@@ -40,7 +40,7 @@ const store = async (req, res) => {
 
 
         const { error } = orderSchema.validate(req.body);
-        if (error) return res.status(400).json({ message: error.message, data: {} })
+        if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
 
         // check users and see if card exists
@@ -222,6 +222,7 @@ const store = async (req, res) => {
 
 
                 return res.json({
+                    status : 200,
                     message: "Success",
                     data: orderData
                 })
@@ -230,7 +231,7 @@ const store = async (req, res) => {
         }
     }
     catch (error) {
-        res.status(500).json({ message: error.message })
+        res.status(200).json({ status:500, message: error.message })
     }
 }
 
@@ -247,7 +248,7 @@ const show = async (req, res) => {
 
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: {}
@@ -286,7 +287,7 @@ const payment = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: []
