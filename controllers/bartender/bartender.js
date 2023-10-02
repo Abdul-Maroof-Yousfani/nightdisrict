@@ -16,7 +16,7 @@ const orders = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(404).json({
+        return res.status(200).json({
             status : 404,
             message: error.message,
             data: []
@@ -35,7 +35,7 @@ const processOrder = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(404).json({
+        return res.status(200).json({
             status : 404,
             message: error.message,
             data: []
@@ -50,7 +50,7 @@ const prepare = async(req,res) =>{
         // check if a bartender is already assigned this order
 
         let checkOrderExist = await orderreserved.findOne({orderid,bar}).lean();
-        if(checkOrderExist) return res.status(409).json({
+        if(checkOrderExist) return res.status(200).json({
             status : 409,
             message : 'already assigned to a bartender',
             data : {}
@@ -76,7 +76,7 @@ const prepare = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -102,7 +102,7 @@ const updateStatus = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -139,7 +139,7 @@ const tips = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : "error",
             data : []
