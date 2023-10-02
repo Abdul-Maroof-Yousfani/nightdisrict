@@ -32,7 +32,7 @@ const social = async(req,res) =>{
 
 
         const { error, value } = schema.validate(req.body);
-        if(error) return res.status(400).json({ status : 400,message : error.message })
+        if(error) return res.status(200).json({ status : 400,message : error.message })
 
 
 
@@ -93,7 +93,7 @@ const social = async(req,res) =>{
 
         if(dataRole.name != req.body.role)
         {
-            return res.status(403).json({ status : 403,message : "Only Customers are allowed to logged In!"})
+            return res.status(200).json({ status : 403,message : "Only Customers are allowed to logged In!"})
         }
         
         if(data.membership){
@@ -115,7 +115,7 @@ const social = async(req,res) =>{
     catch(error)
     {
         console.log(error);
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message
         })
@@ -156,8 +156,8 @@ const register = async (req, res) => {
         const userExist = await User.findOne({ $or: [{ email: body.email }, { username: body.username }] });
         if (userExist) {
             
-            return res.status(422).json({
-                status: "error",
+            return res.status(200).json({
+                status: 422,
                 message: "A user with this username or email already exists.",
                 data: null,
                 trace: { username: body.username, email: body.email }
@@ -165,16 +165,16 @@ const register = async (req, res) => {
         }
         
         if (!helper.validateUsername(body.username)) {
-            return res.status(400).json({
-                status: "error",
+            return res.status(200).json({
+                status: 400,
                 message: "Username can only have lowercase letters, dots, underscores and numbers.",
                 data: null,
             });
         }
         
         if (!helper.validateEmail(body.email)) {
-            return res.status(400).json({
-                status: "error",
+            return res.status(200).json({
+                status: 400,
                 message: "Please enter a valid email address.",
                 data: null,
                 trace: `Email Address: ${body.email} is not valid`
@@ -185,7 +185,7 @@ const register = async (req, res) => {
             let file = req.files.profile_picture;
             let fileName = `public/profiles/${Date.now()}-${file.name.replace(/ /g, '-').toLowerCase()}`;
             file.mv(fileName, async (err) => {
-                if (err) return res.status(400).json({ message: err.message });
+                if (err) return res.status(200).json({status : 400, message: err.message });
             });
             fileName = fileName.replace("public", "");
             body.profile_picture = fileName;
@@ -222,13 +222,13 @@ const register = async (req, res) => {
             inserted.verificationToken = jwt.sign({ id: inserted._id, username: inserted.username, role: inserted.role}, process.env.JWT_SECRET , {expiresIn : 3600});
             inserted.save();
             return res.json({
-                status: "success",
+                status: 200,
                 message: "User Added Successfully",
                 data: inserted,
             });
         }).catch(error => {
-            return res.status(500).json({
-                status: "error",
+            return res.status(200).json({
+                status: 500,
                 message: "An unexpected error occurred while proceeding your request.",
                 data: null,
                 trace: error.message
@@ -236,8 +236,8 @@ const register = async (req, res) => {
         });
     } catch (error) {
         
-        return res.status(500).json({
-            status: "error",
+        return res.status(200).json({
+            status: 500,
             message: "An unexpected error occurred while proceeding your request.",
             data: null,
             trace: error.message
@@ -255,8 +255,8 @@ const login = async (req, res) => {
         }).newContext();
         
         if (!loginSchema.validate({ username, password,role,fcm })) {
-            return res.status(400).json({
-                status: "error",
+            return res.status(200).json({
+                status: 400,
                 message: "Username or Password is missing.",
                 data: null,
                 trace: `{username: ${username}, password: ${password}}`
@@ -272,8 +272,8 @@ const login = async (req, res) => {
 
 
         if (!user) {
-            return res.status(404).json({
-                status: "error",
+            return res.status(200).json({
+                status: 404,
                 message: `User: ${username} doesn't exists.`,
                 data: null,
                 trace: `{username: ${username}, password: ${password}}`
@@ -292,7 +292,7 @@ const login = async (req, res) => {
         // }
         
 
-        if(!user.status) return res.status(403).json({
+        if(!user.status) return res.status(200).json({
             status : 403,
             message : "Your Account is deactivated, please contact the Administration, to reactive the account",
             data : {}
@@ -301,8 +301,8 @@ const login = async (req, res) => {
         const isPassword = await bcrypt.compare(password, user.password);
         if(!isPassword)
         {
-            return res.status(400).json({
-                status: "error",
+            return res.status(200).json({
+                status: 400,
                 message: "Invalid Password",
                 data: null,
                 trace: "Invalid Password"
@@ -346,13 +346,13 @@ const login = async (req, res) => {
 // 
             User.updateOne({ _id: user._id }, { $set: { verificationToken: token, fcm: fcm } }).then(response => {
                 return res.json({
-                    status: "success",
+                    status: 200,
                     message: `Login Successful! Logged in as ${username}`,
                     data: user
                 })
             }).catch(err => {
-                return res.status(500).json({
-                    status: "error",
+                return res.status(200).json({
+                    status:500,
                     message: "An unexpected error occurred while proceeding your request.",
                     data: null,
                     trace: err.message
@@ -360,18 +360,16 @@ const login = async (req, res) => {
             });
         }
         else {
-            return res.status(400).json({
-                status: "error",
+            return res.status(200).json({
+                status: 400,
                 message: "Incorrect Password.",
                 data: null,
                 trace: `Password: ${password} is incorrect`
             });
         }
     } catch (error) {
-        console.log(error);
-        console.log(error.message);
-        return res.status(500).json({
-            status: "error",
+        return res.status(200).json({
+            status: 500,
             message: "An unexpected error occurred while proceeding your request.",
             data: null,
             trace: error.message
@@ -396,13 +394,13 @@ const selectMembership = async (req,res) =>{
         subscription = await Membership.findOne({_id : req.body.membership}).lean();
 
         return res.status(200).json({
-            status: "success",
+            status: 200,
             message: "Membership assigned to User Successfully",
             data: subscription
         })
     } catch (error) {
-        return res.status(500).json({
-            status: "error",
+        return res.status(200).json({
+            status: 200,
             message: "An unexpected error occurred while proceeding your request.",
             data: null,
             trace: error.message
@@ -421,7 +419,8 @@ const cardDetail = async (req,res) =>{
             data: result
         })
     } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message : "error",
             data: error.message
         })
@@ -466,6 +465,7 @@ const update = async(req,res) =>
 
         let data = await User.findByIdAndUpdate({_id},{$set : req.body},{new:true});
         return res.json({
+            status : 200,
             message : "success",
             data
         })
@@ -474,7 +474,7 @@ const update = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({message : error.message , data : {} })
+        return res.status(200).json({ status : 500, message : error.message , data : {} })
     }
 }
 
@@ -541,8 +541,7 @@ const forgetPassword = async(req,res) =>{
     }
     catch(error)
     {
-        console.log(error);
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -562,7 +561,7 @@ const verifyOtp = async(req,res) =>{
             email, 
             "otp.code" : otp 
         })
-        if(!checkOtp) return res.status(404).json({ status : 401 , message : "Invalid OTP" , data :{} })
+        if(!checkOtp) return res.status(200).json({ status : 404 , message : "Invalid OTP" , data :{} })
         
         // expire the otp code
 
@@ -580,7 +579,7 @@ const verifyOtp = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -593,7 +592,7 @@ const changePassword = async(req,res) =>{
     try
     {
         let user = await User.findOne({email : email})
-        if(!user) return res.status(404).json({status : 404 , message : "", data: {}})
+        if(!user) return res.status(200).json({status : 404 , message : "", data: {}})
 
         password = await bcrypt.hash(req.body.password, 10);
         
@@ -615,7 +614,7 @@ const changePassword = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({status : 500 , message : error.message, data: {}})
+        return res.status(200).json({status : 500 , message : error.message, data: {}})
     }
 }
 
@@ -651,7 +650,7 @@ const activities = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status:500,
             message : error.message,
             data : {}
@@ -673,7 +672,7 @@ const profile = async(req,res) =>{
         });
         const { error, value } = schema.validate(req.body);
 
-        if(error) return res.status(400).json({
+        if(error) return res.status(200).json({
               status: 400,
               message: error.message,
               data: {}
@@ -687,7 +686,7 @@ const profile = async(req,res) =>{
 
     
 
-        if(!data) return res.status(404).json({
+        if(!data) return res.status(200).json({
             status : 404,
             message : "User not found",
             data  : {}
@@ -750,7 +749,7 @@ const profile = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : []
@@ -770,7 +769,7 @@ const favourite = async(req,res) =>
             _id : req.user._id
         })
    
-        if(!data)  return res.status(404).json({
+        if(!data)  return res.status(200).json({
             status : 404,
             message : "user not found",
             data : {}
@@ -781,7 +780,7 @@ const favourite = async(req,res) =>
             _id : Bar
         })
    
-        if(!bardata)  return res.status(404).json({
+        if(!bardata)  return res.status(200).json({
             status : 404,
             message : "bar not found",
             data : {}
@@ -904,7 +903,7 @@ const favouritebars = async(req,res) =>{
             _id : req.user._id
         },{favouriteBars: 1})
 
-        if(!data) return res.status(404).json({
+        if(!data) return res.status(200).json({
             status : 404,
             message : "not found",
             data : {}
@@ -936,7 +935,7 @@ const favouritebars = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message :error.message,
             data  : {}
@@ -955,7 +954,7 @@ const favouriteDrinks = async(req,res) =>{
         },{favouriteDrinks: 1}).lean()
      
 
-        if(!data) return res.status(404).json({
+        if(!data) return res.status(200).json({
             status : 404,
             message : "not found",
             data : {}
@@ -1019,7 +1018,7 @@ const favouriteDrinks = async(req,res) =>{
     catch(error)
     {
         console.log(error);
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message :error.message,
             data  : {}
@@ -1059,7 +1058,7 @@ const review  = async(req,res) =>{
         })
 
  
-        if(checkReview) return res.status(409).json({
+        if(checkReview) return res.status(200).json({
             status : 409,
             message : "review already given",
         })
@@ -1153,7 +1152,7 @@ const review  = async(req,res) =>{
     catch(error)
     {
         console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1187,7 +1186,7 @@ const myOrders = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data  : []
@@ -1230,7 +1229,10 @@ const all = async(req,res) =>
     }
     catch(error)
     {
-
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+        })
     }
 }
 
@@ -1269,7 +1271,10 @@ const orders = async(req,res) =>
     }
     catch(error)
     {
-
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+        })
     }
 }
 
@@ -1302,7 +1307,7 @@ const details = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1319,7 +1324,7 @@ const setNotification = async(req,res)=>{
             data : result
         })
     } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1352,7 +1357,7 @@ const destroy = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message  : error.message,
             data : {}
