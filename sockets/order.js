@@ -193,26 +193,40 @@ const allOrders = async(bar) =>
         let orders = await order.find({
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
             bar : bar
-        }).lean()
+        }).lean();
+        console.log(orders);
+
+        let newOrderCounter = 1;
+        let preparingCounter = 1;
+        let completedCounter = 1;
+        let deliveredCounter = 1;
 
         await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
                     if(orderstatus.orderStatus == 'new')
                     {
-                        console.log(orderstatus.orderStatus)
+                        orderstatus.sequence = newOrderCounter;
                         newOrder.push(orderstatus)
+                        newOrderCounter++;
+                        
                     }
                     if(orderstatus.orderStatus == 'preparing')
                     {
+                        orderstatus.sequence = preparingCounter;
                         preparing.push(orderstatus)
+                        preparingCounter++
                     }
                     if(orderstatus.orderStatus == 'completed')
                     {
+                        orderstatus.sequence = completedCounter;
                         completed.push(orderstatus)
+                        completedCounter++;
                     }
                     if(orderstatus.orderStatus == 'delivered')
                     {
+                        orderstatus.sequence = deliveredCounter;
                         delivered.push(orderstatus)
+                        deliveredCounter++;
                     }
                 }))
         let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
