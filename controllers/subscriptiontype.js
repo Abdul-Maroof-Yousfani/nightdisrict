@@ -19,6 +19,7 @@ const store = async(req,res) =>
          await data.save();
             
          res.json({
+                status : 200,
                 message : "success",
                 data
             })

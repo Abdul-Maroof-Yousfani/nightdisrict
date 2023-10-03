@@ -58,6 +58,7 @@ const view  = async(req,res) =>
     {
         let data = await post.findById(_id);
         return res.json({
+            status : 200,
             message : "success",
             data
         })

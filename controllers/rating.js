@@ -13,6 +13,7 @@ const store = async(req,res) =>
         let data = await rating(req.body);
         data.save();
         return res.send({
+            status : 200,
             message:"Successfully Created",
             data
         })

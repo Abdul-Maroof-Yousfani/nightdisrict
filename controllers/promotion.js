@@ -32,12 +32,12 @@ const store = async(req,res) =>
 
         const { error, value } = schema.validate(req.body);
         
-        if(error) return res.status(400).json({message : error.message , data : {}})
+        if(error) return res.status(200).json({ status : 400, message : error.message , data : {}})
 
         // check if end date or either infinity is defined
         if(!infinity && !to)
         {
-            return res.status(400).json({
+            return res.status(200).json({
                 status : 400,
                 message : 'please either set enddate or an infinity for the promotion',
                 data : {}
@@ -46,7 +46,7 @@ const store = async(req,res) =>
         // if both are set in the fields
         if(infinity && to)
         {
-            return res.status(400).json({
+            return res.status(200).json({
                 status : 400,
                 message : 'please either set enddate or an infinity for the promotion',
                 data : {}
@@ -63,7 +63,7 @@ const store = async(req,res) =>
         query = to?query:{ "from" : from, "infinity" : true }
 
         let checkDateRange = await promotion.findOne(query)
-        if(checkDateRange) return res.status(409).json({message : "Promotion Already Exist" , data : {}})
+        if(checkDateRange) return res.status(200).json({ status :409, message : "Promotion Already Exist" , data : {}})
 
 
         // adding auth as bar_id
@@ -87,7 +87,7 @@ const store = async(req,res) =>
               }
               image.mv(thumbPath, error => {
                 if (error) {
-                  return res.status(400).json({
+                  return res.status(200).json({
                     status: 400,
                     error: error.message,
                     data: ""

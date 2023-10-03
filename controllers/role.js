@@ -20,6 +20,7 @@ const createRole = async(req,res) =>
         let role = await Role(req.body);
         role.save();
         return res.send({
+            status : 200,
             message:"Successfully Created",
             user:role
         })

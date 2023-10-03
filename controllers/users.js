@@ -105,16 +105,9 @@ const social = async(req,res) =>{
         return res.json({ status : 200, message : "success" , data })
 
 
-        return res.status(200).json({
-            status : 200,
-            message : error.message,
-            data : {}
-        })
-
     }
     catch(error)
     {
-        console.log(error);
         return res.status(200).json({
             status : 500,
             message : error.message
@@ -414,7 +407,7 @@ const cardDetail = async (req,res) =>{
         let { cardHolderName,cardNumber,exp_month,exp_year,CVCNumber,customerId,cardType } = req.body;
         let result = await User.findByIdAndUpdate({_id : userId} , {$set : {cardDetail : req.body}} , {new: true});
         return res.status(200).json({
-            status: "success",
+            status: 200,
             message: "Card Details Saved",
             data: result
         })
@@ -450,7 +443,7 @@ const update = async(req,res) =>
             let file = req.files.profile_picture;
             let fileName = `public/profiles/${Date.now()}-${file.name.replace(/ /g, '-').toLowerCase()}`;
             file.mv(fileName, async (err) => {
-                if (err) return res.status(400).json({ message: err.message });
+                if (err) return res.status(200).json({ status : 400,  message: err.message });
             });
             fileName = fileName.replace("public", "");
             req.body.profile_picture = fileName;
@@ -882,7 +875,6 @@ const favourite = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error)
         return res.status(200).json({
             status : 500,
             message :error.message,
@@ -1151,7 +1143,6 @@ const review  = async(req,res) =>{
     }
     catch(error)
     {
-        console.log(error)
         return res.status(200).json({
             status : 500,
             message : error.message,
