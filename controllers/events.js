@@ -29,7 +29,7 @@ const store = async(req,res) =>
             enddate : Joi.string().required(),
          });
         const { error, value } = schema.validate(req.body);
-        if(error) return res.status(400).json({
+        if(error) return res.status(200).json({
               status: 400,
               message: error.message,
               data: {}
@@ -66,7 +66,7 @@ const store = async(req,res) =>
               }
               image.mv(thumbPath, error => {
                 if (error) {
-                  return res.status(400).json({
+                  return res.status(200).json({
                     status: 400,
                     error: error.message,
                     data: ""
@@ -123,7 +123,7 @@ const update = async(req,res) =>
             enddate : Joi.string().required(),
          });
         const { error, value } = schema.validate(req.body);
-        if(error) return res.status(400).json({
+        if(error) return res.status(200).json({
               status: 400,
               message: error.message,
               data: {}
@@ -174,7 +174,7 @@ const update = async(req,res) =>
               }
               image.mv(thumbPath, error => {
                 if (error) {
-                  return res.status(400).json({
+                  return res.status(200).json({
                     status: 400,
                     error: error.message,
                     data: ""
@@ -206,7 +206,6 @@ const update = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error)
 
         res.status(200).json({
             status:500,
@@ -286,6 +285,7 @@ const view = async(req,res) =>
         }))
        
         return res.json({
+            status : 200,
             message : "success",
             data 
         })

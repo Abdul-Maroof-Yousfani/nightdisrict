@@ -132,7 +132,6 @@ function getWeekOfMonth(date) {
         },
       });
     } catch (error) {
-      console.error(error);
       res.status(200).json({
         status: 500,
         message: error.message,

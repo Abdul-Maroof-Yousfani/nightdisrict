@@ -55,10 +55,7 @@ const attendance = async(req,res) =>
         let orderData = await order.findById({
             _id : Order
         })
-        console.log(orderData);
-        return;
-
-
+ 
         let data  = await Attendance({
             event,
             order:Order,

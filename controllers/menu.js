@@ -28,7 +28,7 @@ const createMenuCat = async (req, res) => {
             const updateCat = await menuCategory.create(req.body);
 
             return res.status(200).json({
-                status: "success",
+                status: 200,
                 message: "Menu Category Updated",
                 data: updateCat
             })
@@ -65,7 +65,7 @@ const createMenu = async (req, res) => {
                 for (let i = 0; i < file.length; i++) {
                     let fileNameNew = `public/menu/${Date.now()}-${file[i].name.replace(/ /g, '-').toLowerCase()}`;
                     file[i].mv(fileNameNew, async (err) => {
-                        if (err) return res.status(400).json({ message: err.message });
+                        if (err) return res.status(400).json({status : 400, message: err.message });
                     });
                     fileNameNew = fileNameNew.replace("public", "");
                     req.body.galleryImages.push({ 'path': fileNameNew });
@@ -74,7 +74,7 @@ const createMenu = async (req, res) => {
             const menu = await Menu.create(req.body);
 
             return res.status(200).json({
-                status: "success",
+                status: 200,
                 message: "Menu Created",
                 data: menu
             })

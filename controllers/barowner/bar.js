@@ -76,7 +76,7 @@ const barProfile = async (req, res) => {
         let barInfo = await Bar.create(req.body);
         barInfo.result = await User.findByIdAndUpdate(userId, { $set: { barInfo: barInfo._id } }, { new: true });
         return res.status(200).json({
-            status: "success",
+            status: 200,
             message: "Bar Info Updated",
             data: barInfo
         })
@@ -119,7 +119,7 @@ const barInfo = async (req, res) => {
 
 
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(400).json({ message: error.message, data: {} })
+        if (error) return res.status(200).json({ status:400, message: error.message, data: {} })
 
 
         // add location here
@@ -207,7 +207,6 @@ const barInfo = async (req, res) => {
         })
 
     } catch (error) {
-        console.log(error)
         return res.status(200).json({
             status : 500,
             message: "error",
@@ -490,7 +489,7 @@ const addItem = async (req, res) => {
             variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(400).json({ message: error.message, data: {} })
+        if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
         if (type) {
             // add item to the main Menu
@@ -612,7 +611,6 @@ const addItem = async (req, res) => {
         return res.json({status: 200 , message: "success", data })
     }
     catch (error) {
-        console.log(error);
         return res.status(200).json({ status: 500 , message: error.message })
     }
 
@@ -639,7 +637,7 @@ const favouriteitem  = async(req,res) =>
     }
     catch(error)
     {
-
+        res.status(200).json({ status : 500 , message : error.message , data :{}  })
     }
 }
 
@@ -673,6 +671,7 @@ const selectCategory = async (req, res) => {
         //     return item
         // }));
         return res.json({
+            status : 200,
             message: "success",
             data
         })
@@ -794,7 +793,7 @@ const view = async (req, res) => {
     try {
 
         let data = await order.findOne({ _id }).lean();
-        if (!data) return res.status(404).json({ status: 404, message: "success", data: {} })
+        if (!data) return res.status(200).json({ status: 404, message: "success", data: {} })
 
         //  fetch items of the order
 
@@ -861,7 +860,7 @@ const items = async(req,res) =>
         })) 
         if(!data)
         {
-            return res.status(404).json({
+            return res.status(200).json({
                 status : 404,
                 message : "Not Found",
                 data: []

@@ -246,6 +246,7 @@ const update = async(req,res) =>
       // await data.save();
 
       return res.json({
+          status : 200,
           message : "success",
           data
       })
@@ -253,7 +254,6 @@ const update = async(req,res) =>
   }
   catch(error)
   {
-      console.log(error)
       res.status(200).json({
           status : 500,
           message: error.message,
