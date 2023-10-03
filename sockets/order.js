@@ -229,7 +229,7 @@ const allOrders = async (bar) => {
             newOrder: newOrder,
             preparing: preparing,
             completed: completed,
-            delivered: delivered
+            delivered: getDeliveredOrders
         };
         return data;
     } catch (error) {
