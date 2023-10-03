@@ -147,7 +147,7 @@ const barInfo = async (req, res) => {
         // check if Bar exists
 
         let checkBar = await bar.findOne({ _id: mongoose.Types.ObjectId(barId) }).lean()
-        if (!checkBar) return res.status(404).json({ message: "Record not found", data: {} })
+        if (!checkBar) return res.status(200).json({ status:404, message: "Record not found", data: {} })
 
 
 
@@ -164,7 +164,7 @@ const barInfo = async (req, res) => {
 
             if(!helpers.fileValidation(doc,/(\.pdf|\.docx)$/i))
             {
-                return res.status(400).json({
+                return res.status(200).json({
                     status : 400,
                     message : "File Must of Type PDF / DOCX",
                     data : {}
@@ -200,14 +200,15 @@ const barInfo = async (req, res) => {
 
 
         return res.status(200).json({
-            status: "success",
+            status: 200,
             message: "Bar Info Updated",
             data: barInfo
         })
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: "error",
             data: error.message
         })
@@ -240,13 +241,14 @@ const detailInfo = async (req, res) => {
         },
             { new: true });
         return res.status(200).json({
-            status: "success",
+            status: 200,
             message: "Bar Info Updated",
             data: barInfo
         })
 
     } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: "error",
             data: error.message
         })
@@ -417,13 +419,14 @@ const updateBarInfo = async (req, res) => {
 
         let barInfo = await Bar.findByIdAndUpdate({ _id: barId }, { $set: body }, { new: true });
         return res.status(200).json({
-            status: "success",
+            status: 200,
             message: "All Bar Info Updated",
             data: barInfo
         })
 
     } catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: "error",
             data: error.message
         })
@@ -460,7 +463,7 @@ const getBarGeometry = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : []
@@ -600,7 +603,7 @@ const addItem = async (req, res) => {
 
         }
         if (!menu) {
-            return res.status(400).json({ status: 400, message: "Menu is required", data: {} })
+            return res.status(200).json({ status: 400, message: "Menu is required", data: {} })
         }
         let data = await menu.insertMany(req.body.menu)
         // await data.save()
@@ -609,7 +612,7 @@ const addItem = async (req, res) => {
     }
     catch (error) {
         console.log(error);
-        return res.status(500).json({ status: 500 , message: error.message })
+        return res.status(200).json({ status: 500 , message: error.message })
     }
 
 }
@@ -627,7 +630,7 @@ const favouriteitem  = async(req,res) =>
             
         })
 
-        if(!itemCheck) return res.status(404).json({ status : 404 , message : "Item not found" , data :{}  })
+        if(!itemCheck) return res.status(200).json({ status : 404 , message : "Item not found" , data :{}  })
 
         // now add Favourite item to the favourite
 
@@ -674,7 +677,8 @@ const selectCategory = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
         })
@@ -742,7 +746,7 @@ const orders = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: []
@@ -775,7 +779,7 @@ const tips = async (req, res) => {
 
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: "error",
             data: []
@@ -829,7 +833,7 @@ const view = async (req, res) => {
 
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: "failed",
             data: {}
@@ -870,7 +874,7 @@ const items = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : []
@@ -899,7 +903,7 @@ const show = async(req,res) =>{
     catch(error)
     {
 
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message  : error.message,
             data  : {}
@@ -935,7 +939,7 @@ const events = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message :error.message,
             data : []
@@ -971,7 +975,7 @@ const promotions = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message :error.message,
             data : []
@@ -996,7 +1000,7 @@ const Menu = async(req,res) =>
         });
         
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(400).json({ status : 400, message: error.message, data: {} })
+        if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
       
 
@@ -1044,8 +1048,7 @@ const Menu = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error);
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data :  []
@@ -1067,7 +1070,7 @@ const update = async (req, res) => {
             variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(400).json({ message: error.message, data: {} })
+        if (error) return res.status(200).json({ status:400, message: error.message, data: {} })
 
         // check menu exists
 
@@ -1203,7 +1206,7 @@ const update = async (req, res) => {
 
         }
         if (!menu) {
-            return res.status(400).json({ status: 400, message: "Menu is required", data: {} })
+            return res.status(200).json({ status: 400, message: "Menu is required", data: {} })
         }
         let data = await menu.insertMany(req.body.menu)
         // await data.save()
@@ -1212,7 +1215,7 @@ const update = async (req, res) => {
     }
     catch (error) {
         console.log(error);
-        return res.status(500).json({ status: 500 , message: error.message })
+        return res.status(200).json({ status: 500 , message: error.message })
     }
 
 }
@@ -1329,7 +1332,7 @@ const home = async(req,res) =>
     catch(error)
     {
         console.log(error)
-        res.status(500).json({
+        res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1448,7 +1451,7 @@ const app = async(req,res) =>
     catch(error)
     {
         console.log(error)
-        res.status(500).json({
+        res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1535,7 +1538,7 @@ const web = async(req,res) =>
     catch(error)
     {
         console.log(error)
-        res.status(500).json({
+        res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1703,7 +1706,7 @@ const analytics = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -1751,7 +1754,7 @@ const all = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data   : {}
@@ -1839,7 +1842,7 @@ const getBarStats = async(req,res) =>
     catch(error)
     {
         console.log(error.message);
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -2006,7 +2009,7 @@ const analyticsByBarId = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}
@@ -2034,7 +2037,7 @@ const suspendRespond = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status  : 500,
             message : error.message,
             data : {}
