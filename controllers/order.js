@@ -13,7 +13,7 @@ import ticket from '../models/ticket.js';
 import QRCode from 'qrcode';
 import order from '../models/order.js';
 import payments from '../models/payments.js';
-
+import allOrders from '../sockets/order.js';
 import orderSocket from '../sockets/order.js';
 
 const store = async (req, res) => {
@@ -21,6 +21,10 @@ const store = async (req, res) => {
     let paymentCode, cardId;
     let orderNo = Math.floor(Math.random() * 10000000);
     try {
+
+
+      
+
         const orderSchema = Joi.object({
             subscriptionType: Joi.string().required(),
             items: Joi.array().required(),
@@ -104,39 +108,40 @@ const store = async (req, res) => {
 
         if(paymentCode == "buy_drink"){
             const socket = orderSocket.getIoInstance();
-        let newOrder = [];
-        let preparing = [];
-        let completed = [];
-        let delivered = [];
+        // let newOrder = [];
+        // let preparing = [];
+        // let completed = [];
+        // let delivered = [];
 
         // adding socket data here
 
-        let orders = await order.find({ bar: orderData.bar ,
-            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
-        }).lean()
-        await Promise.all(orders.map(async(e) =>{
-                    let orderstatus = await helpers.getOrderById(e);
+        // let orders = await order.find({ bar: orderData.bar ,
+        //     subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
+        // }).lean()
+        // await Promise.all(orders.map(async(e) =>{
+        //             let orderstatus = await helpers.getOrderById(e);
 
-                    if(orderstatus.orderStatus == 'new')
-                    {
-                        console.log(orderstatus.orderStatus)
-                        newOrder.push(orderstatus)
-                    }
-                    if(orderstatus.orderStatus == 'preparing')
-                    {
-                        preparing.push(orderstatus)
-                    }
-                    if(orderstatus.orderStatus == 'completed')
-                    {
-                        completed.push(orderstatus)
-                    }
-                    if(orderstatus.orderStatus == 'delivered')
-                    {
-                        delivered.push(orderstatus)
-                    }
-                }))
-        let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+        //             if(orderstatus.orderStatus == 'new')
+        //             {
+        //                 newOrder.push(orderstatus)
+        //             }
+        //             if(orderstatus.orderStatus == 'preparing')
+        //             {
+        //                 preparing.push(orderstatus)
+        //             }
+        //             if(orderstatus.orderStatus == 'completed')
+        //             {
+        //                 completed.push(orderstatus)
+        //             }
+        //             if(orderstatus.orderStatus == 'delivered')
+        //             {
+        //                 delivered.push(orderstatus)
+        //             }
+        //         }))
+        let data = await allOrders.allOrders(orderData.bar);
         socket.emit('orders',data);
+        
+        
         }
 
         

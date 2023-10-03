@@ -982,6 +982,8 @@ const getPromotionItems = async(bar,item) =>
 const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     try
     {
+        console.log(`item ${id}`)
+        console.log(`bar ${bar._id}`)
         let data = await menu.findOne({
             item : id,
             barId : bar

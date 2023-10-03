@@ -194,7 +194,6 @@ const allOrders = async(bar) =>
             subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
             bar : bar
         }).lean();
-        console.log(orders);
 
         let newOrderCounter = 1;
         let preparingCounter = 1;
@@ -557,4 +556,4 @@ function initOrder() {
 }
 
 export default { initOrder,
-    getIoInstance };
+    getIoInstance,allOrders };
