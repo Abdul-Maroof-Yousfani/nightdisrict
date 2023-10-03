@@ -345,12 +345,12 @@ const parentCategory2 = async (req, res) => {
 
 
         return res.json({
+            status: 200,
             message: "success",
             data
         })
     }
     catch (error) {
-        console.log(error)
         return res.status(200).json({
             status : 500,
             message: error.message,
