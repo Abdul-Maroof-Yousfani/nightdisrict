@@ -19,7 +19,7 @@ const store = async (req, res) => {
             parent: Joi.string()
         });
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(403).json({
+        if (error) return res.status(200).json({
             status: 400,
             message: error.message,
             data: {}
@@ -28,7 +28,7 @@ const store = async (req, res) => {
 
         if (parent) {
             let checkParent = await menuCategory.findById({ _id: mongoose.Types.ObjectId(parent) });
-            if (!checkParent) return res.status(404).json({ message: "Parent Category Does not Exist", data: {} })
+            if (!checkParent) return res.status(200).json({ status:400, message: "Parent Category Does not Exist", data: {} })
         }
 
         // if title already exists
@@ -38,7 +38,7 @@ const store = async (req, res) => {
             //  assign category to the Parent Category 
 
 
-            return res.status(409).json({ message: "Title Already Exists", data: {} })
+            return res.status(200).json({ status:403, message: "Title Already Exists", data: {} })
         }
 
 
@@ -55,7 +55,7 @@ const store = async (req, res) => {
             }
             image.mv(imageNameOne, error => {
                 if (error) {
-                    return res.status(400).json({
+                    return res.status(200).json({
                         status: 400,
                         error: error.message,
                         data: ""
@@ -76,7 +76,8 @@ const store = async (req, res) => {
 
     }
     catch (error) {
-        res.status(500).json({
+        res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
         })
@@ -124,12 +125,14 @@ const index = async (req, res) => {
 
 
         return res.json({
+            status : 200,
             message: "success",
             data
         })
     }
     catch (error) {
-        return res.status(500).json({
+        res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
         })
@@ -152,7 +155,7 @@ const update = async (req, res) => {
             }
             image.mv(thumbPath, error => {
                 if (error) {
-                    return res.status(400).json({
+                    return res.status(200).json({
                         status: 400,
                         error: error.message,
                         data: ""
@@ -196,7 +199,7 @@ const update = async (req, res) => {
 
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: {}
@@ -348,7 +351,8 @@ const parentCategory2 = async (req, res) => {
     }
     catch (error) {
         console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
         })
@@ -515,7 +519,8 @@ const parentCategory = async (req, res) => {
     }
     catch (error) {
         console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
         })
@@ -545,7 +550,7 @@ const getCategoryBasedItems = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: {}
@@ -564,7 +569,7 @@ const show = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: []
@@ -584,7 +589,7 @@ const category = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message :error.message,
             data : []
