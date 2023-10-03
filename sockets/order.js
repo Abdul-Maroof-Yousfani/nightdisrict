@@ -195,38 +195,35 @@ const allOrders = async(bar) =>
             bar : bar
         }).lean();
 
-        let newOrderCounter = 1;
-        let preparingCounter = 1;
-        let completedCounter = 1;
-        let deliveredCounter = 1;
+        let orderCounter = 1;
+     
 
         await Promise.all(orders.map(async(e) =>{
                     let orderstatus = await helpers.getOrderById(e);
                     if(orderstatus.orderStatus == 'new')
                     {
-                        orderstatus.sequence = newOrderCounter;
+                        orderstatus.sequence = orderCounter;
                         newOrder.push(orderstatus)
-                        newOrderCounter++;
                         
                     }
                     if(orderstatus.orderStatus == 'preparing')
                     {
-                        orderstatus.sequence = preparingCounter;
+                        orderstatus.sequence = orderCounter;
                         preparing.push(orderstatus)
-                        preparingCounter++
                     }
                     if(orderstatus.orderStatus == 'completed')
                     {
-                        orderstatus.sequence = completedCounter;
+                        orderstatus.sequence = orderCounter;
                         completed.push(orderstatus)
-                        completedCounter++;
                     }
                     if(orderstatus.orderStatus == 'delivered')
                     {
-                        orderstatus.sequence = deliveredCounter;
+                        orderstatus.sequence = orderCounter;
                         delivered.push(orderstatus)
-                        deliveredCounter++;
                     }
+
+                    orderCounter++;
+
                 }))
         let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
         return data;
