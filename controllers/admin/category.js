@@ -513,6 +513,7 @@ const parentCategory = async (req, res) => {
 
 
         return res.json({
+            status : 200,
             message: "success",
             data
         })
@@ -533,8 +534,8 @@ const getCategoryBasedItems = async (req, res) => {
             category: Joi.string().required()
         });
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(403).json({
-            status: 400,
+        if (error) return res.status(200).json({
+            status: 403,
             message: error.message,
             data: {}
         })
