@@ -43,7 +43,8 @@ const store = async(req,res) =>
     }
     catch(error)
     {
-        res.status(500).json({
+        res.status(200).json({
+            status : 200,
             message: error.message,
             data: {}
         })

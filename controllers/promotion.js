@@ -130,7 +130,7 @@ const store = async(req,res) =>
     }
     catch(error)
     {
-        return res.status(500).json({ message : error.message , data : {} })
+        return res.status(200).json({ status : 500,message : error.message , data : {} })
     }
 }
 const update = async(req,res) =>

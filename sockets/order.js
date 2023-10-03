@@ -174,7 +174,7 @@ const addReview = async(req) =>
     catch(error)
     {
         console.log(error)
-        return res.status(500).json({
+        return res.status(200).json({
             status : 500,
             message : error.message,
             data : {}

@@ -52,7 +52,8 @@ const checkPaymentType = async(code) =>
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
+            status : 500,
           message : "",
           data : {}
         })

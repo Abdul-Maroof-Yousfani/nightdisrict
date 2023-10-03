@@ -35,7 +35,7 @@ const home = async(req,res) =>
     catch(error)
     {
         console.log(error.message)
-        return res.status(500).json({
+        return res.status(200).json({
             status:500,
             message : error.message,
             data : {}
@@ -133,7 +133,7 @@ function getWeekOfMonth(date) {
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
+      res.status(200).json({
         status: 500,
         message: error.message,
         data: {}
@@ -182,7 +182,7 @@ const inquiries = async (req, res) => {
         })
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data
@@ -202,7 +202,7 @@ const updateInquiry = async (req, res) => {
 
     }
     catch (error) {
-        return res.status(500).json({
+        return res.status(200).json({
             status: 500,
             message: error.message,
             data: {}

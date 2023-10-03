@@ -37,7 +37,7 @@ const store = async(req,res) =>
             // subCategory: Joi.string().required(),
          });
         const { error, value } = schema.validate(req.body);
-        if(error) return res.status(403).json({
+        if(error) return res.status(200).json({
               status: 403,
               message: error.message,
               data: {}
@@ -48,7 +48,7 @@ const store = async(req,res) =>
         // if title already exists
 
         let checkTitle = await superMenu.findOne({menu_name});
-        if(checkTitle) return res.status(409).json({ status:409, message : "Title Already Exists" , data : {}})
+        if(checkTitle) return res.status(200).json({ status:409, message : "Title Already Exists" , data : {}})
 
 
 
@@ -71,7 +71,7 @@ const store = async(req,res) =>
                   }
                 image.mv(imageNameOne, error => {
                     if (error) {
-                      return res.status(400).json({
+                      return res.status(200).json({
                         status: 400,
                         error: error.message,
                         data: ""
@@ -135,7 +135,8 @@ const store = async(req,res) =>
     }
     catch(error)
     {
-        res.status(500).json({
+        res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
         })
@@ -161,7 +162,7 @@ const update = async(req,res) =>
           // subCategory: Joi.string().required(),
        });
       const { error, value } = schema.validate(req.body);
-      if(error) return res.status(403).json({
+      if(error) return res.status(200).json({
             status: 403,
             message: error.message,
             data: {}
@@ -195,7 +196,7 @@ const update = async(req,res) =>
                 }
                 image.mv(imageNameOne, error => {
                   if (error) {
-                    return res.status(400).json({
+                    return res.status(200).json({
                       status: 400,
                       error: error.message,
                       data: ""
@@ -253,7 +254,8 @@ const update = async(req,res) =>
   catch(error)
   {
       console.log(error)
-      res.status(500).json({
+      res.status(200).json({
+          status : 500,
           message: error.message,
           data: {}
       })
@@ -302,7 +304,7 @@ const index = async(req,res) =>
     }
     catch(error)
     {
-        res.status(500).json({
+        res.status(200).json({
             status : 500,
             message: error.message,
             data: {}
@@ -339,7 +341,7 @@ const show = async(req,res) =>{
     }
     catch(error)
     {
-        return res.status(500).json({
+        return res.status(200).json({
           status : 500,
           message : error.message,
           data:{}
