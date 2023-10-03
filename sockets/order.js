@@ -182,59 +182,54 @@ const addReview = async(req) =>
     }
 }
 
-const allOrders = async(bar) =>
-{
-    try
-    {
-        let newOrder = []
-        let preparing = []
-        let completed = []
-        let delivered = []
-        let orders = await order.find({
-            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-            bar : bar
-        }).lean();
+const allOrders = async (bar) => {
+    try {
+        let newOrder = [];
+        let preparing = [];
+        let completed = [];
+        let delivered = [];
+
+        let orders = await order
+            .find({
+                subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+                bar: bar
+            })
+            .sort({ createdAt: 1 })
+            .lean();
 
         let orderCounter = 1;
-     
 
-        await Promise.all(orders.map(async(e) =>{
-                    let orderstatus = await helpers.getOrderById(e);
-                    if(orderstatus.orderStatus == 'new')
-                    {
-                        orderstatus.sequence = orderCounter;
-                        newOrder.push(orderstatus)
-                        
-                    }
-                    if(orderstatus.orderStatus == 'preparing')
-                    {
-                        orderstatus.sequence = orderCounter;
-                        preparing.push(orderstatus)
-                    }
-                    if(orderstatus.orderStatus == 'completed')
-                    {
-                        orderstatus.sequence = orderCounter;
-                        completed.push(orderstatus)
-                    }
-                    if(orderstatus.orderStatus == 'delivered')
-                    {
-                        orderstatus.sequence = orderCounter;
-                        delivered.push(orderstatus)
-                    }
+        // Process orders in ascending order of createdAt
+        for (const e of orders) {
+            let orderstatus = await helpers.getOrderById(e);
+            orderstatus.sequence = orderCounter;
 
-                    orderCounter++;
+            if (orderstatus.orderStatus == 'new') {
+                newOrder.push(orderstatus);
+            } else if (orderstatus.orderStatus == 'preparing') {
+                preparing.push(orderstatus);
+            } else if (orderstatus.orderStatus == 'completed') {
+                completed.push(orderstatus);
+            } else if (orderstatus.orderStatus == 'delivered') {
+                delivered.push(orderstatus);
+            }
 
-                }))
-        let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
+            orderCounter++;
+        }
+
+        let data = {
+            newOrder: newOrder,
+            preparing: preparing,
+            completed: completed,
+            delivered: delivered
+        };
         return data;
+    } catch (error) {
+        return error.message;
     }
-    catch(error)
-    {
-        return error.message
-    }
-    
+};
 
-}
+
 
 let io;
 
