@@ -192,10 +192,18 @@ const allOrders = async (bar) => {
         let orders = await order
             .find({
                 subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-                bar: bar
+                bar: bar,
+                orderStatus: { $ne: 'delivered' }
             })
             .sort({ createdAt: 1 })
             .lean();
+        let getDeliveredOrders = await order
+        .find({
+            subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            bar: bar,
+            orderStatus: 'delivered'
+        })
+        .sort({ createdAt: 1 })
 
         let orderCounter = 1;
 
