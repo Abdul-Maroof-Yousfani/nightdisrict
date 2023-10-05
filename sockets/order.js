@@ -207,9 +207,10 @@ const allOrders = async (bar) => {
 
         // update deliveredOrders data
 
-        getDeliveredOrders = await Promise.all( async(deliver) =>{
+        getDeliveredOrders = await Promise.all( getDeliveredOrders.map(async(deliver)=>{
             return await helpers.getOrderById(deliver);
-        })
+
+        }))
 
         let orderCounter = 1;
 
