@@ -203,7 +203,13 @@ const allOrders = async (bar) => {
             bar: bar,
             orderStatus: 'delivered'
         })
-        .sort({ createdAt: 1 })
+        .sort({ createdAt: 1 }).lean()
+
+        // update deliveredOrders data
+
+        getDeliveredOrders = await Promise.all( async(deliver) =>{
+            return await helpers.getOrderById(deliver);
+        })
 
         let orderCounter = 1;
 
