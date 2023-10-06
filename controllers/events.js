@@ -305,6 +305,15 @@ const single = async(req,res) =>
     let {_id}  = req.params
     try
     {
+        let checkEvent = await event.findById(_id);
+        if(!checkEvent)
+        {
+            return res.json({
+                status : 404,
+                message : "Event Not Found",
+                data  : {}
+            })
+        }
         let data = await helpers.getEventById(_id);
         
        
@@ -316,6 +325,7 @@ const single = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error.message);
         return res.status(200).json({
             status : 500,
             message : error.message,
