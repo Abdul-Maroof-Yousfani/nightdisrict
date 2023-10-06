@@ -299,6 +299,30 @@ const view = async(req,res) =>
         })
     }
 }
+
+const single = async(req,res) =>
+{
+    let {_id}  = req.params
+    try
+    {
+        let data = await helpers.getEventById(_id);
+        
+       
+        return res.json({
+            status : 200,
+            message : "success",
+            data 
+        })
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+            data  : []
+        })
+    }
+}
 // 
 const nearby = async(req,res) =>{
     let {longitude,latitude}  = req.body;
@@ -382,5 +406,6 @@ export  default{
     index,
     view,
     nearby,
-    tickets
+    tickets,
+    single
 }

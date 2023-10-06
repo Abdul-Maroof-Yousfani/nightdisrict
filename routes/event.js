@@ -16,6 +16,7 @@ router.post("/" ,[auth.verifyAuthToken,admin], event.store);
 router.put("/:id" ,[auth.verifyAuthToken,admin], event.update);
 router.get("/" ,[auth.verifyAuthToken,admin], event.index);
 router.get("/:_id" , event.view);
+router.get("/single/:_id" , event.single);
 
 
 
