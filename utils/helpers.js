@@ -362,7 +362,7 @@ const bestSellingDrink = async() =>
 const getBarData = async(id) => {
     try
     {
-        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating": 1 , "geometry" : 1}).lean();
+        let data = await bar.findById(id).select({ "barName": 1 , "location" : 1 , "upload_logo" : 1 ,  "address" : 1, "rating": 1 , "geometry" : 1 , "active" : 1}).lean();
         return data;
     }
     catch(error)
