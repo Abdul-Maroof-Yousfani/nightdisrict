@@ -197,6 +197,7 @@ const allOrders = async (bar) => {
             })
             .sort({ createdAt: 1 })
             .lean();
+
         let getDeliveredOrders = await order
         .find({
             subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
@@ -217,10 +218,20 @@ const allOrders = async (bar) => {
         // Process orders in ascending order of createdAt
         for (const e of orders) {
             let orderstatus = await helpers.getOrderById(e);
-            orderstatus.sequence = orderCounter;
-
+        
             if (orderstatus.orderStatus == 'new') {
-                newOrder.push(orderstatus);
+                // Check if there are unprepared orders and if so, assign the sequence to the first unprepared order
+                if (preparing.length === 0) {
+                    orderstatus.sequence = orderCounter;
+                } else {
+                    // Find the first unprepared order and assign the sequence to it
+                    for (const unpreparedOrder of orders) {
+                        if (unpreparedOrder.orderStatus !== 'preparing') {
+                            unpreparedOrder.sequence = orderCounter;
+                            break; // Exit the loop once we've assigned the sequence
+                        }
+                    }
+                }
             } else if (orderstatus.orderStatus == 'preparing') {
                 preparing.push(orderstatus);
             } else if (orderstatus.orderStatus == 'completed') {
@@ -228,7 +239,7 @@ const allOrders = async (bar) => {
             } else if (orderstatus.orderStatus == 'delivered') {
                 delivered.push(orderstatus);
             }
-
+        
             orderCounter++;
         }
 
