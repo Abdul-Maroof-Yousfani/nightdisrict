@@ -214,34 +214,37 @@ const allOrders = async (bar) => {
         }))
 
         let orderCounter = 1;
+let newOrderCounter = 1;
 
-        // Process orders in ascending order of createdAt
-        for (const e of orders) {
-            let orderstatus = await helpers.getOrderById(e);
-        
-            if (orderstatus.orderStatus == 'new') {
-                // Check if there are unprepared orders and if so, assign the sequence to the first unprepared order
-                if (preparing.length === 0) {
-                    orderstatus.sequence = orderCounter;
-                } else {
-                    // Find the first unprepared order and assign the sequence to it
-                    for (const unpreparedOrder of orders) {
-                        if (unpreparedOrder.orderStatus !== 'preparing') {
-                            unpreparedOrder.sequence = orderCounter;
-                            break; // Exit the loop once we've assigned the sequence
-                        }
-                    }
+// Process orders in ascending order of createdAt
+for (const e of orders) {
+    let orderstatus = await helpers.getOrderById(e);
+
+    if (orderstatus.orderStatus == 'new') {
+        if (preparing.length === 0) {
+            // No orders are preparing, so assign a new sequence
+            orderstatus.sequence = newOrderCounter;
+            newOrderCounter++;
+        } else {
+            // Find the first unprepared order and assign the sequence to it
+            for (const unpreparedOrder of orders) {
+                if (unpreparedOrder.orderStatus !== 'preparing') {
+                    unpreparedOrder.sequence = orderCounter;
+                    break; // Exit the loop once we've assigned the sequence
                 }
-            } else if (orderstatus.orderStatus == 'preparing') {
-                preparing.push(orderstatus);
-            } else if (orderstatus.orderStatus == 'completed') {
-                completed.push(orderstatus);
-            } else if (orderstatus.orderStatus == 'delivered') {
-                delivered.push(orderstatus);
             }
-        
-            orderCounter++;
         }
+        newOrder.push(orderstatus);
+    } else if (orderstatus.orderStatus == 'preparing') {
+        preparing.push(orderstatus);
+    } else if (orderstatus.orderStatus == 'completed') {
+        completed.push(orderstatus);
+    } else if (orderstatus.orderStatus == 'delivered') {
+        delivered.push(orderstatus);
+    }
+
+    orderCounter++;
+}
 
         let data = {
             newOrder: newOrder,
@@ -249,6 +252,7 @@ const allOrders = async (bar) => {
             completed: completed,
             delivered: getDeliveredOrders
         };
+        console.log(data);
         return data;
     } catch (error) {
         return error.message;
