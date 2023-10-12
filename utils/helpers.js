@@ -1028,6 +1028,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         // check if item is in the Discount List
 
         data.discount = await getPromotionItems(bar,id)
+        data.orderedMixtures = []
 
         data.superItem = id
         if(data.reviews)
