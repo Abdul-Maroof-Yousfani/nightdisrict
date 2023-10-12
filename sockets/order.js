@@ -182,12 +182,15 @@ const addReview = async(req) =>
     }
 }
 
+let reservedOrder = [];
+
 const allOrders = async (bar) => {
     try {
         let newOrder = [];
         let preparing = [];
         let completed = [];
         let delivered = [];
+        
 
         let orders = await order
             .find({
@@ -197,7 +200,6 @@ const allOrders = async (bar) => {
             })
             .sort({ createdAt: 1 })
             .lean();
-
         let getDeliveredOrders = await order
         .find({
             subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
@@ -214,37 +216,24 @@ const allOrders = async (bar) => {
         }))
 
         let orderCounter = 1;
-let newOrderCounter = 1;
 
-// Process orders in ascending order of createdAt
-for (const e of orders) {
-    let orderstatus = await helpers.getOrderById(e);
+        // Process orders in ascending order of createdAt
+        for (const e of orders) {
+            let orderstatus = await helpers.getOrderById(e);
+            orderstatus.sequence = orderCounter;
 
-    if (orderstatus.orderStatus == 'new') {
-        if (preparing.length === 0) {
-            // No orders are preparing, so assign a new sequence
-            orderstatus.sequence = newOrderCounter;
-            newOrderCounter++;
-        } else {
-            // Find the first unprepared order and assign the sequence to it
-            for (const unpreparedOrder of orders) {
-                if (unpreparedOrder.orderStatus !== 'preparing') {
-                    unpreparedOrder.sequence = orderCounter;
-                    break; // Exit the loop once we've assigned the sequence
-                }
+            if (orderstatus.orderStatus == 'new') {
+                newOrder.push(orderstatus);
+            } else if (orderstatus.orderStatus == 'preparing') {
+                preparing.push(orderstatus);
+            } else if (orderstatus.orderStatus == 'completed') {
+                completed.push(orderstatus);
+            } else if (orderstatus.orderStatus == 'delivered') {
+                delivered.push(orderstatus);
             }
-        }
-        newOrder.push(orderstatus);
-    } else if (orderstatus.orderStatus == 'preparing') {
-        preparing.push(orderstatus);
-    } else if (orderstatus.orderStatus == 'completed') {
-        completed.push(orderstatus);
-    } else if (orderstatus.orderStatus == 'delivered') {
-        delivered.push(orderstatus);
-    }
 
-    orderCounter++;
-}
+            orderCounter++;
+        }
 
         let data = {
             newOrder: newOrder,
@@ -252,7 +241,6 @@ for (const e of orders) {
             completed: completed,
             delivered: getDeliveredOrders
         };
-        console.log(data);
         return data;
     } catch (error) {
         return error.message;
@@ -436,6 +424,11 @@ function initOrder() {
                         active : orderStatus.orderStatus == 'completed'? true : false
                      },
                 ];
+
+                if(response.status == 'delivered')
+                {
+                    reservedOrder.push(response.sequence)
+                }
                 
                 socket.emit('orderStatus',newData);
                 socket.broadcast.emit('orderStatus', newData);

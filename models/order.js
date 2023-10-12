@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 const orderSchema = new mongoose.Schema({
     subscriptionType:{
         type: mongoose.Schema.Types.ObjectId,
@@ -30,6 +30,20 @@ const orderSchema = new mongoose.Schema({
                 type : mongoose.Schema.Types.ObjectId,
                 default:null
             },
+            mixers : [{
+                mixerName : {
+                    type : String,
+                    default : ""
+                },
+                item : {
+                    type : mongoose.Types.ObjectId,
+                    default  : null
+                },
+                price : {
+                    type : Number,
+                    default : 0
+                }
+            }],
 
             price : {
                 type : Number,

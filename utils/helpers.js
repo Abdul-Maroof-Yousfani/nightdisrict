@@ -764,7 +764,6 @@ const getOrderById = async(data) => {
         let orderReviews = await reviews.findOne({
             Order : data._id
         }).lean();
-        console.log(orderReviews)
         if(orderReviews)
         {
             data.review = await getBasicReview(orderReviews)
@@ -778,14 +777,16 @@ const getOrderById = async(data) => {
         // get items details in order
 
         data.items = await Promise.all(data.items.map(async(e) =>{
+            e.orderedMixtures = [];
             if(data.subscriptionType == 'buy_ticket')
             {
                 return await getEventById(e.item)
             }
             else if(data.subscriptionType == 'buy_drink')
             {
-    
-                return await getItemById(e.item,data.bar,e.variant,e.qty)
+                let orderData = await getItemById(e.item,data.bar,e.variant,e.qty)
+                orderData.orderedMixtures = e.mixers
+                return orderData;
             }
             else if(data.subscriptionType == 'promotion')
             {
@@ -937,7 +938,42 @@ const createCategory = async(data) =>
     }
 }
 
+const getMixers = async(bar) =>
+{
+    try
+    {
+        let data = await menu.find({
+            category :  "6527a023371d578188d60efa",
+            barId : "651e60520fd5ae69025bd602"
+        }).select({item:1 , variation : 1}).limit(10).lean()
+        data = await Promise.all(data.map(async(e) =>{
 
+            let itemDat = await superMenu.findById({
+                _id : e.item
+            }).select({
+                price : 1,
+                menu_name  :1,
+                description : 1,
+                
+            }).lean()
+            e.superItem = e.item;
+            e.price = e.variation[0].price;
+            e.menu_name = itemDat.menu_name;
+            e.description = itemDat.description;
+
+            delete e.item
+            delete e.variation
+
+
+            return e;
+        }))
+        return data
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
 
 
 const getItemById2 =  async(id) =>
@@ -983,8 +1019,7 @@ const getPromotionItems = async(bar,item) =>
 const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     try
     {
-        console.log(`item ${id}`)
-        console.log(`bar ${bar._id}`)
+
         let data = await menu.findOne({
             item : id,
             barId : bar
@@ -1023,13 +1058,20 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         data.min = data.variation[0].price;
         data.max = data.variation[data.variation.length -1].price;
         data.barDetail = await getBarData(bar);
-        
+        data.mixers = [];
+        data.boughtMixers;
 
            // // update category and Subcateogry
         if(data.category)
         {
             let category = await menuCategory.findOne({_id :data.category })
             data.category = category
+
+            if(category.name == 'Beer')
+            {
+                data.mixers = await getMixers(bar);
+            }
+
         }
         
         if(data.subCategory)
@@ -1056,8 +1098,8 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
 
         
         delete data.item;
-
-
+        
+        
 
         data.variation = await Promise.all(data.variation.map(async(e) =>{
             let itemTypes = await pourtype.findById({_id : e.variant}).lean()
@@ -1073,7 +1115,6 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     }
     catch(error)
     {
-        console.log(error);
         return error.message
     }
 }
