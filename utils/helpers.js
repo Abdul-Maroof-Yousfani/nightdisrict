@@ -958,7 +958,7 @@ const getMixers = async(bar) =>
             }).lean()
             e.superItem = e.item;
             e.price = e.variation[0].price;
-            e.menu_name = itemDat.menu_name;
+            e.name = itemDat.menu_name;
             e.description = itemDat.description;
 
             delete e.item
