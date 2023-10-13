@@ -657,6 +657,8 @@ const profile = async(req,res) =>{
     try
     {
         const schema = Joi.object({
+            firstname: Joi.any(),
+            lastname: Joi.any(),
             password: Joi.string(),
             phone: Joi.string(),
             longitude  : Joi.string(),

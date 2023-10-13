@@ -515,11 +515,20 @@ const importProduct = async (req, res) => {
         // Create or find the Menu Category and set its picture as colJ
         const categoryId = await createOrUpdateCategory(colE, null, colJ);
 
+        let subcategory1Id,subcategory2Id;
+
               // Create or find Subcategory1 and set its parent to categoryId
-        const subcategory1Id = await createOrUpdateCategory(colG, categoryId,colJ);
+        if(colG)
+        {
+          subcategory1Id = await createOrUpdateCategory(colG, categoryId,colJ);
+        }
+
+        if(colI)
+        {
+          subcategory2Id = await createOrUpdateCategory(colI, categoryId,colJ);
+        }
 
         // Create or find Subcategory2 and set its parent to categoryId
-        const subcategory2Id = await createOrUpdateCategory(colI, categoryId,colJ);
         
 
 
