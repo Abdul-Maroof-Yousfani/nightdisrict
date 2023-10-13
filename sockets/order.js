@@ -570,5 +570,8 @@ function initOrder() {
 
 }
 
-export default { initOrder,
-    getIoInstance,allOrders };
+export default {
+    initOrder,
+    getIoInstance,
+    allOrders 
+};
