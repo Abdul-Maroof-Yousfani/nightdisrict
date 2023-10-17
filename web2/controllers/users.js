@@ -736,7 +736,23 @@ const recivedEmailDuplicate = async (req, res) => {
         
         foundMails = await Promise.all(foundMails.map((e) =>{
             let attachments = [];
-            e.Attachments.map((e) => attachments.push({data:e}))
+
+            e.Attachments.map((e) => {
+                let image = '';
+                const indexOfAttachment = e.indexOf('/attachment/');
+                if (indexOfAttachment !== -1) {
+                    const dataAfterAttachment = e.substring(indexOfAttachment + '/attachment/'.length);
+                    console.log(dataAfterAttachment);
+                    image = dataAfterAttachment
+                } else {
+                    console.log('"/attachment/" not found in the URL');
+                }
+                attachments.push({
+                    data:e,
+                    link : `http://67.205.168.89:3002/downloadable-pdf?file=${image}`
+                })
+
+            } )
             e.attachments2 = attachments;
             return e; 
             
