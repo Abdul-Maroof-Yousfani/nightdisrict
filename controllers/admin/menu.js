@@ -380,46 +380,60 @@ const extractGoogleDriveFileId = (url) => {
 
 
 const downloadSuperMenuPictures = async (imageUrls) => {
+
+
   const imagePaths = [];
 
-  for (const imageUrl of imageUrls) {
-    // Extract the file ID from the Google Drive URL
-    
-    const googleDriveFileId = extractGoogleDriveFileId(imageUrl.hyperlink);
+  try
+  {
+    for (const imageUrl of imageUrls) {
+      // Extract the file ID from the Google Drive URL
+      
+      const googleDriveFileId = extractGoogleDriveFileId(imageUrl.text);
+  
+      // Generate the direct download link for the Google Drive image
+      const directDownloadUrl = `https://drive.google.com/uc?export=download&id=${googleDriveFileId}`;
 
-    // Generate the direct download link for the Google Drive image
-    const directDownloadUrl = `https://drive.google.com/uc?export=download&id=${googleDriveFileId}`;
+  
+      // Download the image from the URL using Axios
+      const response = await axios.get(directDownloadUrl, {
+        responseType: 'arraybuffer', // Receive image data as an array buffer
+      });
+  
+      if (response.status === 200) {
+        // Specify the directory for SuperMenu images
+        const dirOneSuperMenu = "public/menu";
+  
+        // Generate unique filenames for SuperMenu images
+        const fileNameSuperMenu = `${Date.now()}_supermenu_image.png`;
+  
+        // Construct the full image path
+        const imageNameSuperMenu = `${dirOneSuperMenu}/${fileNameSuperMenu}`;
+  
+        if (!fs.existsSync(dirOneSuperMenu)) {
+          fs.mkdirSync(dirOneSuperMenu, { recursive: true });
+        }
+  
+        // Save the downloaded image
+        fs.writeFileSync(imageNameSuperMenu, response.data);
+  
+        // Add the image path to the array
+        imagePaths.push(`menu/${fileNameSuperMenu}`);
 
-    // Download the image from the URL using Axios
-    const response = await axios.get(directDownloadUrl, {
-      responseType: 'arraybuffer', // Receive image data as an array buffer
-    });
-
-    if (response.status === 200) {
-      // Specify the directory for SuperMenu images
-      const dirOneSuperMenu = "public/menu";
-
-      // Generate unique filenames for SuperMenu images
-      const fileNameSuperMenu = `${Date.now()}_supermenu_image.png`;
-
-      // Construct the full image path
-      const imageNameSuperMenu = `${dirOneSuperMenu}/${fileNameSuperMenu}`;
-
-      if (!fs.existsSync(dirOneSuperMenu)) {
-        fs.mkdirSync(dirOneSuperMenu, { recursive: true });
+        return imagePaths;
       }
-
-      // Save the downloaded image
-      fs.writeFileSync(imageNameSuperMenu, response.data);
-
-      // Add the image path to the array
-      imagePaths.push(`menu/${fileNameSuperMenu}`);
+      
     }
   }
+  catch(error)
+  {
+    return imagePaths;
+  }
+
+ 
 
   // Update the SuperMenu with image paths
 
-  return imagePaths;
 };
 
 
@@ -433,44 +447,44 @@ const createOrUpdateCategory = async (colE, parentId = null, colJ = "") => {
       category = new menuCategory({ name: colE, parent: parentId });
     }
 
-    colJ = colJ.hyperlink;
+    // colJ = colJ.hyperlink;
 
-    if (colJ && typeof colJ === 'string') {
-      // Extract the file ID from the Google Drive URL
-      const googleDriveFileId = extractGoogleDriveFileId(colJ);
+    // if (colJ && typeof colJ === 'string') {
+    //   // Extract the file ID from the Google Drive URL
+    //   const googleDriveFileId = extractGoogleDriveFileId(colJ);
 
-      // Generate the direct download link for the Google Drive image
-      const imageUrl = `https://drive.google.com/uc?export=download&id=${googleDriveFileId}`;
+    //   // Generate the direct download link for the Google Drive image
+    //   const imageUrl = `https://drive.google.com/uc?export=download&id=${googleDriveFileId}`;
 
-      // Download the image from the URL using Axios
-      const response = await axios.get(imageUrl, {
-        responseType: 'arraybuffer', // Receive image data as an array buffer
-      });
+    //   // Download the image from the URL using Axios
+    //   const response = await axios.get(imageUrl, {
+    //     responseType: 'arraybuffer', // Receive image data as an array buffer
+    //   });
 
-      if (response.status === 200) {
-        // Specify the directory for SuperMenu images
-        const dirOneSuperMenu = "public/menuCat";
+    //   if (response.status === 200) {
+    //     // Specify the directory for SuperMenu images
+    //     const dirOneSuperMenu = "public/menuCat";
 
-        // Generate a unique filename for the SuperMenu image
-        const fileNameSuperMenu = `${Date.now()}_supermenu_image.png`;
+    //     // Generate a unique filename for the SuperMenu image
+    //     const fileNameSuperMenu = `${Date.now()}_supermenu_image.png`;
 
-        // Construct the full image path
-        const imageNameSuperMenu = `${dirOneSuperMenu}/${fileNameSuperMenu}`;
+    //     // Construct the full image path
+    //     const imageNameSuperMenu = `${dirOneSuperMenu}/${fileNameSuperMenu}`;
 
-        if (!fs.existsSync(dirOneSuperMenu)) {
-          fs.mkdirSync(dirOneSuperMenu, { recursive: true });
-        }
+    //     if (!fs.existsSync(dirOneSuperMenu)) {
+    //       fs.mkdirSync(dirOneSuperMenu, { recursive: true });
+    //     }
 
-        // Save the downloaded image
-        fs.writeFileSync(imageNameSuperMenu, response.data);
+    //     // Save the downloaded image
+    //     fs.writeFileSync(imageNameSuperMenu, response.data);
 
-        // Update the category_image field with the image path
-        if (category) {
-          category.category_image = `menuCat/${fileNameSuperMenu}`;
-          await category.save();
-        }
-      }
-    }
+    //     // Update the category_image field with the image path
+    //     if (category) {
+    //       category.category_image = `menuCat/${fileNameSuperMenu}`;
+    //       await category.save();
+    //     }
+    //   }
+    // }
 
     // Save the category (either new or updated)
     await category.save();
@@ -516,8 +530,7 @@ const importProduct = async (req, res) => {
         const categoryId = await createOrUpdateCategory(colE, null, colJ);
 
         let subcategory1Id,subcategory2Id;
-
-              // Create or find Subcategory1 and set its parent to categoryId
+        // Create or find Subcategory1 and set its parent to categoryId
         if(colG)
         {
           subcategory1Id = await createOrUpdateCategory(colG, categoryId,colJ);
@@ -547,14 +560,21 @@ const importProduct = async (req, res) => {
         };
   
         // Insert superMenuData into the superMenu collection
-        superMenuData.pictures = await downloadSuperMenuPictures([colJ])
+
+        if(colJ)
+        {
+          superMenuData.pictures = await downloadSuperMenuPictures([colJ])
+          console.log("ROW NUMBER" + rowNumber);
+          console.log(superMenuData.pictures);
+        }
+    
      
         let data = new superMenu(superMenuData);
         await data.save();
 
 
       } catch (error) {
-        console.error('Error processing row:', error);
+        console.error('Error processing row:',error);
       }
     }
 
@@ -563,7 +583,7 @@ const importProduct = async (req, res) => {
     res.json({ message: 'Data processing completed' });
 
   } catch (error) {
-    console.error('Error reading Excel file:', error);
+    // console.error('fError reading Excel ile:', error);
     res.status(500).json({ error: 'Error reading Excel file' });
   }
 };

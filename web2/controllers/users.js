@@ -15,6 +15,7 @@ const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const moment = require('moment');
 
+
 const createEmail = async (req, res) => {
     try {
         const { deviceId, fcmToken, premium } = req.body;
@@ -237,7 +238,9 @@ const cronJob = async (req, res) => {
                                             attachmentString = Buffer.from(attachmentString, "base64");
                                             let fileExtension;
 
+
                                             if (contentType === 'application/pdf') {
+
                                                 fileExtension = 'pdf';
                                             } else if (contentType === 'application/msword' || contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
                                                 fileExtension = 'docx';
@@ -247,7 +250,7 @@ const cronJob = async (req, res) => {
 
                                             if(fileExtension)
                                             {
-                                                let date = Date.now() + '.jpg';
+                                                let date = Date.now() + fileExtension;
                                                 fs.writeFileSync(`public/attachment/${date}`, attachmentString)
                                                 const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
                                                 mail.Attachments.push(fileUrl);
@@ -439,9 +442,29 @@ const recivedEmail = async (req, res) => {
                                     // Listen for the 'end' event when all attachment data is received
                                     data.content.on('end', function () {
                                         const buffer = Buffer.concat(bufs);
+                                        const fileInfo = fileType(buffer);
+                                        console.log(fileInfo.ext);
+                                        return;
+                                        let fileExtension;
+                                        console.log(buffer.get);
+                                        return;
+                                        const contentType = data.params.type; // Get the content type
+
+                                        if (contentType === 'application/pdf') {
+                                            fileExtension = 'pdf';
+                                        } else if (contentType === 'application/msword' || contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                                            fileExtension = 'docx';
+                                        }  else if (contentType === 'application/vnd.ms-excel' || contentType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                                            fileExtension = 'xlsx';
+                                        }
+                                        else
+                                        {
+                                            fileExtension = 'txt';
+                                        }
+                                        
                                         let attachmentString = buffer.toString('base64'); // Convert buffer to base64 string
                                         attachmentString = Buffer.from(attachmentString, "base64");
-                                        let date = Date.now() + '.jpg';
+                                        let date = Date.now() + fileExtension;
                                         fs.writeFileSync(`public/attachment/${date}`, attachmentString)
                                         const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
 
@@ -707,9 +730,18 @@ const recivedEmailDuplicate = async (req, res) => {
     try {
         const { mailAddressValue } = req.body;
 
-        const foundMails = await threadMails.find({
+        let foundMails = await threadMails.find({
             'Mail_Address.value': mailAddressValue,
-        });
+        }).lean();
+        
+        foundMails = await Promise.all(foundMails.map((e) =>{
+            let attachments = [];
+            e.Attachments.map((e) => attachments.push({data:e}))
+            e.attachments2 = attachments;
+            return e; 
+            
+        }))
+        
 
         if (!foundMails) return res.status(404).json({
             status: "error",
