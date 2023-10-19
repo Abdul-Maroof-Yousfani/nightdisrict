@@ -5,6 +5,6 @@ import helpers from '../utils/helpers.js';
 
 // router.get('/',notification.testNotification);
 router.post('/',notification.store);
-router.get('/',notification.all);
+router.get('/',helpers.verifyAuthToken,notification.all);
 
 export default router;

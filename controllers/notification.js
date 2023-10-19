@@ -63,7 +63,7 @@ const  testNotification = async(req,res) =>
 
 const all = async (req, res) => {
     try {
-      let notification = await Notification.find({user: req.query.id}).sort({ date: -1 }).lean();
+      let notification = await Notification.find({user: req.user._id}).sort({ date: -1 }).lean();
       let newData = helpers.paginate(notification,req.query.page,req.query.limit);
       notification = await Promise.all(newData.result.map(async(notify)=>{
         let Order  = await order.findById(notify.notification_for).lean();
