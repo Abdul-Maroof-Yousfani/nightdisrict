@@ -82,8 +82,8 @@ const attendance = async(req,res) =>
         let orderNotification = {
             title : "Ticket Scanned",
             body : `Your ticket for ${checkEvent.name} has been scanned. Enjoy the event!.`,
-            type : "event_scan",
-            notification_for : mongoose.Types.ObjectId(Order),
+            type : "event_reminder",
+            notification_for : mongoose.Types.ObjectId(data._id),
             user : mongoose.Types.ObjectId(customer)
         }
 
