@@ -9,12 +9,24 @@ const notificationSchema = new mongoose.Schema({
     body: {
         type: String,
     },
+    type : {
+        type : String,
+        default : "drinks"
+    },
     data: {
         type: Array,
     },
     date: {
         type: Date,
         default: Date.now,
+    },
+    notification_for : {
+        type : mongoose.Types.ObjectId,
+        default : null
+    },
+    user : {
+        type  : mongoose.Types.ObjectId,
+        default  : null
     },
     readStatus: {
         type: Number,

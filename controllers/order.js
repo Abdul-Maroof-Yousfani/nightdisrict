@@ -140,6 +140,8 @@ const store = async (req, res) => {
         //         }))
         let data = await allOrders.allOrders(orderData.bar);
         socket.emit('orders',data);
+
+        
         
         
         }
@@ -171,6 +173,21 @@ const store = async (req, res) => {
                 let userData = await User.findById({ _id: mongoose.Types.ObjectId(customer) }).lean();
 
                 // let response = await helper.sendSubscriptionEmail(userData.email);
+
+                // Notification to the user bought the drink
+
+                let orderNotification = {
+                    title : "New Drink Notification",
+                    body : "New Drink Purchased Successfully!",
+                    body : "New Drink Purchased Successfully!",
+                    type : "drink_order",
+                    notification_for : order,
+                    user : req.user._id
+                }
+
+                console.log(orderNotification);
+
+                await helpers.createNotification(orderNotification)
 
 
                 // update user subscription status and membership

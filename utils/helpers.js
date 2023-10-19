@@ -15,6 +15,8 @@ import order from '../models/order.js';
 import pourtype from '../models/pourtype.js';
 import mongoose from 'mongoose';
 import reviews from '../models/reviews.js';
+import notification from '../models/notification.js';
+
 function validateUsername(username) {
     /* 
       Usernames can only have: 
@@ -1414,6 +1416,23 @@ const getBarById = async(id,loggedInUser="") =>{
 
 // Ending Code for Menu
 
+
+// coding for user notifications
+
+let createNotification = async(req) =>
+{
+    try
+    {
+        let data = new notification(req);
+        await data.save();
+        return data;
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
 export default {
     validateUsername,
     validateEmail,
@@ -1457,8 +1476,11 @@ export default {
     getBasicUserData,
     getSocketOrders,
     getPromotionItems,
-    createCategory
+    createCategory,
     
+    // notifications
+
+    createNotification
 
 }
 
