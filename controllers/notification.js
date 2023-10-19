@@ -27,14 +27,9 @@ const  testNotification = async(req,res) =>
         admin2.initializeApp({
             credential: admin2.credential.cert(serviceAccount)
         });
-    
-    
-        
-        
-
 
         const payload = {
-            data: {
+            notification: {
                 title: 'test',
                 body: 'test',
             },

@@ -3,7 +3,7 @@ const router = express.Router();
 import notification from '../controllers/notification.js';
 import helpers from '../utils/helpers.js';
 
-// router.get('/',notification.testNotification);
+router.get('/test-notifications',notification.testNotification);
 router.post('/',notification.store);
 router.get('/',helpers.verifyAuthToken,notification.all);
 
