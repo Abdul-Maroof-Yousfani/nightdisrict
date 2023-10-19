@@ -76,6 +76,21 @@ const attendance = async(req,res) =>
 
         })
 
+        //  send user a notification for the ticket
+
+        
+        let orderNotification = {
+            title : "Ticket Scanned",
+            body : `Your ticket for ${checkEvent.name} has been scanned. Enjoy the event!.`,
+            type : "event_scan",
+            notification_for : mongoose.Types.ObjectId(Order),
+            user : mongoose.Types.ObjectId(customer)
+        }
+
+        await helpers.createNotification(orderNotification)
+
+
+
 
         return res.status(200).json({
             status : 200,
@@ -85,7 +100,6 @@ const attendance = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error);
         return res.status(200).json({
             status : 500,
             message : error.message,
