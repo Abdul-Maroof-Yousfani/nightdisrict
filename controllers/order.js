@@ -175,19 +175,36 @@ const store = async (req, res) => {
                 // let response = await helper.sendSubscriptionEmail(userData.email);
 
                 // Notification to the user bought the drink
-
                 let orderNotification = {
-                    title : "New Drink Notification",
-                    body : "New Drink Purchased Successfully!",
-                    body : "New Drink Purchased Successfully!",
-                    type : "drink_order",
-                    notification_for : order,
-                    user : req.user._id
+                   
                 }
 
-                console.log(orderNotification);
 
-                await helpers.createNotification(orderNotification)
+                if(paymentCode == 'buy_drink')
+                {
+                    orderNotification = {
+                        title : "New Drink Notification",
+                        body : "New Drink Purchased Successfully!",
+                        type : "drink_order",
+                        notification_for : order,
+                        user : req.user._id
+                    }
+    
+                    await helpers.createNotification(orderNotification)
+                }
+                if(paymentCode == 'buy_ticket')
+                {
+                    orderNotification = {
+                        title : "New Event Purchased",
+                        body : "Successfully purchased an Event",
+                        type : "event_order",
+                        notification_for : order,
+                        user : req.user._id
+                    }
+                    await helpers.createNotification(orderNotification)
+                }
+
+            
 
 
                 // update user subscription status and membership
