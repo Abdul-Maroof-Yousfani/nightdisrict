@@ -412,8 +412,8 @@ function initOrder() {
                     title : "Order status updated",
                     body : `Your order is ${response.status}`,
                     type : "drink_order",
-                    notification_for : updateOrder._id,
-                    user : orderStatus.customer
+                    notification_for : mongoose.Types.ObjectId(updateOrder._id),
+                    user : mongoose.Types.ObjectId(orderStatus.customer)
                 }
 
                 await helpers.createNotification(orderNotification)

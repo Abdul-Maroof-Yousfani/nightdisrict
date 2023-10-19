@@ -14,7 +14,8 @@ const notificationSchema = new mongoose.Schema({
         default : "drinks"
     },
     data: {
-        type: Array,
+        type: mongoose.Types.ObjectId,
+        default : null
     },
     date: {
         type: Date,
