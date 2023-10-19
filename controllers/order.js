@@ -15,6 +15,7 @@ import order from '../models/order.js';
 import payments from '../models/payments.js';
 import allOrders from '../sockets/order.js';
 import orderSocket from '../sockets/order.js';
+import event from '../models/event.js';
 
 const store = async (req, res) => {
     let { subscriptionType, items, transactionId, paymentStatus, invoice_url, customer, paymentMethod, cardDetail, tip, type, bar, amount  , instruction} = req.body;
@@ -183,8 +184,8 @@ const store = async (req, res) => {
                 if(paymentCode == 'buy_drink')
                 {
                     orderNotification = {
-                        title : "New Drink Notification",
-                        body : "New Drink Purchased Successfully!",
+                        title : "New Order Placed",
+                        body : `Your order #${orderData.orderNo} has been successfully created. Thank you for choosing our service!`,
                         type : "drink_order",
                         notification_for : order,
                         user : req.user._id
@@ -194,9 +195,16 @@ const store = async (req, res) => {
                 }
                 if(paymentCode == 'buy_ticket')
                 {
+
+                    // get event details
+
+                    let eventData = await event.findById({
+                        _id : items[0].item
+                    })
+
                     orderNotification = {
-                        title : "New Event Purchased",
-                        body : "Successfully purchased an Event",
+                        title : "Ticket Purchased",
+                        body : `You have successfully purchased a ticket for ${eventData.name}. Enjoy the event!`,
                         type : "event_order",
                         notification_for : order,
                         user : req.user._id

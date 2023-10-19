@@ -409,8 +409,8 @@ function initOrder() {
                 })
 
                 let orderNotification = {
-                    title : "Order status updated",
-                    body : `Your order is ${response.status}`,
+                    title : "Order Status Update",
+                    body : `Your order is ${orderStatus.orderNo} now ${response.status}, and it's on its way to you.`,
                     type : "drink_order",
                     notification_for : mongoose.Types.ObjectId(updateOrder._id),
                     user : mongoose.Types.ObjectId(orderStatus.customer)
