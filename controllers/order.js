@@ -186,7 +186,7 @@ const store = async (req, res) => {
                  
                     orderNotification = {
                         title : "New Order Placed",
-                        body : `Your order #${latestdata.orderNo} has been successfully created. Thank you for choosing our service!`,
+                        body : `Your order  #${latestdata.orderNo} has been successfully created. Thank you for choosing our service!`,
                         type : "drink_order",
                         notification_for : order,
                         user : req.user._id
