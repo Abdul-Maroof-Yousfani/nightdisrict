@@ -105,7 +105,7 @@ const store = async (req, res) => {
             }
         );
 
-        await orderData.save();
+        let latestdata = await orderData.save();
 
         if(paymentCode == "buy_drink"){
             const socket = orderSocket.getIoInstance();
@@ -183,9 +183,10 @@ const store = async (req, res) => {
 
                 if(paymentCode == 'buy_drink')
                 {
+                 
                     orderNotification = {
                         title : "New Order Placed",
-                        body : `Your order #${orderData.orderNo} has been successfully created. Thank you for choosing our service!`,
+                        body : `Your order #${latestdata.orderNo} has been successfully created. Thank you for choosing our service!`,
                         type : "drink_order",
                         notification_for : order,
                         user : req.user._id
@@ -204,7 +205,7 @@ const store = async (req, res) => {
 
                     orderNotification = {
                         title : "Ticket Purchased",
-                        body : `You have successfully purchased a ticket for ${eventData.name}. Enjoy the event!`,
+                        body : `You have successfully purchased a ticket for (${eventData.name}). Enjoy the event!`,
                         type : "event_order",
                         notification_for : order,
                         user : req.user._id
