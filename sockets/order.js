@@ -407,6 +407,18 @@ function initOrder() {
                 let orderStatus  = await order.findById({
                     _id  : updateOrder._id
                 })
+
+                let orderNotification = {
+                    title : "Order status updated",
+                    body : `Your order is ${orderStatus}`,
+                    type : "drink_order",
+                    notification_for : updateOrder._id,
+                    user : orderStatus.customer
+                }
+
+                await helpers.createNotification(orderNotification)
+
+
                 let newData = [
                     {
                     status : 1,
