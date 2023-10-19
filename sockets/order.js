@@ -410,7 +410,7 @@ function initOrder() {
 
                 let orderNotification = {
                     title : "Order status updated",
-                    body : `Your order is ${orderStatus}`,
+                    body : `Your order is ${response.status}`,
                     type : "drink_order",
                     notification_for : updateOrder._id,
                     user : orderStatus.customer
