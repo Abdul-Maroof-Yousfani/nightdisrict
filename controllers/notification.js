@@ -66,7 +66,7 @@ const all = async (req, res) => {
       let notification = await Notification.find({user: req.user._id}).sort({ date: -1 }).lean();
       let newData = helpers.paginate(notification,req.query.page,req.query.limit);
       notification = await Promise.all(newData.result.map(async(notify)=>{
-        if( notify.type == 'drink_order' && notify.type == 'event_order' )
+        if( notify.type == 'drink_order' || notify.type == 'event_order' )
         {
             let Order  = await order.findById(notify.notification_for).lean();
             notify.data = await helpers.getOrderById(Order);
