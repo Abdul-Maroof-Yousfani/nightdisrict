@@ -7,6 +7,7 @@ import menu from '../../models/menu.js';
 import users from '../../models/users.js';
 import reviews from '../../models/reviews.js';
 import pourtype from '../../models/pourtype.js';
+import helpers from '../../utils/helpers.js';
 
 const store = async (req, res) => {
     let { name, description, category_image, parent } = req.body;
@@ -105,17 +106,13 @@ const index = async (req, res) => {
             else
             {
                 let servings = await pourtype.find({
-                    name : "default"
+                    name : "Pour"
                 })
                 e.servings = servings
 
             }
 
             e.subcategories = await Promise.all(e.subcategories.map(async (item) => {
-                if(item.name == 'Gin')
-                {
-                    console.log(item)
-                }
                 item.items = await superMenu.find({ subCategories: item._id })
                 item.items = item.items ? item.items : []
                 return item
@@ -599,6 +596,41 @@ const category = async(req,res) =>
     }
 }
 
+const getProductCategories = async(req,res) =>
+{
+    let {id,bar} = req.params
+    let  {page,limit} = req.query;
+    try
+    {
+        // check if category has any Child Categories
+        let child = await menuCategory.find({parent : mongoose.Types.ObjectId(id)}).select({name:1,description:1,category_image:1})
+        let data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : id  }).lean();
+
+        let newData = helpers.paginate(data,page,limit)
+        
+
+        data = await Promise.all(newData.result.map((e) => {
+            return helpers.getItemById(e.item,e.barId)
+        }))
+        return res.json({
+            status : 200,
+            message : "success",
+            data : {child,products:data },
+            pagination : newData.totalPages
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
+
+
 export default {
     category,
     store,
@@ -607,5 +639,6 @@ export default {
     show,
     parentCategory,
     getCategoryBasedItems,
-    parentCategory2
+    parentCategory2,
+    getProductCategories
 }

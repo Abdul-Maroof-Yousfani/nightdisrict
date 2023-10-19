@@ -24,6 +24,14 @@ const menu = new mongoose.Schema({
         ref : "menuCategories",
         default : null
     },
+    categories : [
+        {
+            category : {
+                type : mongoose.Types.ObjectId,
+                default : null
+            }
+        }
+    ],
 
     variation : [
         {

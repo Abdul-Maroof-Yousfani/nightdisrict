@@ -1080,6 +1080,14 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
             let subCategory = await menuCategory.findOne({_id :data.subCategory })
             data.subCategory = subCategory
         }
+
+        // update categories
+
+        let categories = [];
+        categories = await Promise.all(data.categories.map(async(cat) =>{
+            return await menuCategory.findById({ _id :cat.category });
+        }))
+        data.categories = categories;
     
 
         data.item = await superMenu.findById({

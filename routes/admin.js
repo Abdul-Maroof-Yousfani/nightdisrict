@@ -27,7 +27,11 @@ router.get("/category",category.index);
 router.get("/parentCategory",category.parentCategory);
 router.get("/parentCategory2",category.parentCategory2);
 router.post("/category/items",category.getCategoryBasedItems);
-router.get('/category/:_id',category.show)
+router.get('/category/:_id',category.show);
+
+
+// new flow design
+router.get('/parent-categories',)
 
 
 // Import Menu From Excel

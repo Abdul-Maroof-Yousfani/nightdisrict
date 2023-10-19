@@ -477,6 +477,7 @@ const getBarGeometry = async(req,res) =>
 
 const addItem = async (req, res) => {
     let { title, description, type, category, subcategory, variation } = req.body;
+    let totalCategories = [];
 
     try {
         let schema = Joi.object({
@@ -488,6 +489,12 @@ const addItem = async (req, res) => {
             subcategory: Joi.string(),
             variation: Joi.array()
         });
+        totalCategories.push({
+            category : category
+        },{
+            category : subcategory
+        })
+     
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
@@ -507,7 +514,7 @@ const addItem = async (req, res) => {
                 description,
                 category,
                 subCategory : subcategory,
-                pictures : [categoryImage.category_image]
+                pictures : [categoryImage.category_image],
 
             })
             mainMenu = await mainMenu.save()
@@ -527,8 +534,7 @@ const addItem = async (req, res) => {
                         mainMenu.subCategory = subCategory.name
                     }
 
-
-      
+       
 
             // then add item to the Bar
             let data = new menu(
@@ -537,7 +543,9 @@ const addItem = async (req, res) => {
                     "item": mainMenu._id,
                     "category": category,
                     "subCategory": subcategory,
-                    variation
+                    variation,
+                    categories : totalCategories
+
                 }
             )
             data = await data.save();

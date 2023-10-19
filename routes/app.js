@@ -26,6 +26,13 @@ router.post('/mapView', helpers.verifyAuthToken , app.mapView)
 router.get('/bar/:id',helpers.verifyAuthToken, bar.show)
 router.post('/bar/menu',helpers.verifyAuthToken, bar.Menu)
 
+// Adding new Categories
+
+
+router.get('/category/:id/bar/:bar',category.getProductCategories);
+
+
+
 
 // Update Profile
 

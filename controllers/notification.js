@@ -25,7 +25,7 @@ const  testNotification = async(req,res) =>
 
 
 
-        const response = await admin.messaging().sendToDevice('66616B652D61706E732D746F6B656E2D666F722D73696D756C61746F72', payload);
+        const response = await admin.messaging().sendToDevice('c0yIY7URa0KirgJTrvxAhE:APA91bG2qQjGSiYs6XlFob5vfku_GA3XQHgv93ka8mer6mIbi2oRZBFM1d5Vp7SK7sIwAj8ceqrWAdzgINA0ieCJuW4fl1AObr0aG5DjGnMmJsIa-o4BzI3x8hD2olQJ0Y07WkNaClkt', payload);
 
         return res.json({
             response
