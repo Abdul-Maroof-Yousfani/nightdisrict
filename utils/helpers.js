@@ -1213,10 +1213,17 @@ const  getSuperItem = async(id) => {
         data.categories = categories;
 
         let subCategories = [];
+        let subData = [];
         subCategories = await Promise.all(data.subCategories.map(async(cat) =>{
-            return await menuCategory.findById({ _id :cat });
+
+            if(cat)
+            {
+                subData.push(await menuCategory.findById({ _id :cat }));
+            }
+            return cat;
+            
         }))
-        data.subCategories = subCategories
+        data.subCategories = subData
 
     
 
