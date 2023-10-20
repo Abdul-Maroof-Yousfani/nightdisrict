@@ -192,7 +192,7 @@ const store = async (req, res) => {
                         user : req.user._id
                     }
     
-                    await helpers.createNotification(orderNotification)
+                    await helpers.createNotification(orderNotification,req.user)
                 }
                 if(paymentCode == 'buy_ticket')
                 {
@@ -210,7 +210,7 @@ const store = async (req, res) => {
                         notification_for : order,
                         user : req.user._id
                     }
-                    await helpers.createNotification(orderNotification)
+                    await helpers.createNotification(orderNotification,req.user)
                 }
 
             

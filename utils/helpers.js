@@ -16,6 +16,9 @@ import pourtype from '../models/pourtype.js';
 import mongoose from 'mongoose';
 import reviews from '../models/reviews.js';
 import notification from '../models/notification.js';
+import serviceAccount from "../config/nd.js";
+import Admin from 'firebase-admin';
+
 
 function validateUsername(username) {
     /* 
@@ -1419,16 +1422,42 @@ const getBarById = async(id,loggedInUser="") =>{
 
 // coding for user notifications
 
-let createNotification = async(req) =>
+
+
+let createNotification = async(req,user) =>
 {
     try
     {
+       
         let data = new notification(req);
+        
         await data.save();
+
+
+        Admin.initializeApp({
+            credential: Admin.credential.cert(serviceAccount)
+        });
+
+
+        
+        const payload = {
+            notification: {
+                title: req.title,
+                body: req.body,
+            },
+        };
+
+        console.log(payload);
+
+
+        const response = await Admin.messaging().sendToDevice(user.fcm, payload);
+        console.log(response);
+
         return data;
     }
     catch(error)
     {
+        console.log(error);
         return error.message
     }
 }

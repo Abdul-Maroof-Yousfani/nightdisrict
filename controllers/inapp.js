@@ -10,9 +10,8 @@ import { getAnalytics, logEvent } from "@firebase/analytics";
 
 
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
+
+
 
 
 
@@ -107,6 +106,11 @@ const acknowledge = async(req,res) =>
 const confirm = async(req,res) => {
     try
     {
+
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+        });
+
         let start = new Date();
         start.setUTCHours(0,0,0,0);
         let logs = [];

@@ -6,6 +6,7 @@ import fs from 'fs';
 import menu from "../models/menu.js";
 import bar from "../models/bar.js";
 import helpers from "../utils/helpers.js";
+import users from "../models/users.js";
 
 
 const store = async(req,res) =>
@@ -116,6 +117,27 @@ const store = async(req,res) =>
 
         let data  = new promotion(req.body);
         data = await data.save();
+
+        // send user promotion notification
+
+        let getUsers = await users.find({
+            "favouriteBars.bar" : req.user.barInfo
+        })
+
+        await Promise.all(getUsers.map(async(findFol) =>{
+            let orderNotification = {
+                title : "Special Promotion",
+                body : `Exclusive offer from ${bardata.barName}: save ${data.discount}% on ${data.title}`,
+                type : "promotion",
+                notification_for : data._id,
+                user : findFol._id
+            }
+    
+            await helpers.createNotification(orderNotification,findFol)
+        }))
+        
+
+        
 
         data = await promotion.findById({
             _id : data._id

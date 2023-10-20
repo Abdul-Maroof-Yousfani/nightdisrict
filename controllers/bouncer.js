@@ -5,6 +5,7 @@ import Attendance from '../models/attendance.js';
 import ticket from '../models/ticket.js';
 import helpers from '../utils/helpers.js';
 import Event from '../models/event.js';
+import mongoose from 'mongoose';
 
 
 const attendance = async(req,res) =>
@@ -51,6 +52,12 @@ const attendance = async(req,res) =>
             })   
         }
 
+        // get ticket
+
+        let Ticket = await ticket.findOne({
+            order : Order
+        })
+
 
         let orderData = await order.findById({
             _id : Order
@@ -72,7 +79,8 @@ const attendance = async(req,res) =>
             profile_picture :1,
             username : 1,
             email : 1,
-            address : 1
+            address : 1,
+            fcm
 
         })
 
@@ -83,11 +91,11 @@ const attendance = async(req,res) =>
             title : "Ticket Scanned",
             body : `Your ticket for ${checkEvent.name} has been scanned. Enjoy the event!.`,
             type : "event_reminder",
-            notification_for : mongoose.Types.ObjectId(data._id),
+            notification_for : Ticket._id,
             user : mongoose.Types.ObjectId(customer)
         }
 
-        await helpers.createNotification(orderNotification)
+        await helpers.createNotification(orderNotification,userData)
 
 
 

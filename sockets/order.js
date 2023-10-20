@@ -7,6 +7,7 @@ import { response } from 'express';
 import reviews from '../models/reviews.js';
 import menu from '../models/menu.js';
 import tournamentLog from '../models/applicationLogs.js';
+import users from '../models/users.js';
 
 const messageSchema = new SimpleSchema({
     bar: String,
@@ -408,6 +409,10 @@ function initOrder() {
                     _id  : updateOrder._id
                 })
 
+                let getcustomerinfor = await users.findById({
+                    _id : orderStatus.customer
+                })
+
                 let orderNotification = {
                     title : "Order Status Update",
                     body : `Your order #${orderStatus.orderNo} is now on ${response.status}, and it's on its way to you.`,
@@ -416,7 +421,7 @@ function initOrder() {
                     user : mongoose.Types.ObjectId(orderStatus.customer)
                 }
 
-                await helpers.createNotification(orderNotification)
+                await helpers.createNotification(orderNotification,getcustomerinfor)
 
 
                 let newData = [
