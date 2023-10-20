@@ -954,7 +954,7 @@ const getMixers = async(bar) =>
     try
     {
         let data = await menu.find({
-            category :  "6527a023371d578188d60efa",
+            category :  "652d0685bf853d51a320b0a7",
             barId : "651e60520fd5ae69025bd602"
         }).select({item:1 , variation : 1}).limit(10).lean()
         data = await Promise.all(data.map(async(e) =>{
