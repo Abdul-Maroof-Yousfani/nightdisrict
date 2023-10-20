@@ -107,9 +107,9 @@ const confirm = async(req,res) => {
     try
     {
 
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
+        // admin.initializeApp({
+        //     credential: admin.credential.cert(serviceAccount)
+        // });
 
         let start = new Date();
         start.setUTCHours(0,0,0,0);
