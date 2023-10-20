@@ -51,12 +51,14 @@ const attendance = async(req,res) =>
                 data : checkAttendance
             })   
         }
+  
 
         // get ticket
 
         let Ticket = await ticket.findOne({
             order : Order
         })
+
 
 
         let orderData = await order.findById({
@@ -80,9 +82,11 @@ const attendance = async(req,res) =>
             username : 1,
             email : 1,
             address : 1,
-            fcm
+            fcm : 1
 
         })
+
+
 
         //  send user a notification for the ticket
 

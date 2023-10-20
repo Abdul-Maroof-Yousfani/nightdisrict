@@ -206,7 +206,7 @@ const store = async (req, res) => {
                     orderNotification = {
                         title : "Ticket Purchased",
                         body : `You have successfully purchased a ticket for (${eventData.name}). Enjoy the event!`,
-                        type : "event_order",
+                        type : "event_reminder",
                         notification_for : order,
                         user : req.user._id
                     }
