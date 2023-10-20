@@ -476,24 +476,21 @@ const getBarGeometry = async(req,res) =>
 // Adding items to a Bar Menu
 
 const addItem = async (req, res) => {
-    let { title, description, type, category, subcategory, variation } = req.body;
+    let { title, description, type, category, subcategory, variation , superItem } = req.body;
     let totalCategories = [];
 
     try {
         let schema = Joi.object({
+            superItem : Joi.any(),
             menu: Joi.array(),
             title: Joi.string(),
             description: Joi.string(),
             type: Joi.string(),
-            category: Joi.string(),
-            subcategory: Joi.string(),
+            category: Joi.any(),
+            subcategory: Joi.any(),
             variation: Joi.array()
         });
-        totalCategories.push({
-            category : category
-        },{
-            category : subcategory
-        })
+        
      
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
@@ -502,53 +499,81 @@ const addItem = async (req, res) => {
             // add item to the main Menu
 
             // get category from super menu
-            let categoryImage = await menuCategory.findById({
-                _id : category
+
+
+            // let mainMenu = new superMenu({
+            //     barId: req.user.barInfo,
+            //     user: req.user._id,
+            //     menu_name: title,
+            //     description,
+            //     category,
+            //     subCategory : subcategory,
+            //     pictures : [categoryImage.category_image],
+
+            // })
+            // mainMenu = await mainMenu.save()
+
+
+           
+         
+
+            let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
+
+            // check if item is already in the bar
+
+            // let categoryImage = await menuCategory.findById({
+            //     _id : mainMenu.category
+            // })
+
+            totalCategories.push({
+                category : mainMenu.category
+            },{
+                category : mainMenu.subCategory
             })
 
 
-            let mainMenu = new superMenu({
-                barId: req.user.barInfo,
-                user: req.user._id,
-                menu_name: title,
-                description,
-                category,
-                subCategory : subcategory,
-                pictures : [categoryImage.category_image],
-
+            let barSearch = await menu.findOne({
+                item : superItem,
+                barId  : req.user.barInfo
             })
-            mainMenu = await mainMenu.save()
+            // console.log(mainMenu.category._id);
+            // return;
 
-            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
 
-          
+            // if(mainMenu.category)
+            //         {
+            //             let category = await menuCategory.findById({_id : mainMenu.category},{name : 1});
+            //             mainMenu.category = category.name
+            //         }
+            //         if(mainMenu.subCategory)
+            //         {
+            //             let subCategory = await menuCategory.findById({_id : mainMenu.subCategory},{name : 1});
+            //             mainMenu.subCategory = subCategory.name
+            //         }
 
-            if(mainMenu.category)
-                    {
-                        let category = await menuCategory.findById({_id : mainMenu.category},{name : 1});
-                        mainMenu.category = category.name
-                    }
-                    if(mainMenu.subCategory)
-                    {
-                        let subCategory = await menuCategory.findById({_id : mainMenu.subCategory},{name : 1});
-                        mainMenu.subCategory = subCategory.name
-                    }
-
-       
-
+            // console.log(mainMenu.category);
+            // return;
+                    // console.log(mainMenu.subCategory._id) 
+     
             // then add item to the Bar
-            let data = new menu(
-                {
-                    "barId": req.user.barInfo,
-                    "item": mainMenu._id,
-                    "category": category,
-                    "subCategory": subcategory,
-                    variation,
-                    categories : totalCategories
-
-                }
-            )
-            data = await data.save();
+            if(!barSearch)
+            {
+                let data = new menu(
+                    {
+                        "barId": req.user.barInfo,
+                        menu_name: title,
+                        description,
+                        "item": mainMenu._id,
+                        "category": mainMenu.category,
+                        "subCategory": mainMenu.subCategory,
+                        variation,
+                        categories : totalCategories
+    
+                    }
+                )
+                data = await data.save();
+            }
+            
 
             
             let itemsdata = await menu.findOne({
@@ -619,6 +644,7 @@ const addItem = async (req, res) => {
         return res.json({status: 200 , message: "success", data })
     }
     catch (error) {
+        console.log(error);
         return res.status(200).json({ status: 500 , message: error.message })
     }
 

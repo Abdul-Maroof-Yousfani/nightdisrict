@@ -6,6 +6,14 @@ const menu = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, ref: 'bars',
         default : null
     },
+    menu_name: {
+        type : String,
+        default : ""
+    },
+    description : {
+        type : String,
+        default : ""
+    },
     itemcode : {
         type : String,
         default : Date.now() - Math.floor(Math.random() * 10000)
