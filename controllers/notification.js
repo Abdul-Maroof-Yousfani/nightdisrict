@@ -13,6 +13,7 @@ import ticket from '../models/ticket.js';
 import attendance from '../models/attendance.js';
 import promotion from '../models/promotion.js';
 import notification from '../models/notification.js';
+import event from '../models/event.js';
 
 
 
@@ -73,19 +74,21 @@ const all = async (req, res) => {
         {
             let Order  = await order.findById(notify.notification_for).lean();
             notify.data = await helpers.getOrderById(Order);
-            notify.user = await helpers.getUserById(notify.user);
         }
         else if(notify.type == 'event_reminder')
         {
+            // let findTicket = await event.findById({_id : notify.notification_for}).lean()
+            // console.log(notify.notification_for);
+            // console.log(findTicket);
+            // return
             let Ticket  = await ticket.findById({_id : notify.notification_for}).lean();
-            Ticket.event = await helpers.getEventById(Ticket.event)
-            notify.user = await helpers.getUserById(notify.user);
+            if(Ticket)
+            {
+                Ticket.event = await helpers.getEventById(Ticket.event)
+                Ticket.user = await helpers.getUserById(Ticket.user)
+            }
+            notify.data = Ticket?Ticket:null
 
-            Ticket.user = await helpers.getUserById(Ticket.user)
-
-            notify.data = Ticket
-
-   
         }
         else if(notify.type == 'promotion')
         {
@@ -94,9 +97,10 @@ const all = async (req, res) => {
             }).lean()
             let newPromotions  = await helpers.getPromotionById(getPromotion,getPromotion.bar)
             notify.data = newPromotions;
-            notify.user = await helpers.getUserById(notify.user);
 
         }
+        notify.user = await helpers.getUserById(notify.user);
+
         return notify;
       }));
       return res.json({
@@ -106,6 +110,7 @@ const all = async (req, res) => {
           pagination : newData.totalPages
       });
     } catch (error) {
+        console.log(error);
         return res.json({
             status: 500,
             message: error.message,
