@@ -1447,17 +1447,14 @@ let createNotification = async(req,user) =>
             notification: {
               title: req.title,
               body: req.body,
+              sound: 'default',
             },
             data: {
               notification_id: data._id.toString(), // Convert _id to a string
             },
           };
 
-       
-
         const response = await Admin.messaging().sendToDevice('c0yIY7URa0KirgJTrvxAhE:APA91bG2qQjGSiYs6XlFob5vfku_GA3XQHgv93ka8mer6mIbi2oRZBFM1d5Vp7SK7sIwAj8ceqrWAdzgINA0ieCJuW4fl1AObr0aG5DjGnMmJsIa-o4BzI3x8hD2olQJ0Y07WkNaClkt', payload);
-        console.log(response);
-
         return data;
     }
     catch(error)
