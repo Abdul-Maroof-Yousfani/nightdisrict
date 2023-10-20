@@ -595,6 +595,43 @@ const category = async(req,res) =>
         })
     }
 }
+const getSingleCategory = async(req,res)=> {
+    let {id} = req.params
+    try
+    {
+        let category = await menuCategory.findById({
+            _id : id
+        }).lean()
+        let data = await superMenu.find({
+            parent : null,
+            category : mongoose.Types.ObjectId(id)
+        }).lean()
+        let newData = await helpers.paginate(data,req.query.page,req.query.limit)
+        
+        category.list  = await Promise.all(newData.result.map(async(e) =>{
+            return await helpers.getSuperItem(e._id)
+        }))
+        // get servings based on category
+        let servings =  await pourtype.find().lean()
+        category.servings = servings;
+        
+        // let data = await helpers.getSuperItem(_id)
+        return res.json({
+            status  : 200,
+            message : "success",
+            data : category,
+            pagination : newData.totalPages
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status  : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
 
 const getProductCategories = async(req,res) =>
 {
@@ -640,5 +677,6 @@ export default {
     parentCategory,
     getCategoryBasedItems,
     parentCategory2,
-    getProductCategories
+    getProductCategories,
+    getSingleCategory
 }

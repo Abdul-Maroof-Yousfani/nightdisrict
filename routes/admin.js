@@ -23,6 +23,7 @@ const router = express.Router();
 router.get('/users/barOwnersDetails', helpers.verifyAuthToken, admin.barOwnersDetails)
 router.post("/category",category.store);
 router.put("/category/:_id",category.update);
+router.get("/category2/:id",category.getSingleCategory);
 router.get("/category",category.index);
 router.get("/parentCategory",category.parentCategory);
 router.get("/parentCategory2",category.parentCategory2);

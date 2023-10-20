@@ -1139,6 +1139,125 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
     }
 }
 
+const  getSuperItem = async(id) => {
+    try
+    {
+
+        let data = await superMenu.findOne({
+            _id : id
+        }).select({favDrinks :0}).lean()
+
+        // check if item is in the Discount List
+
+        // data.discount = await getPromotionItems(bar,id)
+        // data.orderedMixtures = []
+
+        // data.superItem = data._id
+        // if(data.reviews)
+        // {
+        //     data.reviews = await Promise.all(data.reviews.map( async (e) =>
+        //     {
+        //         let newReview = await reviews.findById({
+        //             _id : e.review
+        //         }).lean()
+        //         return await getBasicReview(newReview);
+        //     }))
+        // }
+        // else
+        // {
+        //     data.reviews = []
+        // }
+
+ 
+      
+      
+       
+        // add reviews to the item
+
+        // if(data.reviews)
+
+        // get item from super categories
+
+        // data.min = 0;
+        // data.max = 0;
+        // data.barDetail = null
+        // data.mixers = [];
+        // data.boughtMixers;
+
+        //    // // update category and Subcateogry
+        // if(data.category)
+        // {
+        //     let category = await menuCategory.findOne({_id :data.category })
+        //     data.category = category
+
+        //     if(category.name == 'Beer')
+        //     {
+        //         data.mixers = await getMixers(bar);
+        //     }
+
+        // }
+
+        // if(data.subCategory)
+        // {
+        //     let subCategory = await menuCategory.findOne({_id :data.subCategory })
+        //     data.subCategory = subCategory
+        // }
+        delete data.subCategory;
+        delete data.category;
+        // update categories
+
+        let categories = [];
+        categories = await Promise.all(data.categories.map(async(cat) =>{
+            return await menuCategory.findById({ _id :cat });
+        }))
+        data.categories = categories;
+
+        let subCategories = [];
+        subCategories = await Promise.all(data.subCategories.map(async(cat) =>{
+            return await menuCategory.findById({ _id :cat });
+        }))
+        data.subCategories = subCategories
+
+    
+
+        // // data.item = await superMenu.findById({
+        // //     _id : data.item
+        // // })
+        // // if(!data.item)
+        // // {
+        // //     console.log(id);
+        // // }
+        // // data.name = data.item.menu_name
+        // // data.description = data.item.menu_name
+        // // data.description = data.item.description
+        // // data.pictures = data.item.pictures
+
+        // // data.buy = bought
+        // // data.totalQuantity = totalQuantity
+
+        
+        // delete data.item;
+        
+        
+
+        // data.variation = await Promise.all(data.variation.map(async(e) =>{
+        //     let itemTypes = await pourtype.findById({_id : e.variant}).lean()
+        //     itemTypes.price = e.price
+        //     return itemTypes;
+        // }))
+
+
+     
+        return data;
+        
+     
+    }
+    catch(error)
+    {
+        return error.message
+    }
+}
+
 const getMenuByBarId = async(bar) =>{
     try
     {
@@ -1485,6 +1604,7 @@ export default {
     getBarById,
     getHastags,
     getItemById,
+    getSuperItem,
     getEventById,
     getUserById,
     nearbyEvents,
