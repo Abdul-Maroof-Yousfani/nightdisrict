@@ -622,7 +622,7 @@ const getSingleCategory = async(req,res)=> {
             status  : 200,
             message : "success",
             data : category,
-            pagination : newData.totalPages
+            paginate : newData.totalPages
         })
     }
     catch(error)
