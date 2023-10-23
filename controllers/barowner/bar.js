@@ -1095,12 +1095,13 @@ const update = async (req, res) => {
 
     try {
         let schema = Joi.object({
+            superItem : Joi.any(),
             menu: Joi.array(),
             title: Joi.string(),
             description: Joi.string(),
             type: Joi.string(),
-            category: Joi.string(),
-            subcategory: Joi.string(),
+            category: Joi.any(),
+            subcategory: Joi.any(),
             variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
@@ -1126,24 +1127,24 @@ const update = async (req, res) => {
             })
 
 
-            let mainMenu = await superMenu.findByIdAndUpdate({
-                _id  : req.params.id
-            },{
-                set : {
-                    barId: req.user.barInfo,
-                    user: req.user._id,
-                    menu_name: title,
-                    description,
-                    category,
-                    subCategory : subcategory,
-                    pictures : [categoryImage.category_image]
+            // let mainMenu = await superMenu.findByIdAndUpdate({
+            //     _id  : req.params.id
+            // },{
+            //     set : {
+            //         barId: req.user.barInfo,
+            //         user: req.user._id,
+            //         menu_name: title,
+            //         description,
+            //         category,
+            //         subCategory : subcategory,
+            //         pictures : [categoryImage.category_image]
     
-                }
-            },{
-                new : true
-            })
+            //     }
+            // },{
+            //     new : true
+            // })
 
-            mainMenu = await superMenu.findOne({ _id: mainMenu._id }).lean()
+            mainMenu = await superMenu.findOne({ _id: superItem }).lean()
 
           
 
