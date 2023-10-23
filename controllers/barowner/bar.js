@@ -1127,9 +1127,9 @@ const update = async (req, res) => {
             // add item to the main Menu
 
             // get category from super menu
-            let categoryImage = await menuCategory.findById({
-                _id : category
-            })
+            // let categoryImage = await menuCategory.findById({
+            //     _id : category
+            // })
 
 
             // let mainMenu = await superMenu.findByIdAndUpdate({
@@ -1158,6 +1158,9 @@ const update = async (req, res) => {
                 category : mainMenu.subCategory
             })
 
+            let category1 = mainMenu.category;
+            let category2 = mainMenu.subCategory;
+
           
 
             if(mainMenu.category)
@@ -1172,7 +1175,6 @@ const update = async (req, res) => {
                     }
 
 
-      
 
             // then add item to the Bar
             let data = await menu.findOneAndUpdate(
@@ -1182,8 +1184,8 @@ const update = async (req, res) => {
                     $set : {
                         "barId": req.user.barInfo,
                         "item": mainMenu._id,
-                        "category": category,
-                        "subCategory": subcategory,
+                        "category": category1,
+                        "subCategory": category2,
                         variation,
                         categories : totalCategories
 
