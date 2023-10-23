@@ -271,6 +271,53 @@ const index = async(req,res) =>
         })
     }
 }
+const all = async(req,res) =>
+{
+    let {live,today,upcomming}  = [];
+    let date = new Date().toISOString();
+    try
+    {
+        live = await event.find( { bar:req.user.barInfo,   $and: [ { date: { $gte: date } }, { enddate: { $lte: date } } ] } ).lean()
+        today = await event.find({
+            bar:req.user.barInfo, 
+            date: { $gte : date},
+        }).lean()
+        
+        
+        upcomming = await event.find({
+            bar:req.user.barInfo, 
+            date: { $gte : date}
+        }).lean()
+        live = await Promise.all(live.map( async (e) => {
+
+            return await helpers.getEventById(e._id)
+        }))
+        today = await Promise.all(today.map( async (e) => {
+
+            return await helpers.getEventById(e._id)
+
+        }))
+        upcomming = await Promise.all(upcomming.map( async (e) => {
+
+            return await helpers.getEventById(e._id)
+
+        }))
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data : [{live,today,upcomming}] 
+        })
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+            data  : []
+        })
+    }
+}
 
 const view = async(req,res) =>
 {
@@ -416,5 +463,6 @@ export  default{
     view,
     nearby,
     tickets,
-    single
+    single,
+    all
 }

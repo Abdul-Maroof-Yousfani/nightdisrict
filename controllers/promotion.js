@@ -111,7 +111,7 @@ const store = async(req,res) =>
             _id  : menuPicture
         })
 
-        req.body.picture = itemDetail.pictures[0]
+        req.body.picture = itemDetail.pictures.length?pictures[0]:"";
 
        
 
