@@ -209,6 +209,8 @@ const parentCategory2 = async (req, res) => {
     try {
 
         let data = await menuCategory.find({ parent: null }).lean();
+        
+
         data = await Promise.all(data.map(async (e) => {
         
             if(e.name == 'Spirits' || e.name == 'spirits')
@@ -229,13 +231,12 @@ const parentCategory2 = async (req, res) => {
 
             }
             e.items = await menu.find({ category: e._id , barId : req.query.barId }).lean()
-            console.log(e.items);
             if(e.items.length)
             {
+                // e.items = await helpers.getItemById()
                 e.items = await Promise.all(e.items.map(async(itemData) =>{
-                    return await superMenu.findById({
-                        _id : itemData.item
-                    }).lean()
+                    // console.log(itemData);
+                    return await helpers.getItemById(itemData.item,itemData.barId);
                 }))
             }
 
@@ -243,99 +244,99 @@ const parentCategory2 = async (req, res) => {
 
             // get a subcategory
            
-            if(e.items.length)
-            {
-                e.items = await Promise.all(e.items.map( async (item) =>{
+            // if(e.items.length)
+            // {
+            //     e.items = await Promise.all(e.items.map( async (item) =>{
 
-                    // get categories and subcategories
+            //         // get categories and subcategories
 
-                    item.price = 0
+            //         item.price = 0
 
-                    if(item.category)
-                    {
-                        let category = await menuCategory.findById({_id : item.category},{name : 1});
-                        item.category = category.name
-                    }
-                    if(item.subCategory)
-                    {
-                        let subCategory = await menuCategory.findById({_id : item.subCategory},{name : 1});
-                        item.subCategory = subCategory.name
-                    }
+            //         if(item.category)
+            //         {
+            //             let category = await menuCategory.findById({_id : item.category},{name : 1});
+            //             item.category = category.name
+            //         }
+            //         if(item.subCategory)
+            //         {
+            //             let subCategory = await menuCategory.findById({_id : item.subCategory},{name : 1});
+            //             item.subCategory = subCategory.name
+            //         }
 
 
-                    let filter = {};
+            //         let filter = {};
 
-                    // get item name from the bar
+            //         // get item name from the bar
                    
                     
 
-                    let itemsdata = await menu.findOne({
-                        item : item._id
-                    }).lean();
+            //         let itemsdata = await menu.findOne({
+            //             item : item._id
+            //         }).lean();
 
-                        // add variation data to
-                    let totalPrice = 0;
-                    item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
-                            // get variation data
-                            let newVariations = await pourtype.findOne({
-                                _id : va.variant
-                            })
-                            va.name = newVariations.name
-                            totalPrice  = totalPrice + va.price
-                            return va
-                        }))
+            //             // add variation data to
+            //         let totalPrice = 0;
+            //         item.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
+            //                 // get variation data
+            //                 let newVariations = await pourtype.findOne({
+            //                     _id : va.variant
+            //                 })
+            //                 va.name = newVariations.name
+            //                 totalPrice  = totalPrice + va.price
+            //                 return va
+            //             }))
 
 
-                    item.price = totalPrice
+            //         item.price = totalPrice
 
                         
-                        // get reviews from the customer
+            //             // get reviews from the customer
 
-                    if(itemsdata.reviews)
-                        {
-                            item.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
-                                // get customer data
+            //         if(itemsdata.reviews)
+            //             {
+            //                 item.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
+            //                     // get customer data
     
-                                // get customer data and review information
+            //                     // get customer data and review information
     
-                                let userInfo = await users.findOne({_id : rev.customer});
-                                if(userInfo)
-                                {
-                                    rev.name = userInfo.username
-                                    rev.picture = userInfo.profile_picture
-                                }
+            //                     let userInfo = await users.findOne({_id : rev.customer});
+            //                     if(userInfo)
+            //                     {
+            //                         rev.name = userInfo.username
+            //                         rev.picture = userInfo.profile_picture
+            //                     }
                  
-                                // get review information
+            //                     // get review information
     
-                                let reviewInfor = await reviews.findOne({
-                                    _id : rev.review
-                                })
-                                if(reviewInfor)
-                                {
-                                    rev.message = reviewInfor.message
-                                    rev.count = reviewInfor.rating
-                                }
+            //                     let reviewInfor = await reviews.findOne({
+            //                         _id : rev.review
+            //                     })
+            //                     if(reviewInfor)
+            //                     {
+            //                         rev.message = reviewInfor.message
+            //                         rev.count = reviewInfor.rating
+            //                     }
                         
     
     
-                                return rev;
+            //                     return rev;
     
     
                                 
     
-                            }))
-                        }
-                        else
-                        {
-                            item.reviews = []
-                        }
+            //                 }))
+            //             }
+            //             else
+            //             {
+            //                 item.reviews = []
+            //             }
                        
 
-                    return item;
+            //         return item;
                     
 
-                }))
-            }
+            //     }))
+            // }
 
             return e
 
@@ -349,6 +350,7 @@ const parentCategory2 = async (req, res) => {
         })
     }
     catch (error) {
+        console.log(error)
         return res.status(200).json({
             status : 500,
             message: error.message,
