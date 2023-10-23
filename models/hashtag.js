@@ -5,6 +5,10 @@ const hastag = new mongoose.Schema({
         type: String,
         default : ""
     },
+    type : {
+        type : String,
+        default : "bar"
+    },
     isActive : {
         type : Boolean,
         default:true
@@ -13,4 +17,7 @@ const hastag = new mongoose.Schema({
 {
     timestamps:true
 });
+
+hastag.index({ name: 1, type: 1});
+
 export default mongoose.model('hastags', hastag);

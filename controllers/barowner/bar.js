@@ -2035,9 +2035,6 @@ const analyticsByBarId = async(req,res) =>
             return e;
         })
 
-        
-
-          
 
         const analyticsData = {
             totalMenuSalesCount,
@@ -2055,7 +2052,6 @@ const analyticsByBarId = async(req,res) =>
             status : 200,
             message : "success",
             data : analyticsData
-
         })
     }
     catch(error)
