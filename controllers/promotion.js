@@ -77,27 +77,7 @@ const store = async(req,res) =>
         // req.body.address = bardata.address
         req.body.location = bardata.location
 
-        if (req.files) {
-            let image = req.files.picture;
-        
-                const dirOne = "public/promotions";
-                imageNameOne = `${Date.now()}_`+ image.name;
-                thumbPath = `${dirOne}/${imageNameOne}`;
-              if (!fs.existsSync(dirOne)) {
-                fs.mkdirSync(dirOne, { recursive: true });
-              }
-              image.mv(thumbPath, error => {
-                if (error) {
-                  return res.status(200).json({
-                    status: 400,
-                    error: error.message,
-                    data: ""
-                  });
-                }
-              });
-
-              req.body.picture = `/promotions/${imageNameOne}`
-          }
+  
         if(req.body.menu)
         {
             req.body.menu = JSON.parse(req.body.menu);
