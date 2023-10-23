@@ -350,6 +350,7 @@ const parentCategory2 = async (req, res) => {
         })
     }
     catch (error) {
+        console.log(error)
         return res.status(200).json({
             status : 500,
             message: error.message,

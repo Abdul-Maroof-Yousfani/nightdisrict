@@ -1091,11 +1091,12 @@ const Menu = async(req,res) =>
 }
 
 const update = async (req, res) => {
-    let { title, description, type, category, subcategory, variation } = req.body;
+    let { title, description, type, category, subcategory, variation , superItem } = req.body;
+    let totalCategories = [];
 
     try {
         let schema = Joi.object({
-            superItem : Joi.any(),
+            superItem : Joi.string().required(),
             menu: Joi.array(),
             title: Joi.string(),
             description: Joi.string(),
@@ -1106,6 +1107,10 @@ const update = async (req, res) => {
         });
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(200).json({ status:400, message: error.message, data: {} })
+
+
+        
+  
 
         // check menu exists
 
@@ -1143,8 +1148,15 @@ const update = async (req, res) => {
             // },{
             //     new : true
             // })
+            let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
 
-            mainMenu = await superMenu.findOne({ _id: superItem }).lean()
+ 
+
+            totalCategories.push({
+                category : mainMenu.category
+            },{
+                category : mainMenu.subCategory
+            })
 
           
 
@@ -1172,7 +1184,9 @@ const update = async (req, res) => {
                         "item": mainMenu._id,
                         "category": category,
                         "subCategory": subcategory,
-                        variation
+                        variation,
+                        categories : totalCategories
+
                     }
                 },
                 {
