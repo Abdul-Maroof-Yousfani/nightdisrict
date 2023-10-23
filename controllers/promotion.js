@@ -91,6 +91,13 @@ const store = async(req,res) =>
             _id  : menuPicture
         })
 
+        if(!itemDetail)
+        {
+            return res.status(200).json({ status :400, message : "Menu Item not found" , data : {}})
+        }
+
+
+
         req.body.picture = itemDetail.pictures.length?pictures[0]:"";
 
        
@@ -132,6 +139,7 @@ const store = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error)
         return res.status(200).json({ status : 500,message : error.message , data : {} })
     }
 }

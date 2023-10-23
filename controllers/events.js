@@ -274,7 +274,17 @@ const index = async(req,res) =>
 const all = async(req,res) =>
 {
     let {live,today,upcomming}  = [];
-    let date = new Date().toISOString();
+    let date = new Date();
+
+    // Set the timezone to New York (Eastern Time Zone)
+    const nyTimezone = "America/New_York";
+    const options = { timeZone: nyTimezone };
+
+    // Format the date and time in the New York timezone
+    date = date.toLocaleString('en-US', options);
+
+    console.log(date);
+    
     try
     {
         live = await event.find( { bar:req.user.barInfo,   $and: [ { date: { $gte: date } }, { enddate: { $lte: date } } ] } ).lean()
