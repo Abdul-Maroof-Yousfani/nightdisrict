@@ -14,6 +14,7 @@ const MailParser = require('mailparser').MailParser;
 const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const moment = require('moment');
+const device = require('../models/device.js');
 
 
 const createEmail = async (req, res) => {
@@ -129,19 +130,7 @@ const cronJob = async (req, res) => {
     try {
         const { id } = req.params;
         const checkUsers = await User.find({}).lean();
-        // if (!checkUser) {
-        //     return res.status(404).json({
-        //         status: "error",
-        //         message: "User not found. Please provide a valid Device Id.",
-        //     });
-        // }
-        // find user with empty user
-        // make a loap
-        // send email for every user
-        // check 
-        // return res.json({
-        //     checkUser
-        // })
+       
         await Promise.all(checkUsers.map(async (e) => {
             let checkUser;
             checkUser = e;
@@ -158,8 +147,19 @@ const cronJob = async (req, res) => {
 
 
 
-            imap.once("end", function () {
+            imap.once("end", async function () {
                 console.log("Connection is Ending NOW!");
+                await Promise.all(dataList.map(async (e) =>{
+                    // get user notification
+
+                    // adding data to the mail address
+
+
+                    let fcmData = await device.findOne({
+                        "mailBox.email" : e.Mail_Address.value[0]
+                    })
+                    await helper.notification(fcmData.fcmToken)
+                }))
 
                 // Save all the fetched emails to the database
                 threadMails.insertMany(dataList, (err, savedMails) => {
@@ -220,7 +220,7 @@ const cronJob = async (req, res) => {
 
                                         mail.Mail_Text = data.text;
                                     }
-
+                                    let typeOfAttachment;
                                     if (data.type === 'attachment') {
                                         const bufs = [];
 
@@ -231,31 +231,36 @@ const cronJob = async (req, res) => {
 
                                         // Listen for the 'end' event when all attachment data is received
                                         data.content.on('end', function () {
-                                            const contentType = data.params.type; // Get the content type
+                                          
+                                            const contentType = data.content.attachment.contentType; // Get the content type
+                                            const filename = data.content.attachment.filename;
+                                            const fileExtension = filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+                              
 
                                             const buffer = Buffer.concat(bufs);
                                             let attachmentString = buffer.toString('base64'); // Convert buffer to base64 string
                                             attachmentString = Buffer.from(attachmentString, "base64");
-                                            let fileExtension;
+                                            // let fileExtension;
+
+                                            // console.log(contentType);
 
 
-                                            if (contentType === 'application/pdf') {
+                                            // if (contentType === 'application/pdf') {
 
-                                                fileExtension = 'pdf';
-                                            } else if (contentType === 'application/msword' || contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-                                                fileExtension = 'docx';
-                                            } else {
-                                                // Handle other attachment types as needed
-                                            }
+                                            //     fileExtension = 'pdf';
+                                            // } else if (contentType === 'application/msword' || contentType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                                            //     fileExtension = 'docx';
+                                            // } else {
+                                            //     // Handle other attachment types as needed
+                                            // }
+
 
                                             if(fileExtension)
                                             {
-                                                let date = Date.now() + fileExtension;
+                                                let date = Date.now() + '.' + fileExtension;
                                                 fs.writeFileSync(`public/attachment/${date}`, attachmentString)
                                                 const fileUrl = `http://67.205.168.89:3002/attachment/${date}`;
                                                 mail.Attachments.push(fileUrl);
-
-
 
 
                                             }
@@ -311,6 +316,7 @@ const cronJob = async (req, res) => {
             return e;
         }))
 
+
         // const defaultData = { key: 'defaultValue' };
         // const savedEntry = await new Cronjob({ run: JSON.stringify(defaultData) }).save();
 
@@ -321,6 +327,7 @@ const cronJob = async (req, res) => {
             Emails: [],
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             status: 'error',
             message: 'Internal server error.',
@@ -360,9 +367,14 @@ const recivedEmail = async (req, res) => {
             });
         });
 
-        imap.once("end", function () {
-            console.log(dataList)
+        imap.once("end",  async function () {
             console.log("Connection is Ending NOW!");
+
+            // add push notification to savedEmails
+
+            await Promise.all(dataList.map(async (e) =>{
+                await helper.notification(checkUser.fcmToken)
+            }))
 
             // Save all the fetched emails to the database
             threadMails.insertMany(dataList, (err, savedMails) => {
@@ -443,11 +455,9 @@ const recivedEmail = async (req, res) => {
                                     data.content.on('end', function () {
                                         const buffer = Buffer.concat(bufs);
                                         const fileInfo = fileType(buffer);
-                                        console.log(fileInfo.ext);
-                                        return;
+                               
                                         let fileExtension;
-                                        console.log(buffer.get);
-                                        return;
+                              
                                         const contentType = data.params.type; // Get the content type
 
                                         if (contentType === 'application/pdf') {
@@ -487,7 +497,6 @@ const recivedEmail = async (req, res) => {
                             });
                             parser.on('end', async () => {
                                 mail.Read_Status = 0; // Unread status, you can change this as needed
-                                console.log(dataList);
                                 let checkMail = await threadMails.findOne({
                                     Message_ID: mail.Message_ID
                                 })
@@ -515,7 +524,6 @@ const recivedEmail = async (req, res) => {
                 });
             });
 
-            console.log(dataList);
             imap.connect();
         });
     } catch (error) {
@@ -550,9 +558,10 @@ const trackUser = async (req, res) => {
 
             return res.status(200).json({
                 status: "Success",
-                message: "Success",
+                message: "Temporary email was already generated",
                 data: {
                     paymentStatus: existingUser.paymentStatus,
+                    isPaid : existingUser.paymentStatus,
                     isPremiun: existingUser.premium,
                     _id: existingUser._id,
                     mailBox: existingUser.mailBox
@@ -600,7 +609,7 @@ const trackUser = async (req, res) => {
                 mailBox: [
                     {
                         email: inserted.email,
-                        id: inserted._id
+                        _id: inserted._id
                     },
 
                 ]

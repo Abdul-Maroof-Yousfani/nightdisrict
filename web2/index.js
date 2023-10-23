@@ -21,6 +21,11 @@ const nodemailer = require('nodemailer')
 const path = require('node-path')
 const { dirname } = require('path')
 const { fileURLToPath } = require('url')
+const serviceAccount = require("./config/tempmail.json") ;
+const admin = require('firebase-admin') ;
+
+
+
 
 dotenv.config();
 
@@ -52,6 +57,25 @@ app.get('/downloadable-pdf', (req,res) => {
             res.status(404).send('File not found');
         }
     });
+});
+
+app.get('/test-notification', async(req,res) => {
+
+    try
+    {
+        let result = await helpers.notification(fcm);
+        return res.json({
+            result
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            data : error.message
+        })
+    }
+
+    
 });
 
 // app.get('/downloadable-json', (req, res) => {

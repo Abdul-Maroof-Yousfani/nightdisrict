@@ -3,6 +3,9 @@ const nodemailer = require('nodemailer');
 const User = require('../models/users.js');
 const { GET } = require('./APIRequestProvider.js');
 
+const serviceAccount = require("../config/tempmail.json") ;
+const admin = require('firebase-admin') ;
+
 function sendResetPasswordEmail(num, email, name, callback) {
     var transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
@@ -160,6 +163,39 @@ function pagination(records, page = 1, limit = 10) {
     results.result = records.slice(startIndex, endIndex);
     return results;
 }
+
+
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+
+
+const notification = async(token) =>{
+    try
+    {   
+        const payload = {
+            notification: {
+                title: 'TempMail',
+                body: 'New Email Received',
+            },
+        };
+        const response = await admin.messaging().sendToDevice(token, payload);
+        console.log(response);
+        return response;
+       
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.json({
+            response
+        })
+    }
+}
+
+
 module.exports = {
     sendResetPasswordEmail,
     validateUsername,
@@ -169,5 +205,6 @@ module.exports = {
     createEmail,
     deleteMailAfterThreeDays,
     isUserSubscriptionExpired,
-    pagination
+    pagination,
+    notification
 }
