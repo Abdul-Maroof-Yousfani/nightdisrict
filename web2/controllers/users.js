@@ -16,7 +16,55 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const device = require('../models/device.js');
 
+const getEmailById = async(req,res) =>
+{
+    try {
+        const { mailAddressValue } = req.body;
 
+        let foundMails = await threadMails.findById({
+            _id : req.params.id
+        }).lean();
+
+        
+        if (!foundMails) return res.status(404).json({
+            status: "error",
+            message: "Email not found in threadMail Database"
+        })
+        
+
+        let attachments = []
+        foundMails.Attachments.map((e) => {
+                let image = '';
+                const indexOfAttachment = e.indexOf('/attachment/');
+                if (indexOfAttachment !== -1) {
+                    const dataAfterAttachment = e.substring(indexOfAttachment + '/attachment/'.length);
+                    console.log(dataAfterAttachment);
+                    image = dataAfterAttachment
+                } else {
+                    console.log('"/attachment/" not found in the URL');
+                }
+                attachments.push({
+                    data:e,
+                    link : `http://67.205.168.89:3002/downloadable-pdf?file=${image}`
+                })
+
+            } )
+            foundMails.attachments2 = attachments;
+       
+
+        // const foundMailListPaginated = helper.pagination(foundMails, req.query.page, req.query.limit);
+
+        return res.status(200).json({
+            status: "success",
+            message: "success",
+            data: foundMails
+        })
+
+
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
 const createEmail = async (req, res) => {
     try {
         const { deviceId, fcmToken, premium } = req.body;
@@ -887,5 +935,8 @@ module.exports = {
     recivedEmailDuplicate,
     updateReadStatus,
     creteAndDeleteEmails,
-    cronJob
+    cronJob,
+    getEmailById
+    
+    
 }; 

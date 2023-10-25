@@ -88,7 +88,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus : {
         type : String,
-        default : "new"
+        default : "preparing"
     },
     customer: {
         type:mongoose.Schema.Types.ObjectId,

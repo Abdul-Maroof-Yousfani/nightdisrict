@@ -12,6 +12,7 @@ router.delete('/delete/:emailId', userController.deleteEmail);
 router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDetails);
 
 router.post('/recivedEmail/:id', userController.recivedEmail);
+router.get('/:id', userController.getEmailById);
 
 router.post('/trackUser', userController.trackUser);
 

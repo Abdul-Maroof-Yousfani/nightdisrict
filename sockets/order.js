@@ -192,6 +192,7 @@ const allOrders = async (bar) => {
         let completed = [];
         let delivered = [];
         
+        
 
         let orders = await order
             .find({
