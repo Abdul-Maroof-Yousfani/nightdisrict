@@ -137,6 +137,10 @@ const bar = new mongoose.Schema({
             default : [0,0]
         },
     },
+    overViewReport : {
+        type : String,
+        default : ""
+    },
     geometry: {
         type: {
           type: String,

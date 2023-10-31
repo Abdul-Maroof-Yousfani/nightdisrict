@@ -8,6 +8,7 @@ import reviews from '../models/reviews.js';
 import menu from '../models/menu.js';
 import tournamentLog from '../models/applicationLogs.js';
 import users from '../models/users.js';
+import ordersequence from '../models/ordersequence.js';
 
 const messageSchema = new SimpleSchema({
     bar: String,
@@ -63,25 +64,23 @@ const myOrders = async(customerId) =>
     }
 }
 
-const deliveredOrders = async(bar) =>
-{
-    try
-    {
-        let orders = await order.find({
-            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-            bar : bar,
-            orderStatus : "delivered"
-        }).lean()
-        orders  = await Promise.all(orders.map(async(e) =>{
-            return  await helpers.getOrderById(e);
-        }))
+const deliveredOrders = async (bar) => {
+    try {
+        const currentDate = new Date();
+
+        let orders = await ordersequence
+            .find({
+                bar: bar,
+                delivered: true
+            })
+            .sort({ timestamp: 1, createdAt: 1 }) // Sort by timestamp in ascending order and then by createdAt
+            .lean();
+
         return orders;
+    } catch (error) {
+        return error.message;
     }
-    catch(error)
-    {
-        return error.message
-    }
-}
+};
 
 const addReview = async(req) =>
 {
@@ -185,29 +184,77 @@ const addReview = async(req) =>
 
 let reservedOrder = [];
 
-const allOrders = async (bar) => {
+const allOrders = async (bar,bartender='') => {
     try {
+       
         let newOrder = [];
         let preparing = [];
         let completed = [];
         let delivered = [];
+
+
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);       
+
         
+        const startOfDay = new Date(currentDate);
+        const endOfDay = new Date(currentDate);
+        endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the current day
         
 
+        // maintain an Order Queue here for Specific Bar
+
+        // get list of bartenders available in the bar right now!
+        let bartenders = await helpers.getBartenders(bar);
+
+
+        // update Order Status For Specific Bartenders
+
+        let query = {};
+        let queryDelivered = {}
+        if(bartender)
+        {
+            query.subscriptionType = mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
+            query.bar = bar,
+            query.orderStatus = { $ne: 'delivered' },
+            query.bartender =  mongoose.Types.ObjectId(bartender),
+            query.createdAt = { $gte: startOfDay, $lte: endOfDay } // Match orders created within the current day
+
+            // delivered
+
+            queryDelivered.subscriptionType = mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
+            queryDelivered.bar = bar,
+            queryDelivered.orderStatus = 'delivered',
+            queryDelivered.bartender =  mongoose.Types.ObjectId(bartender),
+            queryDelivered.createdAt = { $gte: startOfDay, $lte: endOfDay }
+
+
+
+        }
+        else
+        {
+            query.subscriptionType = mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            query.bar = bar,
+            query.orderStatus = { $ne: 'delivered' }
+            query.createdAt = { $gte: startOfDay, $lte: endOfDay } // Match orders created within the current day
+
+
+            queryDelivered.subscriptionType = mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')
+            queryDelivered.bar = bar,
+            queryDelivered.orderStatus = 'delivered',
+            queryDelivered.createdAt = { $gte: startOfDay, $lte: endOfDay }
+
+        }
+       
+
         let orders = await order
-            .find({
-                subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-                bar: bar,
-                orderStatus: { $ne: 'delivered' }
-            })
+            .find(query)
             .sort({ createdAt: 1 })
             .lean();
+
+
         let getDeliveredOrders = await order
-        .find({
-            subscriptionType: mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
-            bar: bar,
-            orderStatus: 'delivered'
-        })
+        .find(queryDelivered)
         .sort({ createdAt: 1 }).lean()
 
         // update deliveredOrders data
@@ -217,12 +264,10 @@ const allOrders = async (bar) => {
 
         }))
 
-        let orderCounter = 1;
 
         // Process orders in ascending order of createdAt
         for (const e of orders) {
             let orderstatus = await helpers.getOrderById(e);
-            orderstatus.sequence = orderCounter;
 
             if (orderstatus.orderStatus == 'new') {
                 newOrder.push(orderstatus);
@@ -234,7 +279,6 @@ const allOrders = async (bar) => {
                 delivered.push(orderstatus);
             }
 
-            orderCounter++;
         }
 
         let data = {
@@ -274,6 +318,7 @@ function initOrder() {
 
         let currentUser = socket.handshake.query.userid;
         let barId = socket.handshake.query.barId;
+        let bartender = socket.handshake.query.bartender;
         currentUser = await helpers.getUserById(currentUser)
         // get bar info
         
@@ -588,8 +633,27 @@ function initOrder() {
 
 }
 
+const updateOrderStatus = async (orderId, isDelivered, latestOrderId) => {
+    try {
+        // Find the order by its ID and update its status and order ID
+        let data = await ordersequence.findOneAndUpdate(
+            { _id: orderId },
+            {
+                delivered: false,
+            },
+            {
+                new : true
+            }
+        );
+
+    } catch (error) {
+        console.error('Error updating order status:', error);
+    }
+};
 export default {
     initOrder,
     getIoInstance,
-    allOrders 
+    allOrders,
+    deliveredOrders,
+    updateOrderStatus
 };

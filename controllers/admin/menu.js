@@ -80,7 +80,7 @@ const store = async(req,res) =>
                   });
 
     
-                  menuPictures.push(`/menu/${fileName}`)
+                menuPictures.push(`/menu/${fileName}`)
               })
             }
             

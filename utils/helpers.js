@@ -18,6 +18,7 @@ import reviews from '../models/reviews.js';
 import notification from '../models/notification.js';
 import serviceAccount from "../config/nd.js";
 import Admin from 'firebase-admin';
+import ordersequence from '../models/ordersequence.js';
 
 
 
@@ -1590,6 +1591,101 @@ let createNotification = async(req,user) =>
     }
 }
 
+
+// Websockets Order System
+
+
+const getLatestOrder = async(bar) =>
+{
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+    try
+    {
+        const startOfDay = new Date(currentDate);
+        const endOfDay = new Date(currentDate);
+        endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the current day
+
+
+        const lastDeliveredOrder = await order.findOne({
+            bar: bar,
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+            createdAt: { $gte: startOfDay, $lte: endOfDay }, // Match orders created within the current day
+          }).sort({ createdAt: -1 });
+        return lastDeliveredOrder;
+    }
+    catch(error)
+    {   
+        return {}
+    }
+}
+
+const calculateNextBartender = (bartenders) => {
+    if (deliveredOrderSequence.length === 0) {
+      // If no orders have been delivered yet, start with the first bartender
+      return bartenders[0];
+    }
+  
+    const lastDeliveredOrder = deliveredOrderSequence[deliveredOrderSequence.length - 1];
+    const indexOfLastDeliveredOrder = bartenders.findIndex((b) => b === lastDeliveredOrder.bartender);
+  
+    // Calculate the index of the next bartender in a circular manner
+    const nextIndex = (indexOfLastDeliveredOrder + 1) % bartenders.length;
+  
+    return bartenders[nextIndex];
+  };
+
+
+
+
+let getBartenders = async(bar) =>                                                                                                                   
+{
+    try
+    {
+        let bartenders = await users
+        .find({ related_bar: bar , role : mongoose.Types.ObjectId('63ff34f1a14c840a057407cc') })
+        .select({ username: 1 })
+        .sort({ username: 1 }) // Sort by the 'username' field in ascending order
+        .lean();
+
+        return bartenders;
+    }
+    catch(error)
+    {
+        return []
+    }
+}
+
+const getLastOrder = async(bar) =>
+{
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    try
+    {
+        const startOfDay = new Date(currentDate);
+        const endOfDay = new Date(currentDate);
+        endOfDay.setHours(23, 59, 59, 999); // Set the time to the end of the current day
+
+
+        const lastDeliveredOrder = await ordersequence.findOne({
+            bar: bar,
+            subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545'),
+
+            createdAt: { $gte: startOfDay, $lte: endOfDay }, // Match orders created within the current day
+          }).sort({ createdAt: -1 });
+
+
+        return lastDeliveredOrder;
+    }
+    catch(error)
+    {
+        return {}
+    }
+}
+
+// Ending Websocket Ordering System
+
+
 export default {
     validateUsername,
     validateEmail,
@@ -1638,7 +1734,10 @@ export default {
     
     // notifications
 
-    createNotification
+    createNotification,
+    getBartenders,
+    getLatestOrder,
+    getLastOrder
 
 }
 

@@ -62,7 +62,17 @@ const orderSchema = new mongoose.Schema({
             status : {
                 type : String,
                 default : "new"
-            }
+            },
+            review : [{
+                review : {
+                    type : mongoose.Types.ObjectId,
+                    ref : "reviews"
+                },
+                customer :{
+                    type : mongoose.Types.ObjectId,
+                    ref : "users"
+                }
+            }]
         }
     ],
     
@@ -102,7 +112,18 @@ const orderSchema = new mongoose.Schema({
     instruction : {
         type : String,
         default : ""
+    },
+    sequence : {
+        type : Number,
+        default : 0
+    },
+    nextBartender : {
+        type : mongoose.Types.ObjectId,
+        ref : "users"
     }
 
 },{timestamps:true})
+
+orderSchema.index({ items: 1, subscriptionType: 1 , orderNo :1 , bar : 1 , bartender: 1 });
+
 export default mongoose.model("orders", orderSchema)

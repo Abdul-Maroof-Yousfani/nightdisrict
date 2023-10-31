@@ -28,6 +28,9 @@ import Menu from './models/menu.js';
 
 
 
+
+
+
 import path from 'node:path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -55,10 +58,13 @@ mongoose.connect(DB_URL, (err, db) => {
 const app = express();
 
 app.use(cors());
+app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(fileUpload());
 app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, 'web')));
+app.use(express.static(path.join(__dirname, 'pdf')));
+
 
 app.use("/api/users", users);
 app.use("/api/roles", roles);
@@ -123,6 +129,29 @@ app.use('/remove-items', async(req,res) =>{
 
     });
 
+}) 
+
+app.use('/updateImages', async(req,res) =>{
+
+    // the query is going to remove items that are not is supermenu
+
+    let data = await superMenu.find({});
+    await Promise.all(data.map( async (e) =>{
+        let newData  = await superMenu.findByIdAndUpdate({
+            _id : e._id
+        },{
+            $push : {
+                pictures : `/menu/${e.menu_name}.jpeg`
+            }
+        },{
+            new:true
+        })
+
+        return e
+    
+    }))
+    
+ 
 }) 
 
 app.use('/notification-handler',notificationRoute);

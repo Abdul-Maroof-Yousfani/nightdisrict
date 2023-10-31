@@ -4,12 +4,24 @@ import Bar from '../controllers/barowner/bar.js';
 const router = express.Router();
 
 
+
+
 // Bar Profile
 
 router.get("/home" ,helper.verifyAuthToken, Bar.home);
 router.delete("/destroy",helper.verifyAuthToken, Bar.destroy);
 router.get('/home/app', helper.verifyAuthToken , Bar.app)
 router.get('/home/web', helper.verifyAuthToken , Bar.web)
+
+
+
+// Nightly Overview Report
+
+router.get('/:id/report',  Bar.report)
+router.get('/:id/pdf-report',  Bar.pdfReport)
+// router.get('/generate/report/:id',  Bar.geberateReport)
+
+// Reports related to bar ends here
 
 
 router.get("/analytics" ,helper.verifyAuthToken, Bar.analytics);

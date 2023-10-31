@@ -15,6 +15,12 @@ import event from '../../models/event.js';
 import promotion from '../../models/promotion.js';
 import attendance from '../../models/attendance.js';
 import teamMember from '../../models/team.js';
+import fs from 'fs';
+import ejs from 'ejs';
+import puppeteer from 'puppeteer';
+import axios from 'axios';
+
+
 
 
 
@@ -1270,6 +1276,395 @@ const update = async (req, res) => {
     }
 
 }
+
+// bar reports
+
+const pdfReport = async(req,res) =>
+{
+    try
+    {
+        const browser = await puppeteer.launch({ headless: "new" });
+        const page = await browser.newPage();
+        const content = await ejs.renderFile('pdf/template.ejs', {}); // Path to your EJS template
+
+        await page.setContent(content);
+        const pdfBuffer = await page.pdf({ format: 'A4' });
+        const timestamp = new Date().toISOString().replace(/:/g, '-'); // Replace ':' with '-' to create a valid filename
+
+        await browser.close();
+        res.setHeader('Content-Disposition', `attachment; filename=overviewreport-${timestamp}.pdf`);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(pdfBuffer);
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : "success",
+        })
+    }
+}
+
+const report = async(req,res) =>
+{
+    try
+    {
+        // lets get bartenders list first for the specific Bartender
+        // bartender Performance
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const barId = req.params.id; // Replace with the actual bar ID
+
+        
+        // Step 2: Use the aggregation framework to group the data by bartender
+        const bartenderData = await order.aggregate([
+            {
+                $match: {
+                    bar: mongoose.Types.ObjectId(barId),
+                    createdAt: {
+                        $gte: today,
+                        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: '$bartender',
+                    totalOrdersDelivered: { $sum: '$totalQuantity' },
+                    totalTipsEarned: { $sum: '$tip' },
+                    averageDrinkRating: { $avg: '$averageRatingField' }, // Replace with the actual field for drink ratings
+                },
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'bartenderInfo',
+                },
+            },
+        ]);
+
+        // Step 3: Organize the data in the desired format
+        const formattedBartenderData = bartenderData.map((data) => ({
+            name: data.bartenderInfo[0].firstname,
+            Delivered: data.totalOrdersDelivered,
+            Tips: data.totalTipsEarned,
+            rating: 4.5
+        }));
+
+
+        let bartender = formattedBartenderData
+
+
+        // let bartender = [{
+        //     "name" : "Larry Nelson",
+        //     "Orders Delivered" : 82,
+        //     "Tips Earned" : 30,
+        //     "Average Drink Rating" : '4.3/5'
+        // }]
+
+        // Menu Performance
+
+
+        const bestSellingMenuItem = await menu.aggregate([
+            {
+                $match: {
+                    barId: mongoose.Types.ObjectId(req.params.id),
+                },
+            },
+            {
+                $lookup: {
+                    from: 'orders',
+                    localField: 'item',
+                    foreignField: 'items.item',
+                    as: 'orderDetails',
+                },
+            },
+            {
+                $addFields: {
+                    totalOrders: { $size: '$orderDetails' },
+                },
+            },
+            {
+                $sort: { totalOrders: -1 },
+            },
+            {
+                $limit: 1,
+            },
+        ]);
+        let bestSellingMenu = 
+        {
+            name : '',
+            total  : 0 ,
+            image : ''
+        }
+        if(bestSellingMenuItem.length)
+        {
+            bestSellingMenu = {
+                name : bestSellingMenuItem[0].menu_name,
+                total  : bestSellingMenuItem[0].totalOrders,
+                image : 'www.google.com'
+            }
+        }
+      
+        let menuChart = [{
+            name : "Cocktails",
+            percentage : 20,
+            color : 'red'
+
+        },
+        {
+            name : "Wine",
+            percentage : 30,
+            color : 'Green'
+
+        },
+        {
+            name : "Bear",
+            percentage : '10',
+            color : 'blue'
+
+        },
+        {
+            name : "Kentucky",
+            percentage : 40,
+            color : 'Grey'
+
+        }
+    
+    ]
+
+        const totalMenus = await menu.aggregate([
+            {
+                $match: {
+                    barId: mongoose.Types.ObjectId(req.params.id),
+                },
+            },
+            {
+                $lookup: {
+                    from: 'orders',
+                    localField: 'item',
+                    foreignField: 'items.item',
+                    as: 'orderDetails',
+                },
+            },
+            {
+                $addFields: {
+                    totalSales: { $sum: '$orderDetails.totalPrice' },
+                    totalOrders: { $size: '$orderDetails' },
+                },
+            },
+            {
+                $sort: { totalSales: -1 },
+            },
+            {
+                $project: {
+                    menu_name: 1,
+                    totalSales: 1,
+                    totalOrders: 1,
+                    rating: 1,
+                },
+            },
+        ]);
+        
+        // Calculate the rank based on the sorted array
+        totalMenus.forEach((menu, index) => {
+            menu.rank = index + 1;
+        });
+        
+    
+    
+
+        // let totalMenus = [{
+        //     rank : 1,
+        //     name : "Grey Goose 1",
+        //     Orders  : 52.99,
+        //     Sales : 212,
+        //     rating : 4.3
+        // },
+        // {
+        //     rank : 2,
+        //     name : "Grey Goose 2",
+        //     Orders  : 52.99,
+        //     Sales : 250,
+        //     rating : 4.3
+        // }]
+
+        const bestEvent = await event.aggregate([
+            {
+                $match: {
+                    bar: mongoose.Types.ObjectId(req.params.id),
+                    active: true, // Filter for active events
+                },
+            },
+            {
+                $lookup: {
+                    from: 'attendance',
+                    localField: '_id',
+                    foreignField: 'event',
+                    as: 'attendanceDetails',
+                },
+            },
+            {
+                $addFields: {
+                    totalAttendance: { $size: '$attendanceDetails' }, // Calculate total attendance
+                },
+            },
+            {
+                $sort: { totalAttendance: -1 },
+            },
+            {
+                $limit: 1,
+            },
+        ]);
+        
+        console.log(bestEvent);
+        return res.json(bestEvent)
+
+        // let bestEvent = {
+        //     title : "Friday Night",
+        //     attendance : 326,
+        //     image : "",
+        //     rating : 4.5,
+        //     reviews : [{
+        //         "name" : "David",
+        //         'date' : "Jan 01, 2022",
+        //         'description' : "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, seddiam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet"
+        //     }]
+           
+        // }
+
+        let peakHours = [{
+            'time' : '6:00 PM',
+            'attendance'  : 1
+        },
+        {
+            'time' : '7:00 PM',
+            'attendance'  : 5
+        },
+        {
+            'time' : '8:00 PM',
+            'attendance'  : 20
+        },
+        {
+            'time' : '9:00 PM',
+            'attendance'  : 58
+        },
+        {
+            'time' : '10:00 PM',
+            'attendance'  : 30
+        },
+        {
+            'time' : '11:00 AM',
+            'attendance'  : 20
+        },
+        {
+            'time' : '1:00 AM',
+            'attendance'  : 1
+        }
+    ]
+
+        // Demo Graphics
+        // pi
+        let piechart1 = [{
+            name : 'male',
+            percentage : 44,
+            color : 'red'
+        },{
+            name : 'female',
+            percentage : 56,
+            color : 'grey'
+        }]
+        let piechart2 = [{
+            name : "Cocktails",
+            percentage : 20,
+            color : 'red'
+
+        },
+        {
+            name : "Wine",
+            percentage : 30,
+            color : 'Green'
+
+        },
+        {
+            name : "Bear",
+            percentage : '10',
+            color : 'blue'
+
+        },
+        {
+            name : "Kentucky",
+            percentage : 40,
+            color : 'Grey'
+
+        }
+    
+        ]
+        const piechart3 = [{
+            name : "Cocktails",
+            percentage : 20,
+            color : 'red'
+
+        },
+        {
+            name : "Wine",
+            percentage : 30,
+            color : 'Green'
+
+        },
+        {
+            name : "Bear",
+            percentage : '10',
+            color : 'blue'
+
+        },
+        {
+            name : "Kentucky",
+            percentage : 40,
+            color : 'Grey'
+
+        }
+    
+        ]
+
+        // chart data
+
+        const chartData = {
+            labels: [
+              "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33"
+            ],
+            datasets: [
+              {
+                label: "Male",
+                backgroundColor: "#000",
+                data: [135, 90, 92, 72, 42, 20, 0, 5, 0, 0, 2, 3, 1]
+              },
+              {
+                label: "Female",
+                backgroundColor: "#ff0092",
+                data: [120, 75, 82, 63, 45, 32, 1, 0, 0, 0, 0, 0, 0]
+              }
+            ]
+          };
+
+        return res.json({
+            status : 200,
+            data: {bartender,bestSellingMenu,menuChart,totalMenus,bestEvent,peakHours,piechart1:{ chartname : "Male/Female" , data :piechart1  },piechart2:{ chartname : "Female" , data :piechart2  },piechart3:{ chartname : "Female" , data :piechart3 } , chartData}
+            
+        })
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.json({
+            status : 200,
+            message : error.message
+        })
+    }
+}
+
 const home = async(req,res) =>
 {
     let graph  = {}
@@ -2119,5 +2514,7 @@ export default {
     analyticsByBarId,
     getBarGeometry,
     suspendRespond,
-    update
+    update,
+    report,
+    pdfReport
 }

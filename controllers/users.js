@@ -143,7 +143,8 @@ const register = async (req, res) => {
             address : {type : String, required : false},
             longitude : {type : String, required : false},
             latitude : {type : String, required : false},
-            dateofbirth : {type : String, required : false}
+            dateofbirth : {type : String, required : false},
+            dob : {type : String, required : false}
         }).newContext();
         
         const userExist = await User.findOne({ $or: [{ email: body.email }, { username: body.username }] });
@@ -378,8 +379,17 @@ const selectMembership = async (req,res) =>{
 
         let checkBar = await bar.findOne({ owner : userId})
         barID = checkBar?checkBar: await new bar({
-            owner : userId
+            owner : userId,
         }).save()
+
+        // update the bar Report
+        await bar.findByIdAndUpdate({
+            _id : barID._id
+        },{
+            $set : {
+                overViewReport : `bar/${barID._id.toString()}/pdf-report`
+            }
+        })
         
         let result = await User.findByIdAndUpdate({_id : userId} , {$set:{membership:mongoose.Types.ObjectId(req.body.membership) , barInfo:barID._id}},{new:true});
 
@@ -1153,6 +1163,136 @@ const review  = async(req,res) =>{
     }
 }
 
+const reviewOnItem  = async(req,res) =>{
+    let {item,variation,customer,rating,bar,message,Order} = req.body;
+    let body = req.body;
+
+    try
+    {
+        // check item, if item exists
+        
+        // get customer from the access token
+
+   
+        body.customer = req.user._id;
+
+        // add dat to the req.body
+
+        let checkMenu = await menu.findOne({
+            item,
+            barId : bar
+        }).lean()
+
+        // check review if already given
+
+        let checkReview = await reviews.findOne({
+            customer : req.user._id,
+            item,
+            bar
+        })
+
+ 
+        if(checkReview) return res.status(200).json({
+            status : 409,
+            message : "review already given",
+        })
+
+        
+
+
+    
+
+        // check menu
+
+
+
+
+
+      
+
+
+        // adding a review to  a drink
+
+        let drink = new reviews(req.body);
+        drink = await drink.save();
+
+ 
+
+
+        // // getProductByID
+
+
+
+
+
+        // if (newIndex === -1) {
+        //     // Bar is not in favorites, so add it
+        //     checkMenu.reviews.push({customer:req.user._id , review :  drink._id});
+        // } 
+        // else 
+        // {
+        //     // Bar is in favorites, so remove it
+        //     checkMenu.reviews.splice(newIndex, 1);
+        // }
+
+
+        // checkMenu = await checkMenu.save();
+
+
+        // update
+        let newData = await menu.findOneAndUpdate({
+            item,
+            barId: bar
+        },
+        {
+            $push : {
+                "reviews" : {
+                    customer : req.user._id,
+                    review : drink._id
+                },
+                
+            }
+        },{
+            new: true
+        })
+
+        // const index = data.favouriteDrinks.findIndex(favoriteBar => favoriteBar.bar.toString() === Bar &&  favoriteBar.item.toString() == item);
+
+        //     if (index === -1) {
+        //         // Bar is not in favorites, so add it
+        //         data.favouriteDrinks.push({bar:Bar , item});
+        //       } else {
+        //         // Bar is in favorites, so remove it
+        //         data.favouriteDrinks.splice(index, 1);
+        //       }
+
+
+        // get drink data
+
+        drink = await reviews.findById({
+            _id : drink._id
+        }).lean()
+
+        drink = await helpers.getBasicReview(drink)
+        
+        
+
+        return res.status(200).json({
+            status : 200,
+            message : 'success',
+            data : drink
+        })
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 const myOrders = async(req,res) =>
 {
     try
@@ -1381,5 +1521,6 @@ export default{
     orders,
     details,
     setNotification,
-    destroy
+    destroy,
+    reviewOnItem
 };

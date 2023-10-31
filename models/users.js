@@ -26,6 +26,10 @@ const usersSchema = new mongoose.Schema({
     dateofbirth: {
         type: Date,
     },
+    gender : {
+        type : String,
+        default : ""
+    },
     email: {
         type: String,
     },
