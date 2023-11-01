@@ -1298,6 +1298,7 @@ const pdfReport = async(req,res) =>
     }
     catch(error)
     {
+        console.log(error);
         return res.json({
             status : 500,
             message : "success",
