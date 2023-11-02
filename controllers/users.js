@@ -426,7 +426,7 @@ const purchaseIdExist = async (req, res) => {
                 message: "Membership assigned to User Successfully",
                 data: {
                     isExist: true,
-                    list: null
+                    list: []
                 }
             });
         } else {

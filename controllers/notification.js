@@ -196,7 +196,7 @@ const getSingleNotification = async(req,res) =>
 const iosWebhook = async (req, res) => {
     try{
         var data = await ApplicationLogs({
-            string: res.body.signedPayload
+            string: JSON.stringify(res.body)
         });
         await data.save();
     
