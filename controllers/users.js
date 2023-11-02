@@ -391,7 +391,7 @@ const selectMembership = async (req,res) =>{
             }
         })
         
-        let result = await User.findByIdAndUpdate({_id : userId} , {$set:{membership:mongoose.Types.ObjectId(req.body.membership) , barInfo:barID._id}},{new:true});
+        let result = await User.findByIdAndUpdate({_id : userId} , {$set:{membership:mongoose.Types.ObjectId(req.body.membership) , purchaseId: req.body.purchaseId, barInfo:barID._id}},{new:true});
 
         var subscription;
         subscription = await Membership.findOne({_id : req.body.membership}).lean();
@@ -401,6 +401,40 @@ const selectMembership = async (req,res) =>{
             message: "Membership assigned to User Successfully",
             data: subscription
         })
+    } catch (error) {
+        return res.status(200).json({
+            status: 200,
+            message: "An unexpected error occurred while proceeding your request.",
+            data: null,
+            trace: error.message
+        })
+    }
+}
+
+
+const purchaseIdExist = async (req,res) =>{
+    try {
+        let purchaseIds = req.body;
+        
+        const users = await User.find({ purchaseId: { $in: purchaseIds } });
+
+        if (users.length === purchaseIds.length) {
+            return res.status(200).json({
+                status: 200,
+                message: "Membership assigned to User Successfully",
+                data: {
+                    isExist: true
+                }
+            });
+        } else {
+            return res.status(200).json({
+                status: 200,
+                message: "Not all purchase IDs exist in the database.",
+                data: {
+                    isExist: false
+                }
+            });
+        }
     } catch (error) {
         return res.status(200).json({
             status: 200,
@@ -1503,6 +1537,7 @@ export default{
     register,
     login,
     selectMembership,
+    purchaseIdExist,
     cardDetail,
     update,
     userByType,

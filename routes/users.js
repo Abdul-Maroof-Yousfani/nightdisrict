@@ -10,6 +10,7 @@ router.post('/social', userController.social);
 router.put('/',helpers.verifyAuthToken ,userController.update);
 router.post('/login', userController.login);
 router.post('/selectMembership' ,  helper.verifyAuthToken, userController.selectMembership);
+router.post('/purchaseIdExist' ,  helper.verifyAuthToken, userController.purchaseIdExist);
 router.put("/cardDetail" ,helper.verifyAuthToken, userController.cardDetail);
 
 // change password functionalitiy

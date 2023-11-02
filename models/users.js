@@ -52,6 +52,10 @@ const usersSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         default: null
     },
+    purchaseId: {
+        type: String,
+        default: null
+    },
     cardDetail: [{
         cardHolderName: { type: String },
         cardNumber: { type: Number, min: 12 },
