@@ -6,6 +6,7 @@ import Menu from '../models/menu.js';
 import helpers from '../utils/helpers.js';
 import reviews from '../models/reviews.js';
 import Notification from '../models/notification.js';
+import ApplicationLogs from '../models/applicationLogs.js';
 
 import admin from 'firebase-admin';
 import order from '../models/order.js';
@@ -191,9 +192,39 @@ const getSingleNotification = async(req,res) =>
         })
     }
 }
+
+const iosWebhook = async (req, res) => {
+    try{
+        var data = await ApplicationLogs({
+            string: res.body.signedPayload
+        });
+        await data.save();
+    
+        return res.json({
+            status : 200,
+            message : "success",
+        })
+    }
+    catch(error)
+    {   
+        return res.json({
+            status : 500,
+            message : error.message,
+        })
+    }
+}
+const androidWebhook = async (req, res) => {
+    return res.json({
+        status : 200,
+        message : "success",
+    })
+}
+
 export default {
     testNotification,
     all,
     store,
-    getSingleNotification
+    getSingleNotification,
+    iosWebhook,
+    androidWebhook
 }
