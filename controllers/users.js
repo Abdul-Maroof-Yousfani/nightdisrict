@@ -412,29 +412,21 @@ const selectMembership = async (req,res) =>{
 }
 
 
-const purchaseIdExist = async (req,res) =>{
+const purchaseIdExist = async (req, res) => {
     try {
-        let purchaseIds = req.body;
-        let notExist = []
+        const purchaseIds = req.body;
         const users = await User.find({ purchaseId: { $in: purchaseIds } });
-        purchaseIds.map((e) => {
-            users.map((purchase) =>{
-                if(purchase.purchaseId != e)
-                    {
-                        notExist.push(e)
-                    }
-                
-            })
-        })
 
+        const existingPurchaseIds = users.map(user => user.purchaseId);
+        const notExist = purchaseIds.filter(purchaseId => !existingPurchaseIds.includes(purchaseId));
 
-        if (users.length === purchaseIds.length) {
+        if (notExist.length === 0) {
             return res.status(200).json({
                 status: 200,
                 message: "Membership assigned to User Successfully",
                 data: {
                     isExist: true,
-                    list : notExist
+                    list: null
                 }
             });
         } else {
@@ -443,8 +435,7 @@ const purchaseIdExist = async (req,res) =>{
                 message: "Not all purchase IDs exist in the database.",
                 data: {
                     isExist: false,
-                    list : notExist
-
+                    list: notExist
                 }
             });
         }
@@ -454,7 +445,7 @@ const purchaseIdExist = async (req,res) =>{
             message: "An unexpected error occurred while proceeding your request.",
             data: null,
             trace: error.message
-        })
+        });
     }
 }
 
