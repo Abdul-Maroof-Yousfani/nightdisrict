@@ -414,28 +414,23 @@ const selectMembership = async (req,res) =>{
 
 const purchaseIdExist = async (req, res) => {
     try {
-        const purchaseIds = req.body;
-        const users = await User.find({ purchaseId: { $in: purchaseIds } });
+        const purchaseId = req.body.purchaseId;
+        const users = await User.find({ purchaseId: purchaseId });
 
-        const existingPurchaseIds = users.map(user => user.purchaseId);
-        const notExist = purchaseIds.filter(purchaseId => !existingPurchaseIds.includes(purchaseId));
-
-        if (notExist.length === 0) {
-            return res.status(200).json({
-                status: 200,
-                message: "Membership assigned to User Successfully",
-                data: {
-                    isExist: true,
-                    list: []
-                }
-            });
-        } else {
+        if (users.length === 0) {
             return res.status(200).json({
                 status: 200,
                 message: "Not all purchase IDs exist in the database.",
                 data: {
                     isExist: false,
-                    list: notExist
+                }
+            });
+        } else {
+            return res.status(200).json({
+                status: 200,
+                message: "Membership assigned to User Successfully",
+                data: {
+                    isExist: true,
                 }
             });
         }
