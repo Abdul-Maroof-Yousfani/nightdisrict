@@ -393,6 +393,7 @@ const downloadSuperMenuPictures = async (imageUrls) => {
   
       // Generate the direct download link for the Google Drive image
       const directDownloadUrl = `https://drive.google.com/uc?export=download&id=${googleDriveFileId}`;
+      console.log(directDownloadUrl);
 
   
       // Download the image from the URL using Axios
@@ -427,6 +428,7 @@ const downloadSuperMenuPictures = async (imageUrls) => {
   }
   catch(error)
   {
+    console.log(error.message)
     return imagePaths;
   }
 
@@ -575,9 +577,42 @@ const importProduct = async (req, res) => {
             let data = new superMenu(superMenuData);
             await data.save();
         }
+        else
+        {
+            // update menu images
+            let pictures = [];
+            if(colJ)
+            {
+                 pictures = await downloadSuperMenuPictures([colJ])
+                  if(!pictures.length)
+                  {
+                    pictures.push('menu/no_photo.png')
+                  }
+                
+            }
+            else
+            {
+                pictures.push('menu/no_photo.png')
+                
+            }
 
-        
+            console.log("new picture")
+            console.log("Menu name "  + colB)
+            console.log(pictures)
+                
 
+            await superMenu.findByIdAndUpdate({
+              _id : checkSuperMenu._id
+            },{ 
+              $set: {
+                pictures : pictures
+              }
+            })
+            
+
+        }
+
+  
 
       } catch (error) {
         console.error('Error processing row:',error);

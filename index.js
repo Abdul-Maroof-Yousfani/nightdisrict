@@ -39,6 +39,7 @@ const __dirname = dirname(__filename);
 
 import cors from 'cors';
 import superMenu from "./models/superMenu.js";
+import menuCategory from "./models/menuCategory.js";
 
 
 
@@ -135,13 +136,13 @@ app.use('/updateImages', async(req,res) =>{
 
     // the query is going to remove items that are not is supermenu
 
-    let data = await superMenu.find({});
+    let data = await menuCategory.find({});
     await Promise.all(data.map( async (e) =>{
-        let newData  = await superMenu.findByIdAndUpdate({
+        let newData  = await menuCategory.findByIdAndUpdate({
             _id : e._id
         },{
-            $push : {
-                pictures : `/menu/${e.menu_name}.jpeg`
+            $set : {
+                category_image : `/menuCat/${e.name}.png`
             }
         },{
             new:true
