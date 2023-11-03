@@ -316,7 +316,7 @@ function initOrder() {
         let completed = [];
         let delivered = [];
 
-        let currentUser = socket.handshake.query.userid;
+        let currentUser = socket.handshake.query.userId;
         let barId = socket.handshake.query.barId;
         let bartender = currentUser;
         currentUser = await helpers.getUserById(currentUser)
