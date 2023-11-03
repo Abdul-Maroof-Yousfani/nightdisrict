@@ -465,10 +465,15 @@ function initOrder() {
                     _id : orderStatus.customer
                 })
 
+                let body =   `Your order #${orderStatus.orderNo} is now on ${response.status}, and it's on its way to you.`;
+                if(response.status == 'completed')
+                {
+                    body =  `Your drink is ready for pickup!`;
+                }
+                
                 let orderNotification = {
                     title : "Order Status Update",
-                    body : `Your order #${orderStatus.orderNo} is now on ${response.status}, and it's on its way to you.`,
-                    type : "drink_order",
+                    body,
                     notification_for : mongoose.Types.ObjectId(updateOrder._id),
                     user : mongoose.Types.ObjectId(orderStatus.customer)
                 }
@@ -500,7 +505,7 @@ function initOrder() {
                         sequence : orderStatus.sequence
                     },{
                         $set : {
-                            delivered: true 
+                            delivered:true 
                         }
                     })
                 }

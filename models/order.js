@@ -63,7 +63,7 @@ const orderSchema = new mongoose.Schema({
                 type : String,
                 default : "new"
             },
-            review : [{
+            review : {
                 review : {
                     type : mongoose.Types.ObjectId,
                     ref : "reviews"
@@ -72,7 +72,7 @@ const orderSchema = new mongoose.Schema({
                     type : mongoose.Types.ObjectId,
                     ref : "users"
                 }
-            }]
+            }
         }
     ],
     

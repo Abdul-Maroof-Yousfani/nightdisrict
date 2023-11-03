@@ -1582,6 +1582,7 @@ let createNotification = async(req,user) =>
           };
 
         const response = await Admin.messaging().sendToDevice(user.fcm, payload);
+        console.log(response);
         return data;
     }
     catch(error)
