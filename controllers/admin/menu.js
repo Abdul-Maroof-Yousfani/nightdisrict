@@ -608,6 +608,13 @@ const importProduct = async (req, res) => {
                 pictures : pictures
               }
             })
+
+            if(!colB)
+            {
+                return res.json({
+                  status : "done"
+                })
+            }
             
 
         }
