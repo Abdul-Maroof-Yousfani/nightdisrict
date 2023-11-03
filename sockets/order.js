@@ -318,8 +318,14 @@ function initOrder() {
 
         let currentUser = socket.handshake.query.userid;
         let barId = socket.handshake.query.barId;
-        let bartender = socket.handshake.query.bartender;
+        let bartender = currentUser;
         currentUser = await helpers.getUserById(currentUser)
+
+        console.log(`${barId} bar id `)
+        console.log(`${bartender} bartendr id `)
+
+
+
         // get bar info
         
         // let bar = await helpers.getBarData(barId)
@@ -355,7 +361,7 @@ function initOrder() {
         //         }))
         // let data = {newOrder:newOrder,preparing : preparing,completed:completed,delivered:delivered} 
 
-        let data = await allOrders(barId)
+        let data = await allOrders(barId,bartender)
 
         socket.emit('orders',data);
 

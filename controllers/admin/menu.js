@@ -543,34 +543,40 @@ const importProduct = async (req, res) => {
 
         // Create or find Subcategory2 and set its parent to categoryId
         
-
-
-        const superMenuData = {
-          bar: null, // Set the appropriate bar ID
-          user: null, // Set the appropriate user ID
-          userType: null, // Set the appropriate userType ID
-          menu_name: colB,
-          description: colC,
-          category: categoryId, // Use the category ID obtained above
-          subCategory: subcategory1Id, // Use the subcategory1 ID obtained above
-          picture: '',
-          pictures: [], // You can add pictures here if needed
-          categories: [categoryId], // Include parent and subcategories
-          subCategories: [subcategory1Id, subcategory2Id], // No need to include subcategories here
-        };
-  
-        // Insert superMenuData into the superMenu collection
-
-        if(colJ)
+        let checkSuperMenu = await superMenu.findOne({
+          menu_name  : colB
+        })
+        if(!checkSuperMenu)
         {
-          superMenuData.pictures = await downloadSuperMenuPictures([colJ])
-          console.log("ROW NUMBER" + rowNumber);
-          console.log(superMenuData.pictures);
-        }
+            const superMenuData = {
+              bar: null, // Set the appropriate bar ID
+              user: null, // Set the appropriate user ID
+              userType: null, // Set the appropriate userType ID
+              menu_name: colB,
+              description: colC,
+              category: categoryId, // Use the category ID obtained above
+              subCategory: subcategory1Id, // Use the subcategory1 ID obtained above
+              picture: '',
+              pictures: [], // You can add pictures here if needed
+              categories: [categoryId], // Include parent and subcategories
+              subCategories: [subcategory1Id, subcategory2Id], // No need to include subcategories here
+            };
+      
+            // Insert superMenuData into the superMenu collection
     
-     
-        let data = new superMenu(superMenuData);
-        await data.save();
+            if(colJ)
+            {
+              superMenuData.pictures = await downloadSuperMenuPictures([colJ])
+              console.log("ROW NUMBER" + rowNumber);
+              console.log(superMenuData.pictures);
+            }
+        
+        
+            let data = new superMenu(superMenuData);
+            await data.save();
+        }
+
+        
 
 
       } catch (error) {

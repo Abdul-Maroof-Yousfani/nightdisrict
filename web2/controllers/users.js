@@ -178,6 +178,9 @@ const cronJob = async (req, res) => {
     try {
         const { id } = req.params;
         const checkUsers = await User.find({}).lean();
+
+        console.log(req.body);
+        
        
         await Promise.all(checkUsers.map(async (e) => {
             let checkUser;
