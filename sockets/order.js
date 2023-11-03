@@ -494,10 +494,16 @@ function initOrder() {
                      },
                 ];
 
-                // if(response.status == 'delivered')
-                // {
-                //     reservedOrder.push(response.sequence)
-                // }
+                if(response.status == 'delivered')
+                {
+                    await ordersequence.findOneAndUpdate({
+                        sequence : orderStatus.sequence
+                    },{
+                        $set : {
+                            delivered: true 
+                        }
+                    })
+                }
                 
                 socket.emit('orderStatus',newData);
                 socket.broadcast.emit('orderStatus', newData);
