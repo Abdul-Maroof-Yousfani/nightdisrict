@@ -1889,6 +1889,7 @@ const app = async(req,res) =>
             const index = salesDataArray.findIndex(data => data.key === formattedHour);
             if (index !== -1) {
                 salesDataArray[index].value = item.sales;
+                
             }
         });
          res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});

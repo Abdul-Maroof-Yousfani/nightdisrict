@@ -614,7 +614,21 @@ const getSingleCategory = async(req,res)=> {
             return await helpers.getSuperItem(e._id)
         }))
         // get servings based on category
-        let servings =  await pourtype.find().lean()
+        let servings =  []
+        if(category.name == 'Spirits')
+        {
+            servings =  await pourtype.find({
+                name : 
+                { $ne: 'Pour' }
+            }).lean()
+
+        }
+        else
+        {
+            servings =  await pourtype.find({
+                name : 'Pour' 
+            }).lean()
+        }
         category.servings = servings;
         
         // let data = await helpers.getSuperItem(_id)
@@ -627,6 +641,7 @@ const getSingleCategory = async(req,res)=> {
     }
     catch(error)
     {
+        console.log(error)
         return res.json({
             status  : 500,
             message : error.message,
