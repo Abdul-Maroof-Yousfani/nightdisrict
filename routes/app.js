@@ -24,6 +24,7 @@ router.post('/mapView', helpers.verifyAuthToken , app.mapView)
 // Get Bar Details
 
 router.get('/bar/:id',helpers.verifyAuthToken, bar.show)
+router.get('/bar/:id/search/:q',bar.searchByBar)
 router.post('/bar/menu',helpers.verifyAuthToken, bar.Menu)
 
 // Adding new Categories

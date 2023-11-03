@@ -1109,9 +1109,9 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         {
             console.log(id);
         }
-        data.name = data.item.menu_name
-        data.description = data.item.menu_name
-        data.description = data.item.description
+        // data.name = data.item.menu_name
+        // data.description = data.item.menu_name
+        // data.description = data.item.description
         data.pictures = data.item.pictures
 
         data.buy = bought

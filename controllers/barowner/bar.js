@@ -930,7 +930,7 @@ const show = async(req,res) =>{
     {
         // get complete bar details from the bar Helper
 
-
+        
         let data = await helpers.getBarById(id)
 
         return res.status(200).json({
@@ -948,6 +948,35 @@ const show = async(req,res) =>{
             message  : error.message,
             data  : {}
         })
+    }
+}
+
+const searchByBar = async(req,res) =>
+{
+    try
+    {   
+        let query = await menu.find({
+            barId : req.params.id,
+            menu_name  : req.params.q
+        }).lean()
+        query = await Promise.all(query.map(async (e) =>{
+            return await helpers.getItemById(e.item,req.params.id);
+        } ))
+
+        return res.json({
+            status : 200,
+            message : 'success',
+            data  : query
+        });
+
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data  : {}
+        });
     }
 }
 
@@ -2518,5 +2547,6 @@ export default {
     suspendRespond,
     update,
     report,
-    pdfReport
+    pdfReport,
+    searchByBar
 }
