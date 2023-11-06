@@ -19,6 +19,7 @@ import fs from 'fs';
 import ejs from 'ejs';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
+import reviews from '../../models/reviews.js';
 
 
 
@@ -2476,7 +2477,35 @@ const suspendRespond = async(req,res) =>
         })
     }
 }
+const getReviesForProduct = async(req,res) =>
+{
+    try
+    {
+        let review = await reviews.find({
+            bar : req.body.bar,
+            item : req.body.item
+        }).lean()
+        let totalRe = await helpers.paginate(review,req.query.page,req.query.limit);
+        let records = await Promise.all(totalRe.result.map((e) =>{
+            return helpers.getBasicReview(e);
+        }))
+        return res.json({
+            status : 200,
+            message : "success",
+            data : records,
+            paginate : totalRe.totalPages
 
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data : [],
+        })
+    }
+}
 export default {
     nearby,
     items,
@@ -2507,5 +2536,6 @@ export default {
     update,
     report,
     pdfReport,
-    searchByBar
+    searchByBar,
+    getReviesForProduct
 }
