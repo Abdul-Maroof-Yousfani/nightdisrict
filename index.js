@@ -157,6 +157,10 @@ app.use('/updateImages', async(req,res) =>{
  
 }) 
 
+app.use('/callback', async(req,res) =>{
+    console.log(res);
+}) 
+
 app.use('/notification-handler',notificationRoute);
 
 
