@@ -958,7 +958,7 @@ const getMixers = async(bar) =>
     {
         let data = await menu.find({
             category :  "652d0685bf853d51a320b0a7",
-            barId : "651e60520fd5ae69025bd602"
+            barId : bar
         }).select({item:1 , variation : 1}).limit(10).lean()
         data = await Promise.all(data.map(async(e) =>{
 
@@ -1103,7 +1103,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
             let category = await menuCategory.findOne({_id :data.category })
             data.category = category
 
-            if(category.name == 'Beer')
+            if(category.name == 'Spirits')
             {
                 data.mixers = await getMixers(bar);
             }
