@@ -502,66 +502,25 @@ const addItem = async (req, res) => {
         if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
         if (type) {
-            // add item to the main Menu
-
-            // get category from super menu
-
-
-            // let mainMenu = new superMenu({
-            //     barId: req.user.barInfo,
-            //     user: req.user._id,
-            //     menu_name: title,
-            //     description,
-            //     category,
-            //     subCategory : subcategory,
-            //     pictures : [categoryImage.category_image],
-
-            // })
-            // mainMenu = await mainMenu.save()
-
-
            
-         
 
             let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
 
-            // check if item is already in the bar
-
-            // let categoryImage = await menuCategory.findById({
-            //     _id : mainMenu.category
+            
+            mainMenu.category?totalCategories.push({category : mainMenu.category}):""
+            mainMenu.subCategory?totalCategories.push({category : mainMenu.subCategory}):""
+           
+            // totalCategories.push({
+            //     category : mainMenu.category
+            // },{
+            //     category : mainMenu.subCategory
             // })
-
-            totalCategories.push({
-                category : mainMenu.category
-            },{
-                category : mainMenu.subCategory
-            })
 
 
             let barSearch = await menu.findOne({
                 item : superItem,
                 barId  : req.user.barInfo
             })
-            // console.log(mainMenu.category._id);
-            // return;
-
-
-            // if(mainMenu.category)
-            //         {
-            //             let category = await menuCategory.findById({_id : mainMenu.category},{name : 1});
-            //             mainMenu.category = category.name
-            //         }
-            //         if(mainMenu.subCategory)
-            //         {
-            //             let subCategory = await menuCategory.findById({_id : mainMenu.subCategory},{name : 1});
-            //             mainMenu.subCategory = subCategory.name
-            //         }
-
-            // console.log(mainMenu.category);
-            // return;
-                    // console.log(mainMenu.subCategory._id) 
-     
-            // then add item to the Bar
             if(!barSearch)
             {
                 let data = new menu(
