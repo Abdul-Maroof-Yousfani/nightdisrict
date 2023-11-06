@@ -1047,6 +1047,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
         data.superItem = id
 
         // check if review is given to the specific item
+        data.review = null;
         if(orderId)
         {
             let reviewItem = await reviews.findOne({
@@ -1056,8 +1057,12 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
                 bar : bar
 
             }).lean()
+            if(reviewItem)
+            {
+                data.review = await getBasicReview(reviewItem);
+
+            }
         
-            data.review = await getBasicReview(reviewItem);
         }
         
 
