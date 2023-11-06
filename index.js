@@ -23,7 +23,6 @@ import orderSocket from './sockets/order.js';
 import inApp from './routes/inapp.js';
 import bouncerRoute from './routes/bouncer.js';
 import notificationRoute from './routes/notification.js';
-
 import Menu from './models/menu.js';
 
 
@@ -132,7 +131,7 @@ app.use('/remove-items', async(req,res) =>{
 
 }) 
 
-app.use('/updateImages', async(req,res) =>{
+app.use('/updateImages', async(req,res) => {
 
     // the query is going to remove items that are not is supermenu
 

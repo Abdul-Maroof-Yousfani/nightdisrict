@@ -455,7 +455,7 @@ const tickets = async(req,res) =>{
                 customer : req.user._id,
                 event   : e.order
             })
-            e.review = review
+            e.review = helpers.getBasicReview(review)
             return e;   
         }))
 
