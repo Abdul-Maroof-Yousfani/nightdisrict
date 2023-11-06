@@ -113,6 +113,19 @@ const addReview = async(req) =>
             bar
         })
 
+        // add review to the order inside line item
+
+        // let orderDetail = await order.findByIdAndUpdate({
+        //     _id :Order,
+        //     barId : bar,
+        //     'items.item' : item,
+        //     'items.variation' : variation
+        // },{
+        //     $set : {
+        //         'items.$.review': message,
+        //     }
+        // })
+
 
  
         // if(checkReview) return res.status(409).json({

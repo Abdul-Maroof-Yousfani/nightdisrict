@@ -8,6 +8,10 @@ const ordersequence= new mongoose.Schema({
         type: Number,
         default: 1,
     },
+    bar : {
+        type : mongoose.Types.ObjectId,
+        default : null
+    },
     delivered: {
         type: Boolean,
         default: false,

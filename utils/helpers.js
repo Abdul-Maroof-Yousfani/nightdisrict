@@ -772,6 +772,8 @@ const getOrderById = async(data) => {
         data.customer = await getUserById(data.customer);
 
 
+    
+
         // adding Review to Root of the Order
         let orderReviews = await reviews.findOne({
             Order : data._id
@@ -796,7 +798,7 @@ const getOrderById = async(data) => {
             }
             else if(data.subscriptionType == 'buy_drink')
             {
-                let orderData = await getItemById(e.item,data.bar,e.variant,e.qty)
+                let orderData = await getItemById(e.item,data.bar,e.variant,e.qty,data._id)
                 orderData.orderedMixtures = e.mixers
                 return orderData;
             }
@@ -1028,7 +1030,7 @@ const getPromotionItems = async(bar,item) =>
     }
 }
 
-const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
+const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
     try
     {
 
@@ -1043,6 +1045,22 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0) => {
         data.orderedMixtures = []
 
         data.superItem = id
+
+        // check if review is given to the specific item
+        if(orderId)
+        {
+            let reviewItem = await reviews.findOne({
+                Order : orderId,
+                item : id,
+                variation : bought,
+                bar : bar
+
+            }).lean()
+        
+            data.review = await getBasicReview(reviewItem);
+        }
+        
+
         if(data.reviews)
         {
             data.reviews = await Promise.all(data.reviews.map( async (e) =>
