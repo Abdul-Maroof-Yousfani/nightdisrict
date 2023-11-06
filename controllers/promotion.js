@@ -98,7 +98,7 @@ const store = async(req,res) =>
 
 
 
-        req.body.picture = itemDetail.pictures.length?pictures[0]:"";
+        req.body.picture = itemDetail.pictures.length?itemDetail.pictures[0]:"";
 
        
 
