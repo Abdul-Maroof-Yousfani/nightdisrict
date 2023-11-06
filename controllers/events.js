@@ -451,8 +451,9 @@ const tickets = async(req,res) =>{
             e.review = null;
             e.event = await helpers.getEventById(e.event)
             e.user = await helpers.getUserById(e.user)
+            console.log(req.user._id)
             let review = await reviews.findOne({
-                customer : req.user._id,
+                user : req.user._id,
                 order   : e.order
             }).lean()
             e.review = await helpers.getBasicReview(review)
