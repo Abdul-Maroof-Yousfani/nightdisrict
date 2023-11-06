@@ -439,12 +439,12 @@ const tickets = async(req,res) =>{
             user : req.user._id
         }).lean();
         // get basic review for a ticket
-        console.log("HERE");
+        // console.log("HERE");
        
-        if(data.review)
-        {
-            data.review  = await helpers.getBasicReview(review)
-        }
+        // // if(data.review)
+        // // {
+        // //     data.review  = await helpers.getBasicReview(review)
+        // // }
         let results = await helpers.paginate(data,req.params.page,req.params.limit)
         //  let get events details
         data =  await Promise.all(results.result.map(async(e) =>{
@@ -453,7 +453,7 @@ const tickets = async(req,res) =>{
             e.user = await helpers.getUserById(e.user)
             let review = await reviews.findOne({
                 customer : req.user._id,
-                event   : e.order
+                order   : e.order
             })
             e.review = helpers.getBasicReview(review)
             return e;   
