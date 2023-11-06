@@ -454,8 +454,8 @@ const tickets = async(req,res) =>{
             let review = await reviews.findOne({
                 customer : req.user._id,
                 order   : e.order
-            })
-            e.review = helpers.getBasicReview(review)
+            }).lean()
+            e.review = await helpers.getBasicReview(review)
             return e;   
         }))
 
