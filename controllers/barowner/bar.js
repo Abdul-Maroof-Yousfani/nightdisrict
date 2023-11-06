@@ -957,7 +957,7 @@ const searchByBar = async(req,res) =>
     {   
         let query = await menu.find({
             barId : req.params.id,
-            menu_name  : req.params.q
+            menu_name  : { $regex: new RegExp(req.params.q, 'i') }
         }).lean()
         query = await Promise.all(query.map(async (e) =>{
             return await helpers.getItemById(e.item,req.params.id);
