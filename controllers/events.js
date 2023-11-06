@@ -438,25 +438,21 @@ const tickets = async(req,res) =>{
         let data = await ticket.find({
             user : req.user._id
         }).lean();
-        // get basic review for a ticket
-        // console.log("HERE");
-       
-        // // if(data.review)
-        // // {
-        // //     data.review  = await helpers.getBasicReview(review)
-        // // }
+
         let results = await helpers.paginate(data,req.params.page,req.params.limit)
         //  let get events details
         data =  await Promise.all(results.result.map(async(e) =>{
             e.review = null;
             e.event = await helpers.getEventById(e.event)
             e.user = await helpers.getUserById(e.user)
-            console.log(req.user._id)
             let review = await reviews.findOne({
                 user : req.user._id,
-                order   : e.order
+                Order   : e.order
             }).lean()
-            e.review = await helpers.getBasicReview(review)
+            if(review)
+            {
+                e.review = await helpers.getBasicReview(review)
+            }
             return e;   
         }))
 
@@ -470,7 +466,6 @@ const tickets = async(req,res) =>{
     }
     catch(error)
     {
-        console.log(error);
         return res.json({
             status : 500,
             message : error.message,

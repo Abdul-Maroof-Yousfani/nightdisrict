@@ -144,6 +144,7 @@ const register = async (req, res) => {
             longitude : {type : String, required : false},
             latitude : {type : String, required : false},
             dateofbirth : {type : String, required : false},
+            gender : {type : String, required : false},
             dob : {type : String, required : false}
         }).newContext();
         
