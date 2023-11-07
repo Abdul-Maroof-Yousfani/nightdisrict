@@ -20,7 +20,6 @@ import ejs from 'ejs';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
 import reviews from '../../models/reviews.js';
-import { ca } from 'date-fns/locale';
 
 
 
