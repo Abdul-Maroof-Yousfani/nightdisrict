@@ -197,10 +197,14 @@ const store = async (req, res) => {
             
             const eventId = items[0].item;
 
+            var eventdata = event.findOne({
+                _id: eventId
+            });
             event.findOneAndUpdate(
                 { _id: eventId },
-                { $set: { stock: Math.max(0, stock - 1) } },
+                { $set: { stock: Math.max(0, eventdata.stock - 1) } },
                 { new: true },
+                
                 (err, updatedEvent) => {
                     if (err) {
                     console.error("Error updating event:", err);
