@@ -198,9 +198,9 @@ const iosWebhook = async (req, res) => {
     try {
 
         console.log("REqboyd");
-        console.log(req.body);
+        console.log(req.body.signedPayload);
 
-        const jwsToken = res.body.signedPayload; // Replace this with the JWS token from the App Store
+        const jwsToken = req.body.signedPayload; // Replace this with the JWS token from the App Store
 
         // The JWS payload includes three parts: the header, the payload, and the signature.
         // They are separated by dots. We need to split the token into these parts.
