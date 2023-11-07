@@ -40,6 +40,7 @@ router.get('/category/:id/bar/:bar',category.getProductCategories);
 
 
 router.put("/user",helpers.verifyAuthToken , users.profile)
+router.put("/owner",helpers.verifyAuthToken , users.ownerProfile)
 
 
 

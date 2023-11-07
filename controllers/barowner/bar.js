@@ -20,6 +20,7 @@ import ejs from 'ejs';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
 import reviews from '../../models/reviews.js';
+import { ca } from 'date-fns/locale';
 
 
 
@@ -2506,6 +2507,38 @@ const getReviesForProduct = async(req,res) =>
         })
     }
 }
+
+const isBarHaveBartender = async(req,res) =>
+{
+    try
+    {
+        var barId = req.params.id;
+        const users = await User.find({
+            related_bar: barId
+        })
+        if(users.length){
+            return res.json({
+                status : 200,
+                message : "This Bar have Bartenders",
+                data : true,
+            })
+        }else{
+            return res.json({
+                status : 200,
+                message : "This Bar does not have any Bartenders",
+                data : false,
+            })
+        }
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -2522,6 +2555,7 @@ export default {
     favouriteitem,
     events,
     promotions,
+    isBarHaveBartender,
     Menu,
     home,
     analytics,

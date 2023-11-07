@@ -795,6 +795,102 @@ const profile = async(req,res) =>{
         })
     }
 }
+const ownerProfile = async(req,res) =>{
+    let {_id} = req.user
+    let {longitude,latitude} =  req.body;
+
+    try
+    {
+        const schema = Joi.object({
+            firstname: Joi.any(),
+            lastname: Joi.any(),
+        });
+        const { error, value } = schema.validate(req.body);
+
+        if(error) return res.status(200).json({
+              status: 400,
+              message: error.message,
+              data: {}
+        })
+        
+        
+    
+        let data = await User.findById({
+            _id : req.user._id
+        })
+
+    
+
+        if(!data) return res.status(200).json({
+            status : 404,
+            message : "User not found",
+            data  : {}
+        })
+
+        // checking if user has uploaded profile picture
+        
+        if(req.files)
+        {
+            let file = req.files.profile_picture;
+            let fileName = `public/profiles/${Date.now()}-${file.name.replace(/ /g, '-').toLowerCase()}`;
+            file.mv(fileName, async (err) => {
+                if (err) return res.status(400).json({ message: err.message });
+            });
+            fileName = fileName.replace("public", "");
+            req.body.profile_picture = fileName;
+        }
+        
+        // update user password if added
+
+        if(req.body.password)
+        {
+            req.body.password = await bcrypt.hash(req.body.password, 10);
+        }
+
+
+        // setup location
+
+        let location = {
+            type : "Point",
+            coordinates:[0,0]
+        }
+
+        if(req.body.longitude && req.body.latitude)
+        {
+            location = {
+                type : "Point",
+                coordinates:[req.body.longitude,req.body.latitude]
+            }
+            
+        }
+        req.body.location = location
+
+ 
+     
+
+        data = await User.findByIdAndUpdate({
+            _id
+        },{$set: req.body},{
+            new:true
+        })
+
+        return res.status(200).json({
+            status : 200,
+            message : "success",
+            data 
+        })
+
+
+    }
+    catch(error)
+    {
+        return res.status(200).json({
+            status : 500,
+            message : error.message,
+            data : []
+        })
+    }
+}
 
 const favourite = async(req,res) =>
 {
@@ -1546,6 +1642,7 @@ export default{
     changePassword,
     activities,
     profile,
+    ownerProfile,
     favourite,
     favouritebars,
     favouriteDrinks,

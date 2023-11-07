@@ -70,8 +70,7 @@ router.get("/:id/promotions",helper.verifyAuthToken,Bar.promotions)
 
 // 
 
-
-
+router.get("/:id/isBarHaveBartender", helper.verifyAuthToken, Bar.isBarHaveBartender)
 
 
 
