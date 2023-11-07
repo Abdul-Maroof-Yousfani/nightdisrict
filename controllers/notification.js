@@ -197,6 +197,9 @@ const getSingleNotification = async(req,res) =>
 const iosWebhook = async (req, res) => {
     try {
 
+        console.log("REqboyd");
+        console.log(req.body);
+
         const jwsToken = res.body.signedPayload; // Replace this with the JWS token from the App Store
 
         // The JWS payload includes three parts: the header, the payload, and the signature.
@@ -206,6 +209,10 @@ const iosWebhook = async (req, res) => {
         // The payload is in the second part, which is base64-encoded JSON.
         const payload = Buffer.from(tokenParts[1], 'base64').toString('utf8');
         const decodedPayload = JSON.parse(payload);
+
+        console.log("Decoded Payload");
+        console.log(decodedPayload);
+
 
         // The header is in the first part, which is also base64-encoded JSON.
         const header = Buffer.from(tokenParts[0], 'base64').toString('utf8');
@@ -245,6 +252,10 @@ const iosWebhook = async (req, res) => {
     }
     catch(error)
     {   
+
+        console.log("Error");
+        console.log(error);
+
         return res.json({
             status : 500,
             message : error.message,
