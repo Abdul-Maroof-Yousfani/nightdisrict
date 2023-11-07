@@ -7,6 +7,7 @@ import menuCategory from '../../models/menuCategory.js';
 import superMenu from '../../models/superMenu.js';
 import Joi from 'joi';
 import menu from '../../models/menu.js';
+import localMenu from '../../models/menu.js';
 import order from '../../models/order.js';
 import users from '../../models/users.js';
 import pourtype from '../../models/pourtype.js';
@@ -483,7 +484,7 @@ const getBarGeometry = async(req,res) =>
 // Adding items to a Bar Menu
 
 const addItem = async (req, res) => {
-    let { title, description, type, category, subcategory, variation , superItem } = req.body;
+    let { title, description, type, category, subcategory, variation , superItem , menu } = req.body;
     let totalCategories = [];
 
     try {
@@ -601,10 +602,59 @@ const addItem = async (req, res) => {
             return res.json({ status: 200, message: "success", data : mainMenu })
 
         }
+
         if (!menu) {
+
             return res.status(200).json({ status: 400, message: "Menu is required", data: {} })
         }
-        let data = await menu.insertMany(req.body.menu)
+        let finalMenu = [];
+        menu = await Promise.all(menu.map( async (e) =>{
+            let mainMenu = await superMenu.findById({ _id: e.superItem }).lean()
+            // check if menu is already there
+
+            mainMenu.category?totalCategories.push({category : mainMenu.category}):"";
+            e.category = mainMenu.category
+
+
+
+
+            e.subCategory = mainMenu.subCategory?totalCategories.push({category : mainMenu.subCategory}):"";
+
+            e.subCategory = mainMenu.subCategory
+
+
+            e.barId = req.user.barInfo;
+            e.menu_name = e.title;
+            e.item = e.superItem;
+            e.description = e.description;
+            e.categories = totalCategories;
+            e.variation = e.variation
+
+            let findMenu = await localMenu.findOne({
+                item  :  e.superItem,
+                barId : req.user.barInfo
+            })
+            if(!findMenu)
+            {
+                finalMenu.push(e); 
+            }
+
+            
+
+            // "barId": req.user.barInfo,
+            //             menu_name: title,
+            //             description,
+            //             "item": mainMenu._id,
+            //             "category": mainMenu.category,
+            //             "subCategory": mainMenu.subCategory,
+            //             variation,
+            //             categories : totalCategories
+
+
+            return e
+        }))
+
+        let data = await localMenu.insertMany(finalMenu)
         // await data.save()
 
         return res.json({status: 200 , message: "success", data })
