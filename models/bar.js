@@ -108,7 +108,7 @@ const bar = new mongoose.Schema({
     },
     fbUrl:{
         type : String,
-        default : ''
+        default : 'https://www.facebook.com/'
     },
     isSuspended : {
         type : Boolean,
@@ -116,11 +116,11 @@ const bar = new mongoose.Schema({
     },
     instagramUrl:{
         type : String,
-        default : ''
+        default : 'https://www.instagram.com/'
     },
     twitterUrl:{
         type : String,
-        default : ''
+        default : 'https://www.twitter.com/'
     },
     hash_tags : {
         type : Array,
