@@ -193,6 +193,22 @@ const store = async (req, res) => {
                 nextBartender = bartenders[nextBartenderIndex]._id;
         
                 assignedBartender = bartenders[currentAssignedBartenderIndex]._id;
+        }else if (paymentCode === 'buy_ticket'){
+            
+            const eventId = items[0].item;
+
+            event.findOneAndUpdate(
+                { _id: eventId },
+                { $set: { stock: Math.max(0, stock - 1) } },
+                { new: true },
+                (err, updatedEvent) => {
+                    if (err) {
+                    console.error("Error updating event:", err);
+                    } else {
+                    console.log("Updated Event:", updatedEvent);
+                    }
+                }
+            );
         }
 
         
