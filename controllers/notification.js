@@ -14,6 +14,7 @@ import ticket from '../models/ticket.js';
 import attendance from '../models/attendance.js';
 import promotion from '../models/promotion.js';
 import notification from '../models/notification.js';
+import Webhook from '../models/webhook.js';
 import event from '../models/event.js';
 
 
@@ -194,11 +195,48 @@ const getSingleNotification = async(req,res) =>
 }
 
 const iosWebhook = async (req, res) => {
-    try{
-        var data = await ApplicationLogs({
-            string: JSON.stringify(res.body)
+    try {
+
+        const jwsToken = res.body.signedPayload; // Replace this with the JWS token from the App Store
+
+        // The JWS payload includes three parts: the header, the payload, and the signature.
+        // They are separated by dots. We need to split the token into these parts.
+        const tokenParts = jwsToken.split('.');
+
+        // The payload is in the second part, which is base64-encoded JSON.
+        const payload = Buffer.from(tokenParts[1], 'base64').toString('utf8');
+        const decodedPayload = JSON.parse(payload);
+
+        // The header is in the first part, which is also base64-encoded JSON.
+        const header = Buffer.from(tokenParts[0], 'base64').toString('utf8');
+        const decodedHeader = JSON.parse(header);
+
+        // The signature is in the third part.
+        const signature = tokenParts[2];
+
+        // The key or secret used to verify the signature should come from the App Store. It's used to validate the JWS signature.
+        const appStorePublicKeyOrSecret = '72fca38faa574393979df7a0cf326d2d';
+
+        // Verify the JWS signature
+        jwt.verify(jwsToken, appStorePublicKeyOrSecret, async (err, decoded) => {
+        if (err) {
+            console.error('JWS verification failed:', err);
+            var data = await Webhook({
+                err: err,
+            });
+        } else {
+            console.log('JWS verification successful');
+            console.log('Decoded Payload:', decodedPayload);
+            console.log('Decoded Header:', decodedHeader);
+            console.log('Decoded Signature:', signature);
+            var data = await Webhook({
+                decodedPayload: decodedPayload,
+                decodedHeader: decodedHeader,
+                signature: signature,
+            });
+            await data.save();
+        }
         });
-        await data.save();
     
         return res.json({
             status : 200,
