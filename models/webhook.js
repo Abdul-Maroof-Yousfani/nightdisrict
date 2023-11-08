@@ -3,19 +3,19 @@ import mongoose, { Mongoose } from 'mongoose';
 const webhookLog = new mongoose.Schema(
     {
         decodedPayload : {
-            type : Mixed,
+            type : String,
             default : null
         },
         decodedHeader : {
-            type : Mixed,
+            type : String,
             default : null
         },
         signature : {
-            type : Mixed,
+            type : String,
             default : null
         },
         err : {
-            type : Mixed,
+            type : String,
             default : null
         },
     },
