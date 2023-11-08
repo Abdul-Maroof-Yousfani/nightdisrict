@@ -212,7 +212,7 @@ const iosWebhook = async (req, res) => {
 
         console.log("Decoded Payload");
         console.log(decodedPayload);
-
+    
 
         // The header is in the first part, which is also base64-encoded JSON.
         const header = Buffer.from(tokenParts[0], 'base64').toString('utf8');
@@ -224,26 +224,32 @@ const iosWebhook = async (req, res) => {
         // The key or secret used to verify the signature should come from the App Store. It's used to validate the JWS signature.
         const appStorePublicKeyOrSecret = '72fca38faa574393979df7a0cf326d2d';
 
-        // Verify the JWS signature
-        jwt.verify(jwsToken, appStorePublicKeyOrSecret, async (err, decoded) => {
-        if (err) {
-            console.error('JWS verification failed:', err);
-            var data = await Webhook({
-                err: err,
-            });
-        } else {
+
             console.log('JWS verification successful');
             console.log('Decoded Payload:', decodedPayload);
             console.log('Decoded Header:', decodedHeader);
             console.log('Decoded Signature:', signature);
             var data = await Webhook({
-                decodedPayload: decodedPayload,
-                decodedHeader: decodedHeader,
-                signature: signature,
+                notificationType:decodedPayload.notificationType,
+                notificationUUID: decodedPayload.notificationUUID,
+                appAppleId: decodedPayload.data.appAppleId,
+                signedTransactionInfo: decodedPayload.data.signedTransactionInfo,
+                signedRenewalInfo: decodedPayload.data.signedRenewalInfo,
+                status : decodedPayload.data.status
             });
             await data.save();
-        }
-        });
+
+        // Verify the JWS signature
+        // jwt.verify(jwsToken, appStorePublicKeyOrSecret, async (err, decoded) => {
+        // if (err) {
+        //     console.error('JWS verification failed:', err);
+        //     var data = await Webhook({
+        //         err: err,
+        //     });
+        // } else {
+            
+        // }
+        // });
     
         return res.json({
             status : 200,
