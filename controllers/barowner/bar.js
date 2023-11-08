@@ -519,13 +519,13 @@ const addItem = async (req, res) => {
             // })
 
 
-            let barSearch = await menu.findOne({
+            let barSearch = await localMenu.findOne({
                 item : superItem,
                 barId  : req.user.barInfo
             })
             if(!barSearch)
             {
-                let data = new menu(
+                let data = new localMenu(
                     {
                         "barId": req.user.barInfo,
                         menu_name: title,
@@ -543,7 +543,7 @@ const addItem = async (req, res) => {
             
 
             
-            let itemsdata = await menu.findOne({
+            let itemsdata = await localMenu.findOne({
                 item : mainMenu._id
             }).lean()
 
