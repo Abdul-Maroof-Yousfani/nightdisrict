@@ -10,6 +10,7 @@ router.post('/', userController.createEmail);
 router.delete('/delete/:emailId', userController.deleteEmail);
 
 router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDetails);
+router.get('/cronjob',userController.cronJob);
 
 router.post('/recivedEmail/:id', userController.recivedEmail);
 router.get('/:id', userController.getEmailById);
@@ -28,6 +29,6 @@ router.post('/creteAndDeleteEmails', userController.creteAndDeleteEmails);
 
 router.put('/updateStatus', userController.updateReadStatus)
 
-router.get('/cronjob',userController.cronJob)
+// router.get('/cronjob',userController.cronJob)
 
 module.exports = router;

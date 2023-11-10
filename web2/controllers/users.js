@@ -179,9 +179,7 @@ const cronJob = async (req, res) => {
         const { id } = req.params;
         const checkUsers = await User.find({}).lean();
 
-        console.log(req.body);
-        
-       
+      
         await Promise.all(checkUsers.map(async (e) => {
             let checkUser;
             checkUser = e;
@@ -205,11 +203,14 @@ const cronJob = async (req, res) => {
 
                     // adding data to the mail address
 
-
+                   
                     let fcmData = await device.findOne({
                         "mailBox.email" : e.Mail_Address.value[0]
                     })
-                    await helper.notification(fcmData.fcmToken)
+                    if(fcmData)
+                    {
+                        await helper.notification(fcmData.fcmToken)
+                    }
                 }))
 
                 // Save all the fetched emails to the database
