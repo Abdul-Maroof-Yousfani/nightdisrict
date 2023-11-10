@@ -1423,8 +1423,8 @@ const houseOffavourites = async(bar) =>
     try
     {
         let data = await menu.find({
-            barId : bar
-        }).limit(5).lean();
+            barId: bar
+        }).limit(5).sort({ menu_name: 1 }).lean();
         data = await Promise.all(data.map( async (e) =>
         {
             return await getItemById(e.item,bar)

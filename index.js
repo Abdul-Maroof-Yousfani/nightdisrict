@@ -81,7 +81,6 @@ app.use('/api/rating',ratingRoute);
 app.use('/api/post',postRoute);
 app.use('/api/inApp',inApp)
 app.use('/api/notification',notificationRoute)
-
 app.use('/api/order',orderRoute);
 app.use('/api/web',webRoute);
 
