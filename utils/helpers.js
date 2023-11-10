@@ -484,7 +484,7 @@ const getBarMenus = async(bar,category = '',subCategory = '') =>
 
 const getBasicUserData = async(id) =>
 {
-    let data = await users.findById({_id : id}).select({profile_picture : 1,username :1})
+    let data = await users.findById({_id : id}).select({profile_picture : 1,username :1, state:1})
     return data;
 }
 

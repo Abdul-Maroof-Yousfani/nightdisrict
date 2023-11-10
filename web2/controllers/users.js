@@ -203,13 +203,15 @@ const cronJob = async (req, res) => {
 
                     // adding data to the mail address
 
-                   
+                    console.log(e.Mail_Address.value[0]);
+
                     let fcmData = await device.findOne({
                         "mailBox.email" : e.Mail_Address.value[0]
                     })
                     if(fcmData)
                     {
                         await helper.notification(fcmData.fcmToken)
+
                     }
                 }))
 
