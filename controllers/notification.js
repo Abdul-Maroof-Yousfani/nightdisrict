@@ -302,8 +302,8 @@ const newWebhook = async (req, res) => {
             console.log('JWS verification successful');
             console.log('Decoded Payload:', decodedPayload);
             console.log('Decoded Header:', decodedHeader);
-            console.log('Decoded Signature:', signature);
-            
+            console.log('Decoded Signat ure:', signature);
+
             var data = await webhooks({
                 notificationHeader:header,
                 notificationPayload: payload,
