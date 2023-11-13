@@ -17,6 +17,8 @@ import notification from '../models/notification.js';
 import Webhook from '../models/webhook.js';
 import webhooks from '../models/webhooks.js';
 import event from '../models/event.js';
+import purchases from '../models/purchases.js';
+import mongoose from 'mongoose';
 
 
 
@@ -226,10 +228,14 @@ const iosWebhook = async (req, res) => {
         const appStorePublicKeyOrSecret = '72fca38faa574393979df7a0cf326d2d';
 
 
+     
+
+
             console.log('JWS verification successful');
             console.log('Decoded Payload:', decodedPayload);
             console.log('Decoded Header:', decodedHeader);
             console.log('Decoded Signature:', signature);
+
             var data = await Webhook({
                 notificationType:decodedPayload.notificationType,
                 notificationUUID: decodedPayload.notificationUUID,
@@ -239,6 +245,12 @@ const iosWebhook = async (req, res) => {
                 status : decodedPayload.data.status
             });
             await data.save();
+
+
+                   // store transaction history
+
+    
+
 
         // Verify the JWS signature
         // jwt.verify(jwsToken, appStorePublicKeyOrSecret, async (err, decoded) => {
@@ -284,8 +296,8 @@ const newWebhook = async (req, res) => {
         const payload = Buffer.from(tokenParts[1], 'base64').toString('utf8');
         const decodedPayload = JSON.parse(payload);
 
-        console.log("Decoded Payload");
-        console.log(decodedPayload);
+        // console.log("Decoded Payload");
+        // console.log(decodedPayload);
     
 
         // The header is in the first part, which is also base64-encoded JSON.
@@ -299,10 +311,13 @@ const newWebhook = async (req, res) => {
         const appStorePublicKeyOrSecret = '72fca38faa574393979df7a0cf326d2d';
 
 
-            console.log('JWS verification successful');
-            console.log('Decoded Payload:', decodedPayload);
-            console.log('Decoded Header:', decodedHeader);
-            console.log('Decoded Signat ure:', signature);
+            // console.log('JWS verification successful');
+            // console.log('Decoded Payload:', decodedPayload);
+            // console.log('Decoded Header:', decodedHeader);
+            // console.log('Decoded Signat ure:', signature);
+
+
+
 
             var data = await webhooks({
                 notificationHeader:header,
@@ -310,6 +325,8 @@ const newWebhook = async (req, res) => {
                 notificationCertificate : signature
             });
             await data.save();
+
+            
 
         // Verify the JWS signature
         // jwt.verify(jwsToken, appStorePublicKeyOrSecret, async (err, decoded) => {
@@ -344,6 +361,7 @@ const androidWebhook = async (req, res) => {
     return res.json({
         status : 200,
         message : "success",
+        data : req.body
     })
 }
 
@@ -381,7 +399,6 @@ const bartenderLogs = async(req,res) =>
 
         
 
-        console.log("Decoded Payload");
         console.log(decodedPayload.data.signedRenewalInfo);
 
         // signedRenewwal Info
@@ -391,6 +408,31 @@ const bartenderLogs = async(req,res) =>
         // 
 
         let signedRenewalInfo = await conversion('e883ff9f7f33488584b5e5dabbef5477',decodedPayload.data.signedRenewalInfo);
+
+
+        // check transaction from original User
+        let user;
+        let checkPayments = await purchases.findOne({
+            originalTransactionId : signedTransactionInfo.originalTransactionId
+        })
+        if(checkPayments)
+        {
+            user = checkPayments.userid
+
+            // update the User Expiry and PaymnentStatus, if payment is Cancelled, the system should update the payment status Accordingly!
+        }
+
+  
+        let purchase = new purchases({
+            originalTransactionId : signedTransactionInfo.originalTransactionId,
+            transactionId : signedTransactionInfo.transactionId,
+            productId : signedTransactionInfo.productId,
+            userid : user,
+            type : signedTransactionInfo.transactionReason,
+            platform : "IOS"
+        })
+
+        await purchase.save();
 
 
         return res.json({
@@ -403,7 +445,6 @@ const bartenderLogs = async(req,res) =>
     }
     catch(error)
     {
-        console.log(error.message)
         return res.json(error);
     }
 }
