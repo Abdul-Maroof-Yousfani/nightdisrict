@@ -114,6 +114,10 @@ const event = new mongoose.Schema({
             default : [0,0]
         },
     },
+    onSale : {
+        type : Boolean,
+        default : true,
+    }
     
     
 },

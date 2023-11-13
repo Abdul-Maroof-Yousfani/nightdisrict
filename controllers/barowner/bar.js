@@ -2588,6 +2588,61 @@ const isBarHaveBartender = async(req,res) =>
     }
 }
 
+const toggleUpdate = async(req,res) =>
+{
+    let {type,onSale,id} = req.body;
+    try
+    {   
+        let data;
+        if(type == 'event')
+        {   
+            data = await event.findByIdAndUpdate({
+                _id : id
+            },{
+                $set : {
+                    onSale
+                }
+            },{
+                new :true
+            })
+
+            console.log(data);
+        }   
+        else
+        {
+          
+            data = await menu.findOneAndUpdate({
+                barId : req.user.barInfo,
+                item : id
+            },{
+                $set :{
+                    onSale
+                }
+            },{
+                new:true
+            })
+            console.log(data);
+
+        }
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data : {
+                onSale
+            }
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -2620,5 +2675,6 @@ export default {
     report,
     pdfReport,
     searchByBar,
-    getReviesForProduct
+    getReviesForProduct,
+    toggleUpdate
 }

@@ -65,8 +65,12 @@ const menu = new mongoose.Schema({
             ref : "reviews"
 
         }
-    }]
-   
+    }],
+    onSale : {
+        type : Boolean,
+        default : true
+    }
+    
 });
 
 menu.index({ item: 1, barId: 1 , category :1 , subCategory : 1 });

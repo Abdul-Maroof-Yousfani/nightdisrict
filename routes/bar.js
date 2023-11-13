@@ -38,6 +38,9 @@ router.put("/allInfo/:id" ,helper.verifyAuthToken, Bar.updateBarInfo);
 router.post("/category" ,helper.verifyAuthToken, Bar.selectCategory);
 
 
+router.post('/toggle',helper.verifyAuthToken, Bar.toggleUpdate);
+
+
 // Menus (Adding item to the Menu)
 
 router.post("/item" ,helper.verifyAuthToken, Bar.addItem)
