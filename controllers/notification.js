@@ -358,11 +358,15 @@ const newWebhook = async (req, res) => {
     }
 }
 const androidWebhook = async (req, res) => {
-    console.log(req.body);
+    let data = JSON.stringify(req.body,true);
+    new webhooks({
+        notificationPayload : data
+    }).save();
     return res.json({
         status : 200,
         message : "success",
-        data : req.body
+        data
+
     })
 }
 
