@@ -187,7 +187,7 @@ const cronJob = async (req, res) => {
             const imap = new Imap({
                 user: checkUser.email,
                 password: checkUser.password,
-                host: 'obtempemail.online',
+                host: 'obtempmail.online',
                 port: 143,
                 tls: false
             });
@@ -406,7 +406,7 @@ const recivedEmail = async (req, res) => {
         const imap = new Imap({
             user: checkUser.email,
             password: checkUser.password,
-            host: 'obtempemail.online',
+            host: 'obtempmail.online',
             port: 143,
             tls: false
         });
