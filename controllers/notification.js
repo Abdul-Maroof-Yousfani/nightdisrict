@@ -358,6 +358,7 @@ const newWebhook = async (req, res) => {
     }
 }
 const androidWebhook = async (req, res) => {
+    console.log(req.body);
     return res.json({
         status : 200,
         message : "success",
