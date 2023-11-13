@@ -24,7 +24,6 @@ const store = async(req,res) =>
             infinity : Joi.any(),
             price: Joi.number(),
             repeat: Joi.boolean(),
-            category : Joi.string().required(),
             menu : Joi.any(),
             discount : Joi.any()
             

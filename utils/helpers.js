@@ -550,7 +550,10 @@ const getPromotionById = async(data,bar='') =>
         let category = await menuCategory.findById({
             _id : data.category
         })
-        data.category = category.name
+        if(category)
+        {
+            data.category = category.name
+        }
         data.bar = await getBarData(data.bar)
 
         data.menu = await Promise.all(data.menu.map( async (e) =>{
