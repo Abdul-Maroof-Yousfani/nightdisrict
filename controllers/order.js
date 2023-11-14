@@ -137,7 +137,8 @@ const store = async (req, res) => {
             // Get all delivered orders
 
             bartenders = await helpers.getBartenders(bar);
-            
+
+           
             const latestOrder = await helpers.getLatestOrder(bar);
             const lastOrder = await helpers.getLastOrder(bar);
 

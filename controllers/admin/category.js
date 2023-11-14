@@ -597,6 +597,106 @@ const category = async(req,res) =>
         })
     }
 }
+
+const categoryWiseData = async(req,res) =>
+{
+    let {id} = req.params;
+    try
+    {   
+
+        let checkCategory = await menuCategory.findById({
+            _id : id
+        }).lean()
+
+        
+        checkCategory.child = [];
+        checkCategory.items = [];
+
+
+
+        let child = await menuCategory.find({
+            parent:id
+        }).lean()
+
+
+        let servings =  []
+        if(checkCategory.name == 'Spirits')
+        {
+            servings =  await pourtype.find({
+                name : 
+                { $ne: 'Pour' }
+            }).lean()
+
+        }
+        else
+        {
+            servings =  await pourtype.find({
+                name : 'Pour' 
+            }).lean()
+        }
+        checkCategory.servings = servings;
+
+
+
+        if(child.length)
+        {
+            checkCategory.child = await Promise.all(child.map( async (e) =>{
+                // get categories having which is parent of All
+                let data = await menuCategory.find({
+                    "parent2.category" : e._id
+                }).lean()
+                e.child = [];
+                e.items = [];
+                if(data.length)
+                {
+                    e.child = await Promise.all(data.map(async(childData) =>{
+          
+                        childData.items = await superMenu.find({
+                            parent : childData._id
+                        }).limit(5).lean()
+                        childData.items = await Promise.all(childData.items.map( async (productData) =>{
+                            return await helpers.getSuperItem(productData._id)
+                        }))
+                        // childData.products = await helpers.getSuperItem(newProduct._id)
+                        return childData
+                        
+                    }))
+                }
+                else
+                  {
+                    e.items = await superMenu.find({
+                        subCategories : e._id
+                    }).limit(5).lean()
+                    e.items = await Promise.all(e.items.map(async(childProducts) =>{
+                        return await helpers.getSuperItem(childProducts._id)
+                    }))
+                }
+                
+                
+                return e;
+            }))
+        }
+        else
+        {
+            checkCategory.items = await superMenu.find({
+                category : id
+            }).limit(5).lean()
+            checkCategory.items = await Promise.all(checkCategory.items.map(async(childProducts) =>{
+                return await helpers.getSuperItem(childProducts._id)
+            }))
+        }   
+        
+        return res.json(checkCategory)
+    }
+    catch(error)
+    {
+        console.log(error);
+
+        return res.json({message : error.message})
+
+    }
+}
+
 const getSingleCategory = async(req,res)=> {
     let {id} = req.params
     try
@@ -687,6 +787,7 @@ const getProductCategories = async(req,res) =>
 
 export default {
     category,
+    categoryWiseData,
     store,
     index,
     update,

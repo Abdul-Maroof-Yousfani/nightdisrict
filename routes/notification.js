@@ -16,6 +16,9 @@ router.post('/v2/new',notification.newWebhook); //webhook for ios
 router.post('/android',notification.androidWebhook); //webhook fo android
 
 
+router.post('/webhookData',notification.webhookData); //webhook fo android
+
+
 // test bartender logs
 
 

@@ -24,6 +24,7 @@ router.get('/users/barOwnersDetails', helpers.verifyAuthToken, admin.barOwnersDe
 router.post("/category",category.store);
 router.put("/category/:_id",category.update);
 router.get("/category2/:id",category.getSingleCategory);
+router.get("/categoryWiseData/:id",category.categoryWiseData);
 router.get("/category",category.index);
 router.get("/parentCategory",category.parentCategory);
 router.get("/parentCategory2",category.parentCategory2);

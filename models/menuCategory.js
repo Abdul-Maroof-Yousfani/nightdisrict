@@ -18,6 +18,15 @@ const menuCategory = new mongoose.Schema({
     parent:{
         type: mongoose.Schema.Types.ObjectId, ref: 'menuCategory',
         default : null
-    }
+    },
+    parent2 : [
+        {
+            category : {
+                type : mongoose.Types.ObjectId,
+                default : null
+            }
+        }
+    ],
+
 },{timestamps:true});
 export default mongoose.model('menuCategory', menuCategory);

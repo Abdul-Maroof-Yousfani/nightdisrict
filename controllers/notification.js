@@ -19,6 +19,14 @@ import webhooks from '../models/webhooks.js';
 import event from '../models/event.js';
 import purchases from '../models/purchases.js';
 import mongoose from 'mongoose';
+import { google } from 'googleapis';
+
+
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client('../config/bartender.js');
+
+import serviceAccount from '../config/bartender.js'; // Replace with your service account key
+
 
 
 
@@ -357,6 +365,89 @@ const newWebhook = async (req, res) => {
         })
     }
 }
+
+
+async function verifyGooglePlaySignature(payload) {
+    try {
+        const encodedPurchaseInfo = payload.message.data;
+        const decodedPurchaseInfo = JSON.parse(Buffer.from(encodedPurchaseInfo, 'base64').toString('utf-8'));
+
+        const signature = decodedPurchaseInfo.subscriptionNotification.purchaseToken; // Assuming the signature is within the purchaseToken property
+        const signedData = decodedPurchaseInfo.subscriptionNotification.purchaseToken; // Modify this based on the actual structure of your data
+        const packageName = decodedPurchaseInfo.packageName;
+        
+      
+  
+      const ticket = await client.verifySignedJwtWithCertsAsync(signature, {
+        audience: packageName,
+        maxTokenAgeInSeconds: 300, // Adjust the maximum age of the token as needed
+      });
+  
+      // Check the ticket for validity
+      if (ticket) {
+        console.log('Purchase is valid:', ticket);
+        return true;
+      } else {
+        console.log('Invalid purchase');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error verifying purchase:', error);
+      return false;
+    }
+  }
+const webhookData = async(req,res) =>
+{
+    try
+    {
+
+        const packageName = 'com.innovative.appbartender'; // Replace with your app's package name
+        // const productId = '631128affcc77369ff1ce009_android'; // Replace with your product ID (for in-app purchases)
+        const subscriptionId = '631128affcc77369ff1ce009_android'; // Replace with your subscription ID
+
+
+        const auth = new google.auth.GoogleAuth({
+            credentials: serviceAccount,
+            scopes: ['https://www.googleapis.com/auth/androidpublisher'],
+          });
+
+        const androidpublisher = google.androidpublisher('v3');
+
+
+        const purchaseToken = 'chgennafgakccmmkcmcpeggd.AO-J1Ox2rwh-_3NeFW4yu77LB3X8bO-IcLiYvaIkAG3fxYZ71MSGD8ZpX2yC-TEoacaXigx5DrIQ1RkoRDHzFLFwLs5y0XZAkOhZg-weJLNRFMrwJbIH1pM';
+
+
+        const authClient = await auth.getClient();
+         google.options({ auth: authClient });
+
+
+         const result = await androidpublisher.purchases.subscriptions.get({
+            packageName,
+            subscriptionId,
+            token: purchaseToken,
+          });
+          
+
+
+
+        // const payload = {
+        //     message: {
+        //       data: 'eyJ2ZXJzaW9uIjoiMS4wIiwicGFja2FnZU5hbWUiOiJjb20uaW5ub3ZhdGl2ZS5hcHBiYXJ0ZW5kZXIiLCJldmVudFRpbWVNaWxsaXMiOiIxNjk5OTU0MzIyNzc3Iiwic3Vic2NyaXB0aW9uTm90aWZpY2F0aW9uIjp7InZlcnNpb24iOiIxLjAiLCJub3RpZmljYXRpb25UeXBlIjo0LCJwdXJjaGFzZVRva2VuIjoibmNoY2RnamVrcGhuZmZpbmhrbmdlZWprLkFPLUoxT3pHUjkwR1BqUk9YNjhNVHhURlh6OUNQb0JIYmZxS1RkYmdFajd2OTBISmZ5WXFqTjI3UXF5aDViT0dHS3JveWtucW12VHJyX3RwWmtsSUZRU2xxbnFHZ1JHa09NZGE2WENkcl9jV0ozS3hkLTNBMUZZIiwic3Vic2NyaXB0aW9uSWQiOiI2MzExMjhhZmZjYzc3MzY5ZmYxY2UwMDlfYW5kcm9pZCJ9fQ==',
+        //       messageId: '9637185448584381',
+        //       publishTime: '2023-11-14T09:32:03.044Z',
+        //     },
+        //     subscription: 'projects/bartenderapp-349ac/subscriptions/bar_sub_push',
+        //   };
+          
+        //   verifyGooglePlaySignature(payload);
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.json(error);
+    }
+}
+
 const androidWebhook = async (req, res) => {
     // stss
     let data = JSON.stringify(req.body,true);
@@ -463,5 +554,6 @@ export default {
     iosWebhook,
     newWebhook,
     androidWebhook,
-    bartenderLogs
+    bartenderLogs,
+    webhookData
 }
