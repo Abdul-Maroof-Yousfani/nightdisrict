@@ -686,13 +686,21 @@ const categoryWiseData = async(req,res) =>
             }))
         }   
         
-        return res.json(checkCategory)
+        return res.json({
+            status : 200,
+            message : 'success',
+            data : checkCategory
+
+        })
     }
     catch(error)
     {
-        console.log(error);
+        return res.json({
+            status : 500,
+            message : error.message,
+            data : {}
 
-        return res.json({message : error.message})
+        })
 
     }
 }
