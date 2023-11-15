@@ -12,6 +12,7 @@ import axios from 'axios';
 
 import async from 'async';
 import superMenu from '../../models/superMenu.js';
+import menu from '../../models/menu.js';
 
 
 
@@ -540,84 +541,89 @@ const importProduct = async (req, res) => {
 
         if(colI)
         {
-          subcategory2Id = await createOrUpdateCategory(colI, categoryId,colJ);
+          subcategory2Id = await createOrUpdateCategory(colI, subcategory1Id,colJ);
         }
+        console.log("Categories");
+        console.log(colB);
+
+
+
 
         // Create or find Subcategory2 and set its parent to categoryId
         
-        let checkSuperMenu = await superMenu.findOne({
-          menu_name  : colB
-        })
-        if(!checkSuperMenu)
-        {
-            const superMenuData = {
-              bar: null, // Set the appropriate bar ID
-              user: null, // Set the appropriate user ID
-              userType: null, // Set the appropriate userType ID
-              menu_name: colB,
-              description: colC,
-              category: categoryId, // Use the category ID obtained above
-              subCategory: subcategory1Id, // Use the subcategory1 ID obtained above
-              picture: '',
-              pictures: [], // You can add pictures here if needed
-              categories: [categoryId], // Include parent and subcategories
-              subCategories: [subcategory1Id, subcategory2Id], // No need to include subcategories here
-            };
+        // let checkSuperMenu = await superMenu.findOne({
+        //   menu_name  : colB
+        // })
+        // if(!checkSuperMenu)
+        // {
+        //     const superMenuData = {
+        //       bar: null, // Set the appropriate bar ID
+        //       user: null, // Set the appropriate user ID
+        //       userType: null, // Set the appropriate userType ID
+        //       menu_name: colB,
+        //       description: colC,
+        //       category: categoryId, // Use the category ID obtained above
+        //       subCategory: subcategory1Id, // Use the subcategory1 ID obtained above
+        //       picture: '',
+        //       pictures: [], // You can add pictures here if needed
+        //       categories: [categoryId], // Include parent and subcategories
+        //       subCategories: [subcategory1Id, subcategory2Id], // No need to include subcategories here
+        //     };
       
-            // Insert superMenuData into the superMenu collection
+        //     // Insert superMenuData into the superMenu collection
     
-            if(colJ)
-            {
-              superMenuData.pictures = await downloadSuperMenuPictures([colJ])
-              console.log("ROW NUMBER" + rowNumber);
-              console.log(superMenuData.pictures);
-            }
+        //     if(colJ)
+        //     {
+        //       superMenuData.pictures = await downloadSuperMenuPictures([colJ])
+        //       console.log("ROW NUMBER" + rowNumber);
+        //       console.log(superMenuData.pictures);
+        //     }
         
         
-            let data = new superMenu(superMenuData);
-            await data.save();
-        }
-        else
-        {
-            // update menu images
-            let pictures = [];
-            if(colJ)
-            {
-                 pictures = await downloadSuperMenuPictures([colJ])
-                  if(!pictures.length)
-                  {
-                    pictures.push('menu/no_photo.png')
-                  }
+        //     let data = new superMenu(superMenuData);
+        //     await data.save();
+        // }
+        // else
+        // {
+        //     // update menu images
+        //     let pictures = [];
+        //     if(colJ)
+        //     {
+        //          pictures = await downloadSuperMenuPictures([colJ])
+        //           if(!pictures.length)
+        //           {
+        //             pictures.push('menu/no_photo.png')
+        //           }
                 
-            }
-            else
-            {
-                pictures.push('menu/no_photo.png')
+        //     }
+        //     else
+        //     {
+        //         pictures.push('menu/no_photo.png')
                 
-            }
+        //     }
 
-            console.log("new picture")
-            console.log("Menu name "  + colB)
-            console.log(pictures)
+        //     console.log("new picture")
+        //     console.log("Menu name "  + colB)
+        //     console.log(pictures)
                 
 
-            await superMenu.findByIdAndUpdate({
-              _id : checkSuperMenu._id
-            },{ 
-              $set: {
-                pictures : pictures
-              }
-            })
+        //     await superMenu.findByIdAndUpdate({
+        //       _id : checkSuperMenu._id
+        //     },{ 
+        //       $set: {
+        //         pictures : pictures
+        //       }
+        //     })
 
-            if(!colB)
-            {
-                return res.json({
-                  status : "done"
-                })
-            }
+        //     if(!colB)
+        //     {
+        //         return res.json({
+        //           status : "done"
+        //         })
+        //     }
             
 
-        }
+        // }
 
   
 
@@ -636,11 +642,42 @@ const importProduct = async (req, res) => {
   }
 };
 
+async function removeDuplicates(req,res) {
+  try {
+    const result = await superMenu.aggregate([
+      {
+        $group: {
+          _id: { menu_name: '$menu_name' },
+          uniqueIds: { $addToSet: '$_id' },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $match: {
+          count: { $gt: 1 }
+        }
+      }
+    ]);
+
+    
+
+    const duplicateIds = result.map((group) => group.uniqueIds.slice(1)).flat();
+
+    // Remove duplicate records
+    const deletionResult = await MenuModel.deleteMany({ _id: { $in: duplicateIds } });
+
+    console.log(`${deletionResult.deletedCount} duplicate records removed.`);
+  } catch (error) {
+    console.error('Error removing duplicates:', error);
+  }
+}
+
 
 export  default{
     store,
     update,
     index,
     show,
-    importProduct
+    importProduct,
+    removeDuplicates
 }

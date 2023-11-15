@@ -532,7 +532,6 @@ const getUserEvents = async(id) =>{
     }
     catch(error)
     {
-        console.log(error);
         return error.message
     }
 }
@@ -545,7 +544,6 @@ const getPromotionById = async(data,bar='') =>
     try
     {
         // check item category
-
 
         if(data.category)
         {
@@ -1045,6 +1043,8 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
         // check if item is in the Discount List
 
         data.discount = await getPromotionItems(bar,id)
+
+
         data.orderedMixtures = []
 
         data.superItem = id
@@ -1106,6 +1106,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
             let category = await menuCategory.findOne({_id :data.category })
             data.category = category
 
+
             if(category.name == 'Spirits')
             {
                 data.mixers = await getMixers(bar);
@@ -1162,6 +1163,7 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
     }
     catch(error)
     {
+        console.log(error);
         return error.message
     }
 }

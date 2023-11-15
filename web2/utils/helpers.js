@@ -100,14 +100,15 @@ function generatePassword() {
 }
 
 async function deleteMailAfterThreeDays(data) {
-    const authorize = await GET(`https://obtempemail.online:2096/login/?login_only=1&user=${data.email}&pass=${data.password}`);
+    const authorize = await GET(`https://obtempmail.online:2096/login/?login_only=1&user=${data.email}&pass=${data.password}`);
     console.log(authorize);
 
     if (authorize.status === 1) {
         const securityToken = authorize.security_token;
         // Assuming you have a "threadId" property in the "data" object that holds the ID of the thread you want to delete
-        const deleteThread = await GET(`https://obtempemail.online:2096/${securityToken}/execute/Batch/strict?command=["Email","deleteThread",{"threadId":"1"}]`);
+        const deleteEmail = await GET(`https://obtempmail.online:2096/${securityToken}/execute/Batch/strict?command=["Email","deleteEmail",{"emailId":"1"}]`);
         // const dbDeleteEmail = await User.findOneAndDelete({ _id: data._id });
+        console.log(deleteEmail);
         return;
     }
 
@@ -188,7 +189,6 @@ const notification = async(token) =>{
     }
     catch(error)
     {
-        console.log(error);
         return res.json({
             response
         })

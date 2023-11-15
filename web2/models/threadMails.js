@@ -12,7 +12,8 @@ const threadMailsSchema = new mongoose.Schema({
     Mail_Text: { type: String },
     Read_Status: { type: Number },
     Message_ID: { type: String },
-    Mail_Subject: { type: String }
+    Mail_Subject: { type: String },
+    isDeleted: { type: String , default  : '' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('threadMails', threadMailsSchema);

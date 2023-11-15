@@ -41,6 +41,11 @@ router.get('/parent-categories',)
 router.post('/import/products',menu.importProduct)
 
 
+// remove duplicates
+
+router.get('/import/remove-duplicates',menu.removeDuplicates);
+
+
 
 router.post("/menu",helpers.verifyAuthToken,menu.store);
 router.get("/menu/:_id",helpers.verifyAuthToken,menu.show);

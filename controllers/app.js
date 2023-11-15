@@ -29,8 +29,6 @@ const index = async(req,res) =>
 
         let events = await helpers.nearbyEvents(req.body.longitude,req.body.latitude);
 
-
-  
         // recent Orders
         let orders = await order.find({customer : req.user._id , subscriptionType : mongoose.Types.ObjectId('642a6f6e17dc8bc505021545')}).lean().limit(3)
         orders = await Promise.all(orders.map( async (e) =>{
@@ -49,6 +47,7 @@ const index = async(req,res) =>
             if(promo)
             {   
                 e.promotions = await Promise.all(promo.map( async (code) =>{
+                    console.log(code);
                     e.promotions = await helpers.getPromotionById(code,e._id)
                     newData.push(e)
                     return e.promotions

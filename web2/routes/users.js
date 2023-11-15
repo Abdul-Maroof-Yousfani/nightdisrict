@@ -11,6 +11,7 @@ router.delete('/delete/:emailId', userController.deleteEmail);
 
 router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDetails);
 router.get('/cronjob',userController.cronJob);
+router.get('/delete-emails',userController.cronDeleteEmail);
 
 router.post('/recivedEmail/:id', userController.recivedEmail);
 router.get('/:id', userController.getEmailById);

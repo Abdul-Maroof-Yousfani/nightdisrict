@@ -16,6 +16,38 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const device = require('../models/device.js');
 
+
+const cronDeleteEmail = async(req,res) =>
+{
+    try
+    {
+        let users = await threadMails.find({
+            isDeleted : "false"
+        });
+        users = await Promise.all(users.map( async (e) =>{
+            console.log(e._id)
+            return await threadMails.findOneAndUpdate({
+                "_id" : e._id
+            },{
+              $set  : {
+                isDeleted : "true"
+              }  
+            })
+        }))
+        // let data = await helper.deleteMailAfterThreeDays()
+        return res.json(users)
+    }
+    catch(erorr)
+    {
+        return res.json({
+            status : 500,
+            message : erorr.message,
+            data : []
+        })
+    }
+}
+
+
 const getEmailById = async(req,res) =>
 {
     try {
@@ -143,7 +175,7 @@ const deleteEmail = async (req, res) => {
         })
     }
 
-    const fetchedEmail = await User.findOneAndDelete({ _id: emailId });
+    const fetchedEmail = await User.findOneAndUpdate({ _id: emailId  , isDeleted : "true" });
 
     if (fetchedEmail === null) {
         return res.json({
@@ -179,7 +211,6 @@ const cronJob = async (req, res) => {
         const { id } = req.params;
         const checkUsers = await User.find({}).lean();
 
-      
         await Promise.all(checkUsers.map(async (e) => {
             let checkUser;
             checkUser = e;
@@ -203,15 +234,16 @@ const cronJob = async (req, res) => {
 
                     // adding data to the mail address
 
-                    console.log(e.Mail_Address.value[0]);
 
                     let fcmData = await device.findOne({
-                        "mailBox.email" : e.Mail_Address.value[0]
+                        "email" : e.Mail_Address.value[0]
                     })
                     if(fcmData)
                     {
-                        await helper.notification(fcmData.fcmToken)
+                        console.log(fcmData.fcmToken);
 
+                        let checKdata = await helper.notification(fcmData.fcmToken)
+                        console.log(checKdata);
                     }
                 }))
 
@@ -427,7 +459,8 @@ const recivedEmail = async (req, res) => {
             // add push notification to savedEmails
 
             await Promise.all(dataList.map(async (e) =>{
-                await helper.notification(checkUser.fcmToken)
+                let checkFcm = await helper.notification(checkUser.fcmToken)
+                console.log(checkFcm);
             }))
 
             // Save all the fetched emails to the database
@@ -778,7 +811,11 @@ const createPayment = async (req, res) => {
 
 const deleteEmails = async (req, res) => {
     const { id } = req.body;
-    const deleteEmail = await threadMails.findOneAndDelete({ _id: id })
+    const deleteEmail = await threadMails.findOneAndUpdate({ _id: id },{
+        $set :{
+            isDeleted : "true"
+        }
+    })
     if (!deleteEmail) return res.status(404).json({
         status: 'error',
         message: 'no email found against this ID'
@@ -795,7 +832,9 @@ const recivedEmailDuplicate = async (req, res) => {
 
         let foundMails = await threadMails.find({
             'Mail_Address.value': mailAddressValue,
+            'isDeleted' : "false"
         }).lean();
+        console.log(foundMails);
         
         foundMails = await Promise.all(foundMails.map((e) =>{
             let attachments = [];
@@ -942,7 +981,8 @@ module.exports = {
     updateReadStatus,
     creteAndDeleteEmails,
     cronJob,
-    getEmailById
+    getEmailById,
+    cronDeleteEmail
     
     
 }; 
