@@ -608,12 +608,18 @@ const addItem = async (req, res) => {
             return res.status(200).json({ status: 400, message: "Menu is required", data: {} })
         }
         let finalMenu = [];
+        totalCategories = [];
+        let myCategories  = [];
         menu = await Promise.all(menu.map( async (e) =>{
+
+
             let mainMenu = await superMenu.findById({ _id: e.superItem }).lean()
             // check if menu is already there
 
-            mainMenu.category?totalCategories.push({category : mainMenu.category}):"";
+            mainMenu.category?totalCategories.push({ category : mainMenu.category }):"";
             e.category = mainMenu.category
+
+
 
 
 
@@ -622,12 +628,12 @@ const addItem = async (req, res) => {
 
             e.subCategory = mainMenu.subCategory
 
-
+           
             e.barId = req.user.barInfo;
             e.menu_name = e.title;
             e.item = e.superItem;
             e.description = e.description;
-            e.categories = totalCategories;
+            e.categories = myCategories;
             e.variation = e.variation
 
             let findMenu = await localMenu.findOne({
@@ -637,9 +643,9 @@ const addItem = async (req, res) => {
             if(!findMenu)
             {
                 finalMenu.push(e); 
+
             }
 
-            
 
             // "barId": req.user.barInfo,
             //             menu_name: title,
@@ -653,6 +659,9 @@ const addItem = async (req, res) => {
 
             return e
         }))
+
+        
+
 
         let data = await localMenu.insertMany(finalMenu)
         // await data.save()

@@ -141,6 +141,10 @@ const bar = new mongoose.Schema({
         type : String,
         default : ""
     },
+    drinkOz:{
+        type: Number,
+        default : 0
+    },
     geometry: {
         type: {
           type: String,

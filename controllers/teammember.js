@@ -198,10 +198,32 @@ const remove = async(req,res) =>
                 message : "User Not Found"
             })
         }
+
+        // check bartender Dues
+
+        let checkOrders = await order.findOne({
+            bartender : user
+        })
+        if(checkOrders)
+        {
+            return res.json({
+                status : 500,
+                message :`Can't remove the bartender, already Orders are in process`,
+                data : {}
+            })
+        }
+
         await team.findOneAndRemove({
             bar : req.user.barInfo,
             user
         }).lean()
+        await users.findOneAndRemove({
+            _id : user,
+        }).lean()
+
+        // check if user has any Orders in Process
+
+        
 
         let data2  = await roles.find(
             {
@@ -239,7 +261,7 @@ const remove = async(req,res) =>
     {
         console.log(error)
         return res.json({
-            status : 200,
+            status : 500,
             message :error.message,
             data : []
         })

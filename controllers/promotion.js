@@ -25,7 +25,8 @@ const store = async(req,res) =>
             price: Joi.number(),
             repeat: Joi.boolean(),
             menu : Joi.any(),
-            discount : Joi.any()
+            discount : Joi.any(),
+            category : Joi.any()
             
          });
 
