@@ -30,6 +30,8 @@ const store = async(req,res) =>
             
          });
 
+         delete req.body.category;
+
 
         const { error, value } = schema.validate(req.body);
         
