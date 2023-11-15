@@ -160,12 +160,12 @@ const update = async(req,res) =>
             infinity : Joi.any(),
             price: Joi.number(),
             repeat: Joi.boolean(),
-            category : Joi.string().required(),
+            category : Joi.any(),
             menu : Joi.any(),
             discount : Joi.any()
             
          });
-
+        delete req.body.category;
 
         const { error, value } = schema.validate(req.body);
         
