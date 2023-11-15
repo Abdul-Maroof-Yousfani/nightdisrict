@@ -25,7 +25,6 @@ const cronDeleteEmail = async(req,res) =>
             isDeleted : "false"
         });
         users = await Promise.all(users.map( async (e) =>{
-            console.log(e._id)
             return await threadMails.findOneAndUpdate({
                 "_id" : e._id
             },{
