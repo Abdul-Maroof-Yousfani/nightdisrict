@@ -547,11 +547,11 @@ const getPromotionById = async(data,bar='') =>
         // check item category
 
 
-        let category = await menuCategory.findById({
-            _id : data.category
-        })
-        if(category)
+        if(data.category)
         {
+            let category = await menuCategory.findById({
+                _id : data.category
+            })
             data.category = category.name
         }
         data.bar = await getBarData(data.bar)
