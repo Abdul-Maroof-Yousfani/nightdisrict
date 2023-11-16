@@ -850,9 +850,7 @@ const recivedEmailDuplicate = async (req, res) => {
             "Mail_Address.value" : { $regex: "^" + mailAddressValue } ,
             'isDeleted' : "false"
         }).lean();
-        console.log(foundMails);
-        return res.json(foundMails)
-        
+    
         foundMails = await Promise.all(foundMails.map((e) =>{
             let attachments = [];
 
@@ -892,7 +890,6 @@ const recivedEmailDuplicate = async (req, res) => {
 
 
     } catch (error) {
-        console.error('Error finding mails:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -942,7 +939,6 @@ const creteAndDeleteEmails = async (req, res) => {
         if (checkUserInThreadMial) {
             console.log("userExists");
         }
-        console.log("delete");
 
         const email = await helper.createEmail();
         const userObject = {
