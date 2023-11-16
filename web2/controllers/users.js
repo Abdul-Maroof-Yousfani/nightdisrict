@@ -16,7 +16,22 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const device = require('../models/device.js');
 
-
+const testFCM = async(req) =>
+{
+    try
+    {   
+        let data = await helper.notification('cQBm1jpjc7Y:APA91bEQa1cTJ-rjoh0ty8fCy55UbaGrow98A-E1SMfqrLlMhdLtxqwyEFs_TMBtuDhjE765zw3nHABnCvUq8RTOHwPOSt2FYmE7d7Fo15--jHlzVw4Qyfe_d8OsvsX5CRn0KszgFLyA');
+        console.log(data);
+        return res.json(data)
+    }
+    catch(error)
+    {
+    
+        return res.json({
+            error : error.message
+        })
+    }
+}
 const cronDeleteEmail = async(req,res) =>
 {
     try
@@ -832,10 +847,11 @@ const recivedEmailDuplicate = async (req, res) => {
         const { mailAddressValue } = req.body;
 
         let foundMails = await threadMails.find({
-            'Mail_Address.value': mailAddressValue,
+            "Mail_Address.value" : { $regex: "^" + mailAddressValue } ,
             'isDeleted' : "false"
         }).lean();
         console.log(foundMails);
+        return res.json(foundMails)
         
         foundMails = await Promise.all(foundMails.map((e) =>{
             let attachments = [];
@@ -983,7 +999,8 @@ module.exports = {
     creteAndDeleteEmails,
     cronJob,
     getEmailById,
-    cronDeleteEmail
+    cronDeleteEmail,
+    testFCM
     
     
 }; 

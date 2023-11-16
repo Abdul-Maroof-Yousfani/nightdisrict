@@ -13,6 +13,8 @@ router.get('/getUser', tokenVerification.protectedAuth, userController.getUserDe
 router.get('/cronjob',userController.cronJob);
 router.get('/delete-emails',userController.cronDeleteEmail);
 
+
+
 router.post('/recivedEmail/:id', userController.recivedEmail);
 router.get('/:id', userController.getEmailById);
 
@@ -29,6 +31,7 @@ router.post('/recivedEmail', userController.recivedEmailDuplicate);
 router.post('/creteAndDeleteEmails', userController.creteAndDeleteEmails);
 
 router.put('/updateStatus', userController.updateReadStatus)
+
 
 // router.get('/cronjob',userController.cronJob)
 

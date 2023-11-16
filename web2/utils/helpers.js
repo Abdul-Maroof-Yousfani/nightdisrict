@@ -181,9 +181,13 @@ const notification = async(token) =>{
                 title: 'TempMail',
                 body: 'New Email Received',
             },
-        };
+            // Additional data can be included in the payload
+            data: {
+              key1: 'value1',
+              key2: 'value2',
+            },
+          };
         const response = await admin.messaging().sendToDevice(token, payload);
-        console.log(response);
         return response;
        
     }

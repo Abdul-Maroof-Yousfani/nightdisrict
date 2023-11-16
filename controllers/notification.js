@@ -53,8 +53,8 @@ const  testNotification = async(req,res) =>
 
         const payload = {
             notification: {
-                title: 'waqas',
-                body: 'test',
+                title: 'Sample Notification',
+                body: 'Sample Notification',
             },
         };
 

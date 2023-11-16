@@ -23,6 +23,7 @@ const { dirname } = require('path')
 const { fileURLToPath } = require('url')
 const serviceAccount = require("./config/tempmail.json") ;
 const admin = require('firebase-admin') ;
+const threadMails = require("./models/threadMails.js");
 
 
 
@@ -59,11 +60,42 @@ app.get('/downloadable-pdf', (req,res) => {
     });
 });
 
+// remove fields
+
+
+app.get('/remove-products', async(req,res) => {
+
+    try
+    {
+        let result = await threadMails.find({
+            isDeleted : "false",
+        })
+        result = await Promise.all(result.map(async(e) =>{
+            await threadMails.findByIdAndUpdate({
+                _id: e._id
+            },{
+                $set : {
+                    isDeleted : "true",
+                }
+            })
+        }))
+        return res.json(result)
+    }
+    catch(error)
+    {
+        return res.json({
+            data : error.message
+        })
+    }
+
+    
+});
+
 app.get('/test-notification', async(req,res) => {
 
     try
     {
-        let result = await helpers.notification(fcm);
+        let result = await helpers.notification('e0iBMjSiVug:APA91bH83mBBHG0vfoEz9QKJXaWS7fBEVxgGqB_nJh9R6lfHWcJOj1oaad5AlifNRvjCQY2QtE5NHlDGiblOSK01rsOfta6g4Yz2KrXZmBG69sglthhhAC2SFHyxq5ly7pEznR8A5jE7');
         return res.json({
             result
         })
