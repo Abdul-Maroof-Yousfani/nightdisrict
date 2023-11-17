@@ -226,7 +226,7 @@ const cronJob = async (req, res) => {
     try {
         const { id } = req.params;
         const checkUsers = await User.find({}).lean();
-
+        let tokens = [];
         await Promise.all(checkUsers.map(async (e) => {
             let checkUser;
             checkUser = e;
@@ -250,16 +250,12 @@ const cronJob = async (req, res) => {
 
                     // adding data to the mail address
 
-
                     let fcmData = await device.findOne({
-                        "email" : e.Mail_Address.value[0]
+                        "mailBox.email": { $in: e.Mail_Address.value[0] }
                     })
                     if(fcmData)
                     {
-                        console.log(fcmData.fcmToken);
-
                         let checKdata = await helper.notification(fcmData.fcmToken)
-                        console.log(checKdata);
                     }
                 }))
 

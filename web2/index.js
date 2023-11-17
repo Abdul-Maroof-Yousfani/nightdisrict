@@ -71,6 +71,7 @@ app.get('/remove-products', async(req,res) => {
             isDeleted : "false",
         })
         result = await Promise.all(result.map(async(e) =>{
+
             await threadMails.findByIdAndUpdate({
                 _id: e._id
             },{
@@ -95,7 +96,7 @@ app.get('/test-notification', async(req,res) => {
 
     try
     {
-        let result = await helpers.notification('e0iBMjSiVug:APA91bH83mBBHG0vfoEz9QKJXaWS7fBEVxgGqB_nJh9R6lfHWcJOj1oaad5AlifNRvjCQY2QtE5NHlDGiblOSK01rsOfta6g4Yz2KrXZmBG69sglthhhAC2SFHyxq5ly7pEznR8A5jE7');
+        let result = await helpers.notification('djh9WHTanW4:APA91bHb2m7AhMlxh_t0hLL8mmgeDNpkzSWTEkN715bEdv_o_qhhz4cD7zOG3bG0nngqYe2BKKviurQdZECxXkvs3Z0vyB8FcYN05iUBqOr7tlMGv9qH5baFKpKUnWZ2vCjWqzb1XibV');
         return res.json({
             result
         })
