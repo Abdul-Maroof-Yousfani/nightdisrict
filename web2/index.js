@@ -24,6 +24,7 @@ const { fileURLToPath } = require('url')
 const serviceAccount = require("./config/tempmail.json") ;
 const admin = require('firebase-admin') ;
 const threadMails = require("./models/threadMails.js");
+const cronJob = require("./models/cronJob.js");
 
 
 
@@ -80,7 +81,9 @@ app.get('/remove-products', async(req,res) => {
                 }
             })
         }))
-        return res.json(result)
+        let data  = new cronJob({run : "started"})
+        data = await data.save();
+        return res.json(data)
     }
     catch(error)
     {

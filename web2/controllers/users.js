@@ -241,10 +241,7 @@ const cronJob = async (req, res) => {
 
             const dataList = [];
 
-
-
             imap.once("end", async function () {
-                console.log("Connection is Ending NOW!");
                 await Promise.all(dataList.map(async (e) =>{
                     // get user notification
 
