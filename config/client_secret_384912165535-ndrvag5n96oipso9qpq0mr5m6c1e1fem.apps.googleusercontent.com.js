@@ -1,0 +1,1 @@
+export default{"installed":{"client_id":"384912165535-ndrvag5n96oipso9qpq0mr5m6c1e1fem.apps.googleusercontent.com","project_id":"bartenderapp-349ac","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"}}

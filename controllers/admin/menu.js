@@ -543,17 +543,59 @@ const importProduct = async (req, res) => {
         {
           subcategory2Id = await createOrUpdateCategory(colI, subcategory1Id,colJ);
         }
-        console.log("Categories");
-        console.log(colB);
+
+        let parent = categoryId;
+        let finalCategory;
+        if(colI)
+        {
+          finalCategory =  subcategory2Id;
+        }
+        else if(colG)
+        {
+          finalCategory = subcategory1Id;
+        }
+        else
+        {
+          finalCategory = parent;
+        }
 
 
-
-
+        // check and update product
+        
         // Create or find Subcategory2 and set its parent to categoryId
         
-        // let checkSuperMenu = await superMenu.findOne({
-        //   menu_name  : colB
-        // })
+        let checkSuperMenu = await superMenu.findOne({
+          menu_name  : colB
+        })
+        let superMenuData = {}
+        if(checkSuperMenu)
+        {
+            superMenuData = {
+                bar: null, // Set the appropriate bar ID
+                user: null, // Set the appropriate user ID
+                userType: null, // Set the appropriate userType ID
+                menu_name: colB,
+                description: colC,
+                category: parent, // Use the category ID obtained above
+                subCategory: finalCategory, // Use the subcategory1 ID obtained above
+                categories: [categoryId,subcategory1Id,subcategory2Id], // Include parent and subcategories
+                subCategories: [subcategory1Id, subcategory2Id], // No need to include subcategories here
+            }; 
+        }
+
+        // update Menu
+
+        let update = await superMenu.findByIdAndUpdate({
+          _id : checkSuperMenu._id
+        },{
+          $set  : superMenuData
+        },{
+          new :true
+        })
+        console.log("Update Menu")
+        console.log(update);
+        console.log("Menu Updated")
+       
         // if(!checkSuperMenu)
         // {
         //     const superMenuData = {
@@ -624,8 +666,6 @@ const importProduct = async (req, res) => {
             
 
         // }
-
-  
 
       } catch (error) {
         console.error('Error processing row:',error);

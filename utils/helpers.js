@@ -1595,9 +1595,6 @@ let createNotification = async(req,user) =>
         data = await data.save();
 
 
-
-
-        
         const payload = {
             notification: {
               title: req.title,

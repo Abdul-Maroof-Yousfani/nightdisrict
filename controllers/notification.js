@@ -21,11 +21,23 @@ import purchases from '../models/purchases.js';
 import mongoose from 'mongoose';
 import { google } from 'googleapis';
 
-
 import { OAuth2Client } from 'google-auth-library';
-const client = new OAuth2Client('../config/bartender.js');
+import serviceAccount from '../config/client_secret_384912165535-ndrvag5n96oipso9qpq0mr5m6c1e1fem.apps.googleusercontent.com.js'; // Replace with your service account key
 
-import serviceAccount from '../config/bartender.js'; // Replace with your service account key
+console.log(serviceAccount);
+
+// const credentials = new require('./path/to/your/credentials.json');
+const client = new OAuth2Client(
+    serviceAccount.installed.client_id,
+    serviceAccount.installed.client_secret
+  );
+
+// const client = new OAuth2Client(
+//     credentials.web.client_id,
+//     credentials.web.client_secret,
+//     credentials.web.redirect_uris[0]
+//   );
+
 
 
 
@@ -406,19 +418,26 @@ const webhookData = async(req,res) =>
         const subscriptionId = '631128affcc77369ff1ce009_android'; // Replace with your subscription ID
 
 
-        const auth = new google.auth.GoogleAuth({
-            credentials: serviceAccount,
-            scopes: ['https://www.googleapis.com/auth/androidpublisher'],
-          });
+        // const auth = new google.auth.GoogleAuth({
+        //     credentials: serviceAccount,
+        //     scopes: ['https://www.googleapis.com/auth/androidpublisher'],
+        //   });
 
-        const androidpublisher = google.androidpublisher('v3');
+        // const androidpublisher = google.androidpublisher('v3');
 
 
         const purchaseToken = 'chgennafgakccmmkcmcpeggd.AO-J1Ox2rwh-_3NeFW4yu77LB3X8bO-IcLiYvaIkAG3fxYZ71MSGD8ZpX2yC-TEoacaXigx5DrIQ1RkoRDHzFLFwLs5y0XZAkOhZg-weJLNRFMrwJbIH1pM';
 
 
-        const authClient = await auth.getClient();
-         google.options({ auth: authClient });
+        const tokenInfo = await client.verifyIdToken({
+            idToken: purchaseToken,
+            audience: serviceAccount.installed.client_id,
+          });
+
+
+
+        // const authClient = await auth.getClient();
+        //  google.options({ auth: authClient });
 
 
          const result = await androidpublisher.purchases.subscriptions.get({

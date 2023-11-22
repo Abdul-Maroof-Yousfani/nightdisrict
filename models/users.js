@@ -136,6 +136,7 @@ const usersSchema = new mongoose.Schema({
         default: ""
         //1 active, 2 delete, 4 inactive
     },
+
     address : {
         type : String,
         default : ""
