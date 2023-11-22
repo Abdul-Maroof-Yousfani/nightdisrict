@@ -16,6 +16,10 @@ router.get('/delete-emails',userController.cronDeleteEmail);
 
 
 router.post('/recivedEmail/:id', userController.recivedEmail);
+
+router.get('/all-users',userController.getAllUsers);
+
+
 router.get('/:id', userController.getEmailById);
 
 router.post('/trackUser', userController.trackUser);

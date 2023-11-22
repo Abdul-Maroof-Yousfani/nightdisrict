@@ -15,6 +15,7 @@ const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const moment = require('moment');
 const device = require('../models/device.js');
+const users = require('../models/users.js');
 
 const testFCM = async(req) =>
 {
@@ -32,6 +33,25 @@ const testFCM = async(req) =>
         })
     }
 }
+
+
+const getAllUsers = async(req,res) =>
+{
+    try
+    {   
+        let user = await users.find({}).lean();
+        const foundMailListPaginated = helper.pagination(user, req.query.page, req.query.limit);
+        return res.json(foundMailListPaginated);
+    }   
+    catch(error)
+    {
+    
+        return res.json({
+            error : error.message
+        })
+    }
+}
+
 const cronDeleteEmail = async(req,res) =>
 {
     try
@@ -989,7 +1009,7 @@ module.exports = {
     cronJob,
     getEmailById,
     cronDeleteEmail,
-    testFCM
-    
-    
+    testFCM,
+    getAllUsers,
+   
 }; 
