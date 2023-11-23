@@ -22,7 +22,6 @@ const testFCM = async(req) =>
     try
     {   
         let data = await helper.notification('cQBm1jpjc7Y:APA91bEQa1cTJ-rjoh0ty8fCy55UbaGrow98A-E1SMfqrLlMhdLtxqwyEFs_TMBtuDhjE765zw3nHABnCvUq8RTOHwPOSt2FYmE7d7Fo15--jHlzVw4Qyfe_d8OsvsX5CRn0KszgFLyA');
-        console.log(data);
         return res.json(data)
     }
     catch(error)

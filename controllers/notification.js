@@ -24,7 +24,6 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import serviceAccount from '../config/client_secret_384912165535-ndrvag5n96oipso9qpq0mr5m6c1e1fem.apps.googleusercontent.com.js'; // Replace with your service account key
 
-console.log(serviceAccount);
 
 // const credentials = new require('./path/to/your/credentials.json');
 const client = new OAuth2Client(

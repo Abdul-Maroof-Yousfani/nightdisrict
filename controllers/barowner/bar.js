@@ -507,10 +507,15 @@ const addItem = async (req, res) => {
            
 
             let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
+            mainMenu.categories.map((e) =>{
+                totalCategories.push({
+                    category : e
+                })
+            })
 
             
-            mainMenu.category?totalCategories.push({category : mainMenu.category}):""
-            mainMenu.subCategory?totalCategories.push({category : mainMenu.subCategory}):""
+            // mainMenu.category?totalCategories.push({category : mainMenu.category}):""
+            // mainMenu.subCategory?totalCategories.push({category : mainMenu.subCategory}):""
            
             // totalCategories.push({
             //     category : mainMenu.category

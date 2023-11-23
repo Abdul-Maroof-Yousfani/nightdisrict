@@ -1236,6 +1236,10 @@ const  getSuperItem = async(id) => {
         // update categories
 
         let categories = [];
+        if(!data.categories)
+        {
+            console.log(data.categories);
+        }
         categories = await Promise.all(data.categories.map(async(cat) =>{
             return await menuCategory.findById({ _id :cat });
         }))
