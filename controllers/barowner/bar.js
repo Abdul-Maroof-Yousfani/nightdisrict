@@ -26,28 +26,25 @@ import reviews from '../../models/reviews.js';
 
 
 
-const nearby = async(req,res) =>
-{
-    try
-    {
-        let data = await helpers.nearbyBars(req.body.longitude,req.body.latitude);
-        let results = await helpers.paginate(data,req.params.page,req.params.limit);
+const nearby = async (req, res) => {
+    try {
+        let data = await helpers.nearbyBars(req.body.longitude, req.body.latitude);
+        let results = await helpers.paginate(data, req.params.page, req.params.limit);
         return res.status(200).json({
-            status : 200,
-            message : "success",
-            data : results.result,
-            paginate : results.totalPages
+            status: 200,
+            message: "success",
+            data: results.result,
+            paginate: results.totalPages
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data :[]
+            status: 500,
+            message: error.message,
+            data: []
         })
     }
-    
+
 }
 
 
@@ -91,7 +88,7 @@ const barProfile = async (req, res) => {
 
     } catch (error) {
         return res.status(200).json({
-            status : 500,
+            status: 500,
             message: "error",
             data: error.message
         })
@@ -102,7 +99,7 @@ const barInfo = async (req, res) => {
     let body = req.body;
     let barId = req.user.barInfo;
     let userId = req.user._id;
-    let {longitude,latitude} = req.body;
+    let { longitude, latitude } = req.body;
 
 
 
@@ -122,41 +119,38 @@ const barInfo = async (req, res) => {
             color: Joi.string(),
         });
 
-       
+
 
 
 
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(200).json({ status:400, message: error.message, data: {} })
+        if (error) return res.status(200).json({ status: 400, message: error.message, data: {} })
 
 
         // add location here
 
-        if(longitude && latitude)
-        {
+        if (longitude && latitude) {
             let location = {
-                type : "Point",
-                coordinates:[longitude,latitude]
+                type: "Point",
+                coordinates: [longitude, latitude]
             }
             body.location = location
         }
-        else
-
-        {
+        else {
             body.location = {
-                type : "Point",
-                coordinates:[0,0]
-    
-            }  
+                type: "Point",
+                coordinates: [0, 0]
+
+            }
         }
 
-     
+
 
 
         // check if Bar exists
 
         let checkBar = await bar.findOne({ _id: mongoose.Types.ObjectId(barId) }).lean()
-        if (!checkBar) return res.status(200).json({ status:404, message: "Record not found", data: {} })
+        if (!checkBar) return res.status(200).json({ status: 404, message: "Record not found", data: {} })
 
 
 
@@ -171,12 +165,11 @@ const barInfo = async (req, res) => {
             doc = req.files.upload_document;
 
 
-            if(!helpers.fileValidation(doc,/(\.pdf|\.docx)$/i))
-            {
+            if (!helpers.fileValidation(doc, /(\.pdf|\.docx)$/i)) {
                 return res.status(200).json({
-                    status : 400,
-                    message : "File Must of Type PDF / DOCX",
-                    data : {}
+                    status: 400,
+                    message: "File Must of Type PDF / DOCX",
+                    data: {}
                 })
             }
 
@@ -199,10 +192,10 @@ const barInfo = async (req, res) => {
                 phone: body.phone,
                 url: body.url,
                 upload_document: req.body.upload_document,
-                color:body.color,
-                longitude : body.longitude,
-                latitude : body.latitude,
-                location : body.location
+                color: body.color,
+                longitude: body.longitude,
+                latitude: body.latitude,
+                location: body.location
             }
         }, { new: true });
 
@@ -216,7 +209,7 @@ const barInfo = async (req, res) => {
 
     } catch (error) {
         return res.status(200).json({
-            status : 500,
+            status: 500,
             message: "error",
             data: error.message
         })
@@ -224,7 +217,7 @@ const barInfo = async (req, res) => {
 }
 
 const detailInfo = async (req, res) => {
-    let barId =  req.user.barInfo;
+    let barId = req.user.barInfo;
 
     let body = req.body;
     try {
@@ -256,7 +249,7 @@ const detailInfo = async (req, res) => {
 
     } catch (error) {
         return res.status(200).json({
-            status : 500,
+            status: 500,
             message: "error",
             data: error.message
         })
@@ -268,7 +261,7 @@ const detailInfo = async (req, res) => {
 const updateBarInfo = async (req, res) => {
     let body = req.body;
     let barId = req.user.barInfo;
-    let {longitude,latitude} = req.body
+    let { longitude, latitude } = req.body
     try {
         let userId = req.user._id;
         let result = await User.findById({ _id: userId });
@@ -277,13 +270,13 @@ const updateBarInfo = async (req, res) => {
 
         // chec if we are receiving geo
 
-        
+
 
         if (req.files) {
             let logo = req.files.upload_logo;
-            
 
-   
+
+
 
 
             if (logo) {
@@ -385,8 +378,7 @@ const updateBarInfo = async (req, res) => {
         if (req.body.barHours) {
             req.body.barHours = JSON.parse(req.body.barHours)
         }
-        if(req.body.hash_tags)
-        {
+        if (req.body.hash_tags) {
             req.body.hash_tags = req.body.hash_tags.replace(/'/g, '"');
             req.body.hash_tags = JSON.parse(req.body.hash_tags)
         }
@@ -406,22 +398,19 @@ const updateBarInfo = async (req, res) => {
 
         // add location here
 
-        if(longitude && latitude)
-        {
+        if (longitude && latitude) {
             let location = {
-                type : "Point",
-                coordinates:[longitude,latitude]
+                type: "Point",
+                coordinates: [longitude, latitude]
             }
             body.location = location
         }
-        else
-
-        {
+        else {
             body.location = {
-                type : "Point",
-                coordinates:[0,0]
-    
-            }  
+                type: "Point",
+                coordinates: [0, 0]
+
+            }
         }
 
 
@@ -434,49 +423,46 @@ const updateBarInfo = async (req, res) => {
 
     } catch (error) {
         return res.status(200).json({
-            status : 500,
+            status: 500,
             message: "error",
             data: error.message
         })
     }
 }
 
-const getBarGeometry = async(req,res) =>
-{
-    let {geo} = req.body;
-    try
-    {
+const getBarGeometry = async (req, res) => {
+    let { geo } = req.body;
+    try {
 
         let location = {
-            type : "Polygon",
-            coordinates:geo
+            type: "Polygon",
+            coordinates: geo
         }
 
-        let data  = await  bar.findByIdAndUpdate({
-            _id : req.user.barInfo
-        },{
-            $set : {
-                geometry : location,
-                active : true
+        let data = await bar.findByIdAndUpdate({
+            _id: req.user.barInfo
+        }, {
+            $set: {
+                geometry: location,
+                active: true
             }
-        },{
-            new : true
+        }, {
+            new: true
         })
 
         return res.json({
-            status : 200,
-            message : "success",
+            status: 200,
+            message: "success",
             data
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : []
+            status: 500,
+            message: error.message,
+            data: []
         })
-    }   
+    }
 
 }
 
@@ -484,12 +470,12 @@ const getBarGeometry = async(req,res) =>
 // Adding items to a Bar Menu
 
 const addItem = async (req, res) => {
-    let { title, description, type, category, subcategory, variation , superItem , menu , parent,child,subType , tertiary } = req.body;
+    let { title, description, type, category, subcategory, variation, superItem, menu, parent, child, subType, tertiary } = req.body;
     let totalCategories = [];
 
     try {
         let schema = Joi.object({
-            superItem : Joi.any(),
+            superItem: Joi.any(),
             menu: Joi.array(),
             title: Joi.string(),
             description: Joi.string(),
@@ -497,32 +483,32 @@ const addItem = async (req, res) => {
             category: Joi.any(),
             subcategory: Joi.any(),
             variation: Joi.array(),
-            picture : Joi.any(),
-            parent : Joi.any(),
-            child : Joi.any(),
-            tertiary : Joi.any(),
-            subType : Joi.any(),
+            picture: Joi.any(),
+            parent: Joi.any(),
+            child: Joi.any(),
+            tertiary: Joi.any(),
+            subType: Joi.any(),
 
         });
-        
-     
+
+
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
+        if (error) return res.status(200).json({ status: 400, message: error.message, data: {} })
 
         if (type == 'bar') {
-           
+
 
             let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
-            mainMenu.categories.map((e) =>{
+            mainMenu.categories.map((e) => {
                 totalCategories.push({
-                    category : e
+                    category: e
                 })
             })
 
-            
+
             // mainMenu.category?totalCategories.push({category : mainMenu.category}):""
             // mainMenu.subCategory?totalCategories.push({category : mainMenu.subCategory}):""
-           
+
             // totalCategories.push({
             //     category : mainMenu.category
             // },{
@@ -531,11 +517,10 @@ const addItem = async (req, res) => {
 
 
             let barSearch = await localMenu.findOne({
-                item : superItem,
-                barId  : req.user.barInfo
+                item: superItem,
+                barId: req.user.barInfo
             })
-            if(!barSearch)
-            {
+            if (!barSearch) {
                 let data = new localMenu(
                     {
                         "barId": req.user.barInfo,
@@ -545,97 +530,113 @@ const addItem = async (req, res) => {
                         "category": mainMenu.category,
                         "subCategory": mainMenu.subCategory,
                         variation,
-                        categories : totalCategories
-    
+                        categories: totalCategories
+
                     }
                 )
                 data = await data.save();
             }
-            
 
-            
+
+
             let itemsdata = await localMenu.findOne({
-                item : mainMenu._id
+                item: mainMenu._id
             }).lean()
 
             let totalPrice = 0;
-            mainMenu.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
-                            // get variation data
-                            console.log(va);
-            let newVariations = await pourtype.findOne({
-                                _id : va.variant
-                            })
-                            va.name = newVariations.name
-                            totalPrice  = totalPrice + va.price
-                            return va
-                        }))
+            mainMenu.variation = await Promise.all(itemsdata.variation.map(async (va) => {
+                // get variation data
+                console.log(va);
+                let newVariations = await pourtype.findOne({
+                    _id: va.variant
+                })
+                va.name = newVariations.name
+                totalPrice = totalPrice + va.price
+                return va
+            }))
 
             itemsdata.price = totalPrice
 
-            if(itemsdata.reviews)
-                        {
-                            mainMenu.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
-                                // get customer data
-    
-                                // get customer data and review information
-    
-                                let userInfo = await users.findOne({_id : rev.customer});
-                                if(userInfo)
-                                {
-                                    rev.name = userInfo.username
-                                    rev.picture = userInfo.profile_picture
-                                }
-                 
-                                // get review information
-    
-                                let reviewInfor = await reviews.findOne({
-                                    _id : rev.review
-                                })
-                                if(reviewInfor)
-                                {
-                                    rev.message = reviewInfor.message
-                                    rev.count = reviewInfor.rating
-                                }
-                        
-    
-    
-                                return rev;
-    
-    
-                                
-    
-                            }))
-                        }
+            if (itemsdata.reviews) {
+                mainMenu.reviews = await Promise.all(itemsdata.reviews.map(async (rev) => {
+                    // get customer data
+
+                    // get customer data and review information
+
+                    let userInfo = await users.findOne({ _id: rev.customer });
+                    if (userInfo) {
+                        rev.name = userInfo.username
+                        rev.picture = userInfo.profile_picture
+                    }
+
+                    // get review information
+
+                    let reviewInfor = await reviews.findOne({
+                        _id: rev.review
+                    })
+                    if (reviewInfor) {
+                        rev.message = reviewInfor.message
+                        rev.count = reviewInfor.rating
+                    }
+
+
+
+                    return rev;
+
+
+
+
+                }))
+            }
 
 
             // get item structure as parent item
-            
-            return res.json({ status: 200, message: "success", data : mainMenu })
+
+            return res.json({ status: 200, message: "success", data: mainMenu })
 
         }
-        else if(type == 'own')
-        {
+        else if (type == 'own') {
             let findCategories = [];
-            if(req.body.tertiary)
-            {
+            if (req.body.tertiary) {
                 req.body.subCategory = req.body.tertiary
                 findCategories.push(req.body.tertiary)
                 findCategories.push(req.body.child)
                 findCategories.push(req.body.parent)
             }
 
-            else if(req.body.child)
-            {
+            else if (req.body.child) {
                 req.body.subCategory = req.body.child
                 findCategories.push(req.body.child)
                 findCategories.push(req.body.parent)
             }
-            else
-            {
+            else {
                 req.body.subCategory = req.body.parent
                 findCategories.push(req.body.parent)
             }
-        
+            let pictureArray = [];
+            let picture = req.body.picture;
+
+            if (picture && Array.isArray(picture)) {
+                // Use Promise.all to wait for all asynchronous operations to complete
+                await Promise.all(picture.map(async (base64String) => {
+                    // Convert base64 string to buffer
+                    const buffer = Buffer.from(base64String, 'base64');
+
+                    // Generate a unique filename using the current timestamp
+                    const date = Date.now() + '.jpg';
+
+                    // Write the buffer to the file system
+                    fs.writeFileSync(`public/menu/${date}`, buffer);
+
+                    // Assuming you want to store URLs in the array, construct the URL
+                    const imageUrl = `/menu/${date}`;
+
+                    // Push the URL to the pictureArray
+                    pictureArray.push(imageUrl);
+                }));
+            }else{
+                req.body.picture = []
+            }
 
             let superData = new superMenu({
                 bar: req.user.barInfo,
@@ -644,18 +645,18 @@ const addItem = async (req, res) => {
                 description: req.body.description,
                 category: req.body.parent,
                 subCategory: req.body.subCategory,
-                categories:findCategories,
+                categories: findCategories,
                 subCategories: findCategories,
-                pictures: []
+                pictures: pictureArray
             })
             superData = await superData.save();
 
             // get categories
 
             let allCats = [];
-            superData.categories.map((e) =>{
+            superData.categories.map((e) => {
                 allCats.push({
-                    category : e
+                    category: e
                 })
             })
 
@@ -663,18 +664,18 @@ const addItem = async (req, res) => {
                 {
                     "barId": req.user.barInfo,
                     menu_name: req.body.title,
-                    description : req.body.description,
+                    description: req.body.description,
                     "item": superData._id,
                     "category": superData.category,
                     "subCategory": superData.subCategory,
-                    variation : req.body.variation,
-                    categories : allCats
+                    variation: req.body.variation,
+                    categories: allCats
 
                 }
             )
             data = await data.save();
 
-            return res.json({status: 200 , message: "success", data })
+            return res.json({ status: 200, message: "success", data })
         }
 
         if (!menu) {
@@ -683,23 +684,23 @@ const addItem = async (req, res) => {
         }
         let finalMenu = [];
         totalCategories = [];
-        let myCategories  = [];
-        menu = await Promise.all(menu.map( async (e) =>{
+        let myCategories = [];
+        menu = await Promise.all(menu.map(async (e) => {
 
 
             let mainMenu = await superMenu.findById({ _id: e.superItem }).lean()
             // check if menu is already there
 
-            mainMenu.category?totalCategories.push({ category : mainMenu.category }):"";
+            mainMenu.category ? totalCategories.push({ category: mainMenu.category }) : "";
             e.category = mainMenu.category
 
 
 
-            e.subCategory = mainMenu.subCategory?totalCategories.push({category : mainMenu.subCategory}):"";
+            e.subCategory = mainMenu.subCategory ? totalCategories.push({ category: mainMenu.subCategory }) : "";
 
             e.subCategory = mainMenu.subCategory
 
-           
+
             e.barId = req.user.barInfo;
             e.menu_name = e.title;
             e.item = e.superItem;
@@ -708,12 +709,11 @@ const addItem = async (req, res) => {
             e.variation = e.variation
 
             let findMenu = await localMenu.findOne({
-                item  :  e.superItem,
-                barId : req.user.barInfo
+                item: e.superItem,
+                barId: req.user.barInfo
             })
-            if(!findMenu)
-            {
-                finalMenu.push(e); 
+            if (!findMenu) {
+                finalMenu.push(e);
 
             }
 
@@ -731,43 +731,40 @@ const addItem = async (req, res) => {
             return e
         }))
 
-        
+
 
 
         let data = await localMenu.insertMany(finalMenu)
         // await data.save()
 
-        return res.json({status: 200 , message: "success", data })
+        return res.json({ status: 200, message: "success", data })
     }
     catch (error) {
         console.log(error);
-        return res.status(200).json({ status: 500 , message: error.message })
+        return res.status(200).json({ status: 500, message: error.message })
     }
 
 }
 
 
-const favouriteitem  = async(req,res) =>
-{
-    let {item,bar} = req.body;
-    try
-    {
-   
+const favouriteitem = async (req, res) => {
+    let { item, bar } = req.body;
+    try {
+
         let itemCheck = await menu.findById({
-            _id : id,
-            barId : bar 
-            
+            _id: id,
+            barId: bar
+
         })
 
-        if(!itemCheck) return res.status(200).json({ status : 404 , message : "Item not found" , data :{}  })
+        if (!itemCheck) return res.status(200).json({ status: 404, message: "Item not found", data: {} })
 
         // now add Favourite item to the favourite
 
 
     }
-    catch(error)
-    {
-        res.status(200).json({ status : 500 , message : error.message , data :{}  })
+    catch (error) {
+        res.status(200).json({ status: 500, message: error.message, data: {} })
     }
 }
 
@@ -801,14 +798,14 @@ const selectCategory = async (req, res) => {
         //     return item
         // }));
         return res.json({
-            status : 200,
+            status: 200,
             message: "success",
             data
         })
     }
     catch (error) {
         return res.status(200).json({
-            status : 500,
+            status: 500,
             message: error.message,
             data: {}
         })
@@ -971,185 +968,168 @@ const view = async (req, res) => {
     }
 
 }
-const items = async(req,res) =>
-{
-    let {bar}  = req.params;
-    try
-    {   
-        let data = await menu.find({barId : bar}).lean()
-        data = await Promise.all(data.map(async(e) =>{
-            e.item = await superMenu.findOne({_id : e.item}).select({menu_name:1,pictures:1,description:1}).lean()
-            e.category = await menuCategory.findOne({_id : e.category}).select({name :1})
+const items = async (req, res) => {
+    let { bar } = req.params;
+    try {
+        let data = await menu.find({ barId: bar }).lean()
+        data = await Promise.all(data.map(async (e) => {
+            e.item = await superMenu.findOne({ _id: e.item }).select({ menu_name: 1, pictures: 1, description: 1 }).lean()
+            e.category = await menuCategory.findOne({ _id: e.category }).select({ name: 1 })
 
-            e.variation = await Promise.all(e.variation.map( async (v) =>{
-                v.variant = await pourtype.findOne({_id : v.variant}).select({name:1})
+            e.variation = await Promise.all(e.variation.map(async (v) => {
+                v.variant = await pourtype.findOne({ _id: v.variant }).select({ name: 1 })
                 return v
             }))
             return e;
-         
-        })) 
-        if(!data)
-        {
+
+        }))
+        if (!data) {
             return res.status(200).json({
-                status : 404,
-                message : "Not Found",
+                status: 404,
+                message: "Not Found",
                 data: []
             })
-        }   
+        }
         return res.status(200).json({
-            status : 200,
-            message : "success",
+            status: 200,
+            message: "success",
             data
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : []
+            status: 500,
+            message: error.message,
+            data: []
         })
     }
 
 }
 
-const show = async(req,res) =>{
-    let {id}  = req.params;
+const show = async (req, res) => {
+    let { id } = req.params;
 
-    try
-    {
+    try {
         // get complete bar details from the bar Helper
 
-        
+
         let data = await helpers.getBarById(id)
 
         return res.status(200).json({
-            status : 200,
-            message  : "success",
+            status: 200,
+            message: "success",
             data
         })
 
-     }
-    catch(error)
-    {
+    }
+    catch (error) {
 
         return res.status(200).json({
-            status : 500,
-            message  : error.message,
-            data  : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
-const searchByBar = async(req,res) =>
-{
-    try
-    {   
+const searchByBar = async (req, res) => {
+    try {
         let query = await menu.find({
-            barId : req.params.id,
-            menu_name  : { $regex: new RegExp(req.params.q, 'i') }
+            barId: req.params.id,
+            menu_name: { $regex: new RegExp(req.params.q, 'i') }
         }).lean()
-        query = await Promise.all(query.map(async (e) =>{
-            return await helpers.getItemById(e.item,req.params.id);
-        } ))
+        query = await Promise.all(query.map(async (e) => {
+            return await helpers.getItemById(e.item, req.params.id);
+        }))
 
         return res.json({
-            status : 200,
-            message : 'success',
-            data  : query
+            status: 200,
+            message: 'success',
+            data: query
         });
 
     }
-    catch(error)
-    {
+    catch (error) {
         return res.json({
-            status : 500,
-            message : error.message,
-            data  : {}
+            status: 500,
+            message: error.message,
+            data: {}
         });
     }
 }
 
-const events = async(req,res) =>
-{
-    try
-    {
+const events = async (req, res) => {
+    try {
         let data = await event.find({
-            bar : req.params.id
+            bar: req.params.id
         }).lean()
         data = helpers.paginate(
             data,
             req.query.page,
             req.query.limit
-            
-          );
+
+        );
 
 
-        let result = await Promise.all(data.result.map( async (e) =>{
+        let result = await Promise.all(data.result.map(async (e) => {
             return await helpers.getEventById(e._id)
         }))
         return res.status(200).json({
-            status : 200,
-            message : "success",
-            data : result,
-            pagination : data.totalPages
+            status: 200,
+            message: "success",
+            data: result,
+            pagination: data.totalPages
         })
-        
+
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message :error.message,
-            data : []
+            status: 500,
+            message: error.message,
+            data: []
         })
     }
 }
-const promotions = async(req,res) =>
-{
+const promotions = async (req, res) => {
     let result = []
-    try
-    {
+    try {
         let data = await promotion.find({
-            bar : req.params.id
+            bar: req.params.id
         }).lean()
         data = helpers.paginate(
             data,
             req.query.page,
             req.query.limit
-            
-          );
+
+        );
 
 
         //result = await Promise.all(data.result.map( async (e) =>{
         //     return await helpers.getPromotionById(e,e.bar)
         // }))
         return res.status(200).json({
-            status : 200,
-            message : "success",
-            data : result,
-            pagination : data.totalPages
+            status: 200,
+            message: "success",
+            data: result,
+            pagination: data.totalPages
         })
-        
+
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message :error.message,
-            data : []
+            status: 500,
+            message: error.message,
+            data: []
         })
     }
 }
 
 // get all par menu
 
-const Menu = async(req,res) =>
-{
-    let {bar,category,subCategory} = req.body;
-    let {page,limit} = req.query;
-    try
-    {   
+const Menu = async (req, res) => {
+    let { bar, category, subCategory } = req.body;
+    let { page, limit } = req.query;
+    try {
         // adding validation in the code, to atleast have a bar id here
 
         let schema = Joi.object({
@@ -1157,21 +1137,21 @@ const Menu = async(req,res) =>
             category: Joi.string(),
             subCategory: Joi.string()
         });
-        
-        const { error, value } = schema.validate(req.body);
-        if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
-      
+        const { error, value } = schema.validate(req.body);
+        if (error) return res.status(200).json({ status: 400, message: error.message, data: {} })
+
+
 
 
         const filters = {};
 
-        filters.barId = bar 
+        filters.barId = bar
 
         if (category) {
             filters.category = category;
         }
-        if (subCategory) {  
+        if (subCategory) {
             filters.subCategory = subCategory;
         }
 
@@ -1182,46 +1162,45 @@ const Menu = async(req,res) =>
             filters
         ).lean();
 
-        results = await helpers.paginate(results,page,limit);
+        results = await helpers.paginate(results, page, limit);
         // console.log(results);
         // return res.json({results})
         let data = results.result;
 
         let newData = [];
-        
 
-        data = await Promise.all(data.map( async (e) =>{
-            return await helpers.getItemById(e.item,e.barId,'');
+
+        data = await Promise.all(data.map(async (e) => {
+            return await helpers.getItemById(e.item, e.barId, '');
         }))
 
 
 
 
 
-         return res.status(200).json({
-            status : 200,
-            message : 'success',
-            data  : data,
-            pagination :results.totalPages
+        return res.status(200).json({
+            status: 200,
+            message: 'success',
+            data: data,
+            pagination: results.totalPages
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data :  []
+            status: 500,
+            message: error.message,
+            data: []
         })
     }
 }
 
 const update = async (req, res) => {
-    let { title, description, type, category, subcategory, variation , superItem } = req.body;
+    let { title, description, type, category, subcategory, variation, superItem } = req.body;
     let totalCategories = [];
 
     try {
         let schema = Joi.object({
-            superItem : Joi.string().required(),
+            superItem: Joi.string().required(),
             menu: Joi.array(),
             title: Joi.string(),
             description: Joi.string(),
@@ -1231,21 +1210,20 @@ const update = async (req, res) => {
             variation: Joi.array()
         });
         const { error, value } = schema.validate(req.body);
-        if (error) return res.status(200).json({ status:400, message: error.message, data: {} })
+        if (error) return res.status(200).json({ status: 400, message: error.message, data: {} })
 
 
-        
-  
+
+
 
         // check menu exists
 
         let checkMenu = await menu.findOne({
-            bar : req.user.barInfo,
-            item : req.params.id
-        })  
-        if(!checkMenu)
-        {
-            return res.json({ status: 404, message: "not found", data : {} })
+            bar: req.user.barInfo,
+            item: req.params.id
+        })
+        if (!checkMenu) {
+            return res.json({ status: 404, message: "not found", data: {} })
         }
 
         if (type) {
@@ -1268,117 +1246,112 @@ const update = async (req, res) => {
             //         category,
             //         subCategory : subcategory,
             //         pictures : [categoryImage.category_image]
-    
+
             //     }
             // },{
             //     new : true
             // })
             let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
 
- 
+
 
             totalCategories.push({
-                category : mainMenu.category
-            },{
-                category : mainMenu.subCategory
+                category: mainMenu.category
+            }, {
+                category: mainMenu.subCategory
             })
 
             let category1 = mainMenu.category;
             let category2 = mainMenu.subCategory;
 
-          
 
-            if(mainMenu.category)
-                    {
-                        let category = await menuCategory.findById({_id : mainMenu.category},{name : 1});
-                        mainMenu.category = category.name
-                    }
-                    if(mainMenu.subCategory)
-                    {
-                        let subCategory = await menuCategory.findById({_id : mainMenu.subCategory},{name : 1});
-                        mainMenu.subCategory = subCategory.name
-                    }
+
+            if (mainMenu.category) {
+                let category = await menuCategory.findById({ _id: mainMenu.category }, { name: 1 });
+                mainMenu.category = category.name
+            }
+            if (mainMenu.subCategory) {
+                let subCategory = await menuCategory.findById({ _id: mainMenu.subCategory }, { name: 1 });
+                mainMenu.subCategory = subCategory.name
+            }
 
 
 
             // then add item to the Bar
             let data = await menu.findOneAndUpdate(
                 {
-                    item : req.params.id
-                },{
-                    $set : {
-                        "barId": req.user.barInfo,
-                        "item": mainMenu._id,
-                        "category": category1,
-                        "subCategory": category2,
-                        variation,
-                        categories : totalCategories
+                    item: req.params.id
+                }, {
+                $set: {
+                    "barId": req.user.barInfo,
+                    "item": mainMenu._id,
+                    "category": category1,
+                    "subCategory": category2,
+                    variation,
+                    categories: totalCategories
 
-                    }
-                },
-                {
-                    new : true
                 }
-                
+            },
+                {
+                    new: true
+                }
+
             )
 
-            
+
             let itemsdata = await menu.findOne({
-                item : mainMenu._id
+                item: mainMenu._id
             }).lean()
 
             let totalPrice = 0;
-            mainMenu.variation = await Promise.all(itemsdata.variation.map( async (va) =>{
-                            // get variation data
-            let newVariations = await pourtype.findOne({
-                                _id : va.variant
-                            })
-                            va.name = newVariations.name
-                            totalPrice  = totalPrice + va.price
-                            return va
-                        }))
+            mainMenu.variation = await Promise.all(itemsdata.variation.map(async (va) => {
+                // get variation data
+                let newVariations = await pourtype.findOne({
+                    _id: va.variant
+                })
+                va.name = newVariations.name
+                totalPrice = totalPrice + va.price
+                return va
+            }))
 
             itemsdata.price = totalPrice
 
-            if(itemsdata.reviews)
-                        {
-                            mainMenu.reviews = await Promise.all(itemsdata.reviews.map(async(rev) =>{
-                                // get customer data
-    
-                                // get customer data and review information
-    
-                                let userInfo = await users.findOne({_id : rev.customer});
-                                if(userInfo)
-                                {
-                                    rev.name = userInfo.username
-                                    rev.picture = userInfo.profile_picture
-                                }
-                 
-                                // get review information
-    
-                                let reviewInfor = await reviews.findOne({
-                                    _id : rev.review
-                                })
-                                if(reviewInfor)
-                                {
-                                    rev.message = reviewInfor.message
-                                    rev.count = reviewInfor.rating
-                                }
-                        
-    
-    
-                                return rev;
-    
-    
-                                
-    
-                            }))
-                        }
+            if (itemsdata.reviews) {
+                mainMenu.reviews = await Promise.all(itemsdata.reviews.map(async (rev) => {
+                    // get customer data
+
+                    // get customer data and review information
+
+                    let userInfo = await users.findOne({ _id: rev.customer });
+                    if (userInfo) {
+                        rev.name = userInfo.username
+                        rev.picture = userInfo.profile_picture
+                    }
+
+                    // get review information
+
+                    let reviewInfor = await reviews.findOne({
+                        _id: rev.review
+                    })
+                    if (reviewInfor) {
+                        rev.message = reviewInfor.message
+                        rev.count = reviewInfor.rating
+                    }
+
+
+
+                    return rev;
+
+
+
+
+                }))
+            }
 
 
             // get item structure as parent item
-            
-            return res.json({ status: 200, message: "success", data : mainMenu })
+
+            return res.json({ status: 200, message: "success", data: mainMenu })
 
         }
         if (!menu) {
@@ -1387,21 +1360,19 @@ const update = async (req, res) => {
         let data = await menu.insertMany(req.body.menu)
         // await data.save()
 
-        return res.json({status: 200 , message: "success", data })
+        return res.json({ status: 200, message: "success", data })
     }
     catch (error) {
         console.log(error);
-        return res.status(200).json({ status: 500 , message: error.message })
+        return res.status(200).json({ status: 500, message: error.message })
     }
 
 }
 
 // bar reports
 
-const pdfReport = async(req,res) =>
-{
-    try
-    {
+const pdfReport = async (req, res) => {
+    try {
         const browser = await puppeteer.launch({ headless: "new" });
         const page = await browser.newPage();
         const content = await ejs.renderFile('pdf/template.ejs', {}); // Path to your EJS template
@@ -1415,27 +1386,24 @@ const pdfReport = async(req,res) =>
         res.setHeader('Content-Type', 'application/pdf');
         res.send(pdfBuffer);
     }
-    catch(error)
-    {
+    catch (error) {
         console.log(error);
         return res.json({
-            status : 500,
-            message : "success",
+            status: 500,
+            message: "success",
         })
     }
 }
 
-const report = async(req,res) =>
-{
-    try
-    {
+const report = async (req, res) => {
+    try {
         // lets get bartenders list first for the specific Bartender
         // bartender Performance
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const barId = req.params.id; // Replace with the actual bar ID
 
-        
+
         // Step 2: Use the aggregation framework to group the data by bartender
         const bartenderData = await order.aggregate([
             {
@@ -1513,47 +1481,46 @@ const report = async(req,res) =>
                 $limit: 1,
             },
         ]);
-        let bestSellingMenu = 
+        let bestSellingMenu =
         {
-            name : '',
-            total  : 0 ,
-            image : ''
+            name: '',
+            total: 0,
+            image: ''
         }
-        if(bestSellingMenuItem.length)
-        {
+        if (bestSellingMenuItem.length) {
             bestSellingMenu = {
-                name : bestSellingMenuItem[0].menu_name,
-                total  : bestSellingMenuItem[0].totalOrders,
-                image : 'www.google.com'
+                name: bestSellingMenuItem[0].menu_name,
+                total: bestSellingMenuItem[0].totalOrders,
+                image: 'www.google.com'
             }
         }
-      
+
         let menuChart = [{
-            name : "Cocktails",
-            percentage : 20,
-            color : 'red'
+            name: "Cocktails",
+            percentage: 20,
+            color: 'red'
 
         },
         {
-            name : "Wine",
-            percentage : 30,
-            color : 'Green'
+            name: "Wine",
+            percentage: 30,
+            color: 'Green'
 
         },
         {
-            name : "Bear",
-            percentage : '10',
-            color : 'blue'
+            name: "Bear",
+            percentage: '10',
+            color: 'blue'
 
         },
         {
-            name : "Kentucky",
-            percentage : 40,
-            color : 'Grey'
+            name: "Kentucky",
+            percentage: 40,
+            color: 'Grey'
 
         }
-    
-    ]
+
+        ]
 
         const totalMenus = await menu.aggregate([
             {
@@ -1587,14 +1554,14 @@ const report = async(req,res) =>
                 },
             },
         ]);
-        
+
         // Calculate the rank based on the sorted array
         totalMenus.forEach((menu, index) => {
             menu.rank = index + 1;
         });
-        
-    
-    
+
+
+
 
         // let totalMenus = [{
         //     rank : 1,
@@ -1638,7 +1605,7 @@ const report = async(req,res) =>
                 $limit: 1,
             },
         ]);
-        
+
         console.log(bestEvent);
         return res.json(bestEvent)
 
@@ -1652,180 +1619,177 @@ const report = async(req,res) =>
         //         'date' : "Jan 01, 2022",
         //         'description' : "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, seddiam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet"
         //     }]
-           
+
         // }
 
         let peakHours = [{
-            'time' : '6:00 PM',
-            'attendance'  : 1
+            'time': '6:00 PM',
+            'attendance': 1
         },
         {
-            'time' : '7:00 PM',
-            'attendance'  : 5
+            'time': '7:00 PM',
+            'attendance': 5
         },
         {
-            'time' : '8:00 PM',
-            'attendance'  : 20
+            'time': '8:00 PM',
+            'attendance': 20
         },
         {
-            'time' : '9:00 PM',
-            'attendance'  : 58
+            'time': '9:00 PM',
+            'attendance': 58
         },
         {
-            'time' : '10:00 PM',
-            'attendance'  : 30
+            'time': '10:00 PM',
+            'attendance': 30
         },
         {
-            'time' : '11:00 AM',
-            'attendance'  : 20
+            'time': '11:00 AM',
+            'attendance': 20
         },
         {
-            'time' : '1:00 AM',
-            'attendance'  : 1
+            'time': '1:00 AM',
+            'attendance': 1
         }
-    ]
+        ]
 
         // Demo Graphics
         // pi
         let piechart1 = [{
-            name : 'male',
-            percentage : 44,
-            color : 'red'
-        },{
-            name : 'female',
-            percentage : 56,
-            color : 'grey'
+            name: 'male',
+            percentage: 44,
+            color: 'red'
+        }, {
+            name: 'female',
+            percentage: 56,
+            color: 'grey'
         }]
         let piechart2 = [{
-            name : "Cocktails",
-            percentage : 20,
-            color : 'red'
+            name: "Cocktails",
+            percentage: 20,
+            color: 'red'
 
         },
         {
-            name : "Wine",
-            percentage : 30,
-            color : 'Green'
+            name: "Wine",
+            percentage: 30,
+            color: 'Green'
 
         },
         {
-            name : "Bear",
-            percentage : '10',
-            color : 'blue'
+            name: "Bear",
+            percentage: '10',
+            color: 'blue'
 
         },
         {
-            name : "Kentucky",
-            percentage : 40,
-            color : 'Grey'
+            name: "Kentucky",
+            percentage: 40,
+            color: 'Grey'
 
         }
-    
+
         ]
         const piechart3 = [{
-            name : "Cocktails",
-            percentage : 20,
-            color : 'red'
+            name: "Cocktails",
+            percentage: 20,
+            color: 'red'
 
         },
         {
-            name : "Wine",
-            percentage : 30,
-            color : 'Green'
+            name: "Wine",
+            percentage: 30,
+            color: 'Green'
 
         },
         {
-            name : "Bear",
-            percentage : '10',
-            color : 'blue'
+            name: "Bear",
+            percentage: '10',
+            color: 'blue'
 
         },
         {
-            name : "Kentucky",
-            percentage : 40,
-            color : 'Grey'
+            name: "Kentucky",
+            percentage: 40,
+            color: 'Grey'
 
         }
-    
+
         ]
 
         // chart data
 
         const chartData = {
             labels: [
-              "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33"
+                "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33"
             ],
             datasets: [
-              {
-                label: "Male",
-                backgroundColor: "#000",
-                data: [135, 90, 92, 72, 42, 20, 0, 5, 0, 0, 2, 3, 1]
-              },
-              {
-                label: "Female",
-                backgroundColor: "#ff0092",
-                data: [120, 75, 82, 63, 45, 32, 1, 0, 0, 0, 0, 0, 0]
-              }
+                {
+                    label: "Male",
+                    backgroundColor: "#000",
+                    data: [135, 90, 92, 72, 42, 20, 0, 5, 0, 0, 2, 3, 1]
+                },
+                {
+                    label: "Female",
+                    backgroundColor: "#ff0092",
+                    data: [120, 75, 82, 63, 45, 32, 1, 0, 0, 0, 0, 0, 0]
+                }
             ]
-          };
+        };
 
         return res.json({
-            status : 200,
-            data: {bartender,bestSellingMenu,menuChart,totalMenus,bestEvent,peakHours,piechart1:{ chartname : "Male/Female" , data :piechart1  },piechart2:{ chartname : "Female" , data :piechart2  },piechart3:{ chartname : "Female" , data :piechart3 } , chartData}
-            
+            status: 200,
+            data: { bartender, bestSellingMenu, menuChart, totalMenus, bestEvent, peakHours, piechart1: { chartname: "Male/Female", data: piechart1 }, piechart2: { chartname: "Female", data: piechart2 }, piechart3: { chartname: "Female", data: piechart3 }, chartData }
+
         })
     }
-    catch(error)
-    {
+    catch (error) {
         console.log(error);
         return res.json({
-            status : 200,
-            message : error.message
+            status: 200,
+            message: error.message
         })
     }
 }
 
-const home = async(req,res) =>
-{
-    let graph  = {}
+const home = async (req, res) => {
+    let graph = {}
     const currentDate = new Date();
 
 
-    try
-    {  
+    try {
 
 
         const orders = (await order.find({
-            bar : req.user.barInfo,
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
-        const events =  (await event.find({
-            bar : req.user.barInfo,
+        const events = (await event.find({
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
-        const menuSales =  (await order.find({
-            bar : req.user.barInfo,
-            subscriptionType : "642a6f6e17dc8bc505021545",
+        const menuSales = (await order.find({
+            bar: req.user.barInfo,
+            subscriptionType: "642a6f6e17dc8bc505021545",
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
-        const attendence =  (await attendance.find({
-            bar : req.user.barInfo,
+        const attendence = (await attendance.find({
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
 
-  
+
 
         // get todays sale
 
@@ -1838,7 +1802,7 @@ const home = async(req,res) =>
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
-      
+
 
         let salesData = await order.find({
             bar: req.user.barInfo,
@@ -1879,70 +1843,67 @@ const home = async(req,res) =>
             },
         ]);
         //   console.log(hourlySales)
-      
-          const salesDataArray = Array.from({ length: 24 }, (_, index) => {
+
+        const salesDataArray = Array.from({ length: 24 }, (_, index) => {
             const hour = ('0' + index).slice(-2) + ':00';
             const sales = hourlySales.find(item => item._id === index);
             return { [hour]: sales ? sales.sales : 0 };
-          });
-          hourlySales.forEach(item => {
+        });
+        hourlySales.forEach(item => {
             const hourIndex = item._id; // Use the hour as index
             const hour = ('0' + hourIndex).slice(-2) + ':00';
             salesDataArray[hourIndex] = { [hour]: item.sales };
-          });
+        });
 
-         res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
-        
+        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData } });
+
 
     }
-    catch(error)
-    {
+    catch (error) {
         console.log(error)
         res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
-const app = async(req,res) =>
-{
-    let graph  = {}
+const app = async (req, res) => {
+    let graph = {}
     const currentDate = new Date();
 
-    try
-    {  
+    try {
         const orders = (await order.find({
-            bar : req.user.barInfo,
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
-        const events =  (await event.find({
-            bar : req.user.barInfo,
+        const events = (await event.find({
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
-        const menuSales =  (await event.find({
-            bar : req.user.barInfo,
+        const menuSales = (await event.find({
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
-        const attendence =  (await attendance.find({
-            bar : req.user.barInfo,
+        const attendence = (await attendance.find({
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         })).length;
 
-  
+
 
         // get todays sale
 
@@ -1955,15 +1916,15 @@ const app = async(req,res) =>
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
-      
+
 
 
         let salesData = await order.find({
-            bar : req.user.barInfo,
+            bar: req.user.barInfo,
             createdAt: {
                 $gte: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate()),
                 $lt: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() + 1)
-              }
+            }
         }).lean();
         // // salesData  = await Promise.all(salesData.map( async (e) =>{
         //     return await helpers.getOrderById(e);
@@ -1995,59 +1956,56 @@ const app = async(req,res) =>
                 }
             },
         ]);
-        
-      
+
+
         const salesDataArray = Array.from({ length: 24 }, (_, index) => ({
             key: `${index.toString().padStart(2, '0')}:00`,
             value: 0
         }));
-        
+
         hourlySales.forEach(item => {
             const hour = item._id;
             const formattedHour = `${hour.toString().padStart(2, '0')}:00`; // Format to "HH:00"
             const index = salesDataArray.findIndex(data => data.key === formattedHour);
             if (index !== -1) {
                 salesDataArray[index].value = item.sales;
-                
+
             }
         });
-         res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
-        
+        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData } });
+
 
     }
-    catch(error)
-    {
+    catch (error) {
         console.log(error)
         res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
-const web = async(req,res) =>
-{
-    let graph  = {}
-    try
-    {  
+const web = async (req, res) => {
+    let graph = {}
+    try {
 
-       
+
 
         const orders = (await order.find({
-            bar : req.user.barInfo
+            bar: req.user.barInfo
         })).length;
-        const events =  (await event.find({
-            bar : req.user.barInfo
+        const events = (await event.find({
+            bar: req.user.barInfo
         })).length;
-        const menuSales =  (await event.find({
-            bar : req.user.barInfo
+        const menuSales = (await event.find({
+            bar: req.user.barInfo
         })).length;
-        const attendence =  (await attendance.find({
-            bar : req.user.barInfo
+        const attendence = (await attendance.find({
+            bar: req.user.barInfo
         })).length;
 
-  
+
 
         // get todays sale
 
@@ -2061,7 +2019,7 @@ const web = async(req,res) =>
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
-      
+
 
 
         let salesData = await order.find({}).lean();
@@ -2072,51 +2030,48 @@ const web = async(req,res) =>
 
 
         const hourlySales = await order.aggregate([
-           
+
             {
-              $group: {
-                _id: {
-                  $hour: '$timestamp'
+                $group: {
+                    _id: {
+                        $hour: '$timestamp'
+                    },
+                    sales: { $sum: '$amount' },
                 },
-                sales: { $sum: '$amount' },
-              },
             },
             {
-              $sort: {
-                _id: 1
-              }
+                $sort: {
+                    _id: 1
+                }
             },
-          ]);
-      
-          const salesDataArray = Array.from({ length: 24 }, (_, index) => {
+        ]);
+
+        const salesDataArray = Array.from({ length: 24 }, (_, index) => {
             const hour = ('0' + index).slice(-2) + ':00';
             return { [hour]: 10 };
-          });
-          hourlySales.forEach(item => {
+        });
+        hourlySales.forEach(item => {
             const hourIndex = item._id; // Use the hour as index
             const hour = ('0' + hourIndex).slice(-2) + ':00';
-            salesDataArray[hourIndex] = { key : [hour] , value : 10 };
-          });
+            salesDataArray[hourIndex] = { key: [hour], value: 10 };
+        });
 
-         res.json({ status : 200, message : "success", data  : { orders, events , menuSales, attendence , averageDrinkRating : 4.5 , averageEventRating : 4.5 , graph : salesDataArray , salesData}});
-        
+        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData } });
+
 
     }
-    catch(error)
-    {
+    catch (error) {
         console.log(error)
         res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
-const analytics = async(req,res) =>
-{
-    try
-    {
+const analytics = async (req, res) => {
+    try {
         const totalMenuSalesCount = 1500;
         const totalTicketCounts = 1200;
         const eventAttendanceCount = 300;
@@ -2133,9 +2088,9 @@ const analytics = async(req,res) =>
         let menuData = await superMenu.find({}).limit(6).lean();
         let count = 0;
         menuData = menuData.map((menu) => {
-        count += 20;
-        menu.value = count;
-        return menu;
+            count += 20;
+            menu.value = count;
+            return menu;
         });
 
         const totalMenuSales = menuData.reduce((sum, menu) => sum + menu.value, 0);
@@ -2145,43 +2100,43 @@ const analytics = async(req,res) =>
         const bestSellingMenuWithPercentageAndColor = menuData.map((menu, index) => {
 
 
-        const percentage = (menu.value / totalMenuSales) * 100;
+            const percentage = (menu.value / totalMenuSales) * 100;
 
-        let backgroundColor;
-        if (percentage >= 30) {
-            backgroundColor = menuColors[0]; // Highest percentage color
-        } else if (percentage >= 25) {
-            backgroundColor = menuColors[1];
-        } else if (percentage >= 20) {
-            backgroundColor = menuColors[2];
-        } else if (percentage >= 15) {
-            backgroundColor = menuColors[3];
-        } else if (percentage >= 10) {
-            backgroundColor = menuColors[4];
-        } else {
-            backgroundColor = menuColors[5]; // Lowest percentage color
-        }
+            let backgroundColor;
+            if (percentage >= 30) {
+                backgroundColor = menuColors[0]; // Highest percentage color
+            } else if (percentage >= 25) {
+                backgroundColor = menuColors[1];
+            } else if (percentage >= 20) {
+                backgroundColor = menuColors[2];
+            } else if (percentage >= 15) {
+                backgroundColor = menuColors[3];
+            } else if (percentage >= 10) {
+                backgroundColor = menuColors[4];
+            } else {
+                backgroundColor = menuColors[5]; // Lowest percentage color
+            }
 
-        return {
-            label: menu.menu_name, // Assuming 'name' is the property containing the menu label
-            value: menu.value,
-            percentage: percentage,
-            backgroundColor: backgroundColor
-          };
-    })
+            return {
+                label: menu.menu_name, // Assuming 'name' is the property containing the menu label
+                value: menu.value,
+                percentage: percentage,
+                backgroundColor: backgroundColor
+            };
+        })
 
         const demoGraphicsArray = [
             {
-              label: 'Male',
-              percentage: demoGraphicsMalePercentage,
-              color: '#FFA500'
+                label: 'Male',
+                percentage: demoGraphicsMalePercentage,
+                color: '#FFA500'
             },
             {
-              label: 'Female',
-              percentage: demoGraphicsFemalePercentage,
-              color: '#FF0000'
+                label: 'Female',
+                percentage: demoGraphicsFemalePercentage,
+                color: '#FF0000'
             }
-          ];
+        ];
         // const userAgeDistribution = {
         //     'Baby Boomers': 20,
         //     'GenX': 30,
@@ -2191,239 +2146,224 @@ const analytics = async(req,res) =>
 
         const userAgeDistribution = {
             'Baby Boomers': {
-              percentage: 20,
-              color: '#FFA500'
+                percentage: 20,
+                color: '#FFA500'
             },
             'GenX': {
-              percentage: 30,
-              color: '#FF0000'
+                percentage: 30,
+                color: '#FF0000'
             },
             'GenY': {
-              percentage: 25,
-              color: '#87CEEB'
+                percentage: 25,
+                color: '#87CEEB'
             },
             'GenZ': {
-              percentage: 25,
-              color: '#008000'
+                percentage: 25,
+                color: '#008000'
             }
-          };
+        };
 
         const ageDistributionArray = Object.entries(userAgeDistribution).map(([ageGroup, data]) => ({
             ageGroup,
             percentage: data.percentage,
             color: data.color
-          }));
+        }));
 
         const colors = ['#FFA500', '#FF0000', '#87CEEB', '#008000'];
 
         const sortedAgeDistribution = Object.entries(userAgeDistribution).sort((a, b) => b[1] - a[1]);
 
-    
+
 
 
         sortedAgeDistribution.forEach((entry, index) => {
             const [ageGroup] = entry;
             userAgeDistribution[ageGroup] = {
-              percentage: entry[1],
-              color: colors[index] || '#808080' // Use gray for extra items
+                percentage: entry[1],
+                color: colors[index] || '#808080' // Use gray for extra items
             };
-          });
+        });
 
 
         //   get list of evetns
 
         let events = await event.find({
-            bar : req.user.barInfo
-        }).select({ name :1, picture : 1 }).limit(3).lean()
-        events = events.map((e) =>{
+            bar: req.user.barInfo
+        }).select({ name: 1, picture: 1 }).limit(3).lean()
+        events = events.map((e) => {
             e.totalAttendance = 10
             e.rating = 5
             return e;
         })
         let menu = await menuCategory.find({
-            bar : req.user.barInfo
-        }).select({ name :1, category_image : 1 }).limit(3).lean()
-        events = events.map((e) =>{
+            bar: req.user.barInfo
+        }).select({ name: 1, category_image: 1 }).limit(3).lean()
+        events = events.map((e) => {
             e.totalAttendance = 10
             return e;
         })
 
-        
 
-          
+
+
 
         const analyticsData = {
             totalMenuSalesCount,
             totalTicketCounts,
             eventAttendanceCount,
             averagingEventRatingsCount,
-            bestSellingMenuPieChart : bestSellingMenuWithPercentageAndColor,
-            mostPopularMenuCategories  : menu,
+            bestSellingMenuPieChart: bestSellingMenuWithPercentageAndColor,
+            mostPopularMenuCategories: menu,
             bestSellingEvents: events,
             demoGraphics: demoGraphicsArray,
-            userAgeDistribution : ageDistributionArray
+            userAgeDistribution: ageDistributionArray
         };
 
         return res.json({
-            status : 200,
-            message : "success",
-            data : analyticsData
+            status: 200,
+            message: "success",
+            data: analyticsData
 
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
 
         })
     }
 }
 
-const all = async(req,res) =>
-{
-    try
-    {
-        let data = await Bar.find({active: true}).lean();
-        let results = await helpers.paginate(data,req.params.page,req.params.limit)
+const all = async (req, res) => {
+    try {
+        let data = await Bar.find({ active: true }).lean();
+        let results = await helpers.paginate(data, req.params.page, req.params.limit)
         // top menus
 
-  
 
-        let newData = await Promise.all(results.result.map( async (e) =>{
+
+        let newData = await Promise.all(results.result.map(async (e) => {
             e.owner = await helpers.getUserById(e.owner);
             let topMenus = await menu.find({
-                barId : e._id
+                barId: e._id
             }).limit(3).lean()
-            if(topMenus)
-            {
-                topMenus = await Promise.all(topMenus.map(async(item) =>{
-                    return  await helpers.getItemById(item.item,e._id)
+            if (topMenus) {
+                topMenus = await Promise.all(topMenus.map(async (item) => {
+                    return await helpers.getItemById(item.item, e._id)
                 }))
                 e.topMenus = topMenus
             }
-            else
-            {
+            else {
                 e.topMenus = []
             }
-          
+
             return e;
         }));
         return res.status(200).json({
-            status : 200,
-            message : "success",
-            data : newData,
-            paginate : results.totalPages
+            status: 200,
+            message: "success",
+            data: newData,
+            paginate: results.totalPages
 
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data   : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
-const destroy = async(req,res) =>
-{
-    try
-    {
+const destroy = async (req, res) => {
+    try {
         // let user
-        if(req.user.barInfo)
-        {
+        if (req.user.barInfo) {
             await Bar.findByIdAndUpdate({
-                _id : req.user.barInfo
-            },{
-                $set : {
-                    active : false  
+                _id: req.user.barInfo
+            }, {
+                $set: {
+                    active: false
                 }
-            },{
-                new : true
+            }, {
+                new: true
             })
 
             await User.findByIdAndUpdate({
-                _id : req.user._id
-            },{
-                $set : {
-                    isActive : false  
+                _id: req.user._id
+            }, {
+                $set: {
+                    isActive: false
                 }
-            },{
-                new : true
+            }, {
+                new: true
             })
         }
 
-        
+
 
 
         return res.status(200).json({
-            status : 200,
-            message : "Account Deleted Successfully!",
-            data : {}
+            status: 200,
+            message: "Account Deleted Successfully!",
+            data: {}
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
-const getBarStats = async(req,res) =>
-{
-    try
-    {   
-        let data  = await bar.findById(
+const getBarStats = async (req, res) => {
+    try {
+        let data = await bar.findById(
             {
-                _id : req.params.id
+                _id: req.params.id
             }
         ).lean()
-        data  = await helpers.getBarById(data._id);
+        data = await helpers.getBarById(data._id);
 
         data.owner = await helpers.getUserById(data.owner);
-        
+
         // add a team member
 
-        let team  = await teamMember.find({
-            bar : req.params.id
+        let team = await teamMember.find({
+            bar: req.params.id
         });
-        team = await Promise.all(team.map(async(e) =>{
+        team = await Promise.all(team.map(async (e) => {
             return await helpers.getUserById(e.user)
         }))
         data.team = team;
 
 
         return res.json({
-            status : 200,
-            message : 'success',
+            status: 200,
+            message: 'success',
             data
         })
     }
-    catch(error)
-    {
+    catch (error) {
         console.log(error.message);
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
 
 
-const analyticsByBarId = async(req,res) =>
-{
-    let {id} = req.params;
-    let graph  = {}
-    try
-    {
+const analyticsByBarId = async (req, res) => {
+    let { id } = req.params;
+    let graph = {}
+    try {
         const totalMenuSalesCount = 1500;
         const totalTicketCounts = 1200;
         const eventAttendanceCount = 300;
@@ -2440,9 +2380,9 @@ const analyticsByBarId = async(req,res) =>
         let menuData = await superMenu.find({}).limit(6).lean();
         let count = 0;
         menuData = menuData.map((menu) => {
-        count += 20;
-        menu.value = count;
-        return menu;
+            count += 20;
+            menu.value = count;
+            return menu;
         });
 
         const totalMenuSales = menuData.reduce((sum, menu) => sum + menu.value, 0);
@@ -2452,43 +2392,43 @@ const analyticsByBarId = async(req,res) =>
         const bestSellingMenuWithPercentageAndColor = menuData.map((menu, index) => {
 
 
-        const percentage = (menu.value / totalMenuSales) * 100;
+            const percentage = (menu.value / totalMenuSales) * 100;
 
-        let backgroundColor;
-        if (percentage >= 30) {
-            backgroundColor = menuColors[0]; // Highest percentage color
-        } else if (percentage >= 25) {
-            backgroundColor = menuColors[1];
-        } else if (percentage >= 20) {
-            backgroundColor = menuColors[2];
-        } else if (percentage >= 15) {
-            backgroundColor = menuColors[3];
-        } else if (percentage >= 10) {
-            backgroundColor = menuColors[4];
-        } else {
-            backgroundColor = menuColors[5]; // Lowest percentage color
-        }
+            let backgroundColor;
+            if (percentage >= 30) {
+                backgroundColor = menuColors[0]; // Highest percentage color
+            } else if (percentage >= 25) {
+                backgroundColor = menuColors[1];
+            } else if (percentage >= 20) {
+                backgroundColor = menuColors[2];
+            } else if (percentage >= 15) {
+                backgroundColor = menuColors[3];
+            } else if (percentage >= 10) {
+                backgroundColor = menuColors[4];
+            } else {
+                backgroundColor = menuColors[5]; // Lowest percentage color
+            }
 
-        return {
-            label: menu.menu_name, // Assuming 'name' is the property containing the menu label
-            value: menu.value,
-            percentage: percentage,
-            backgroundColor: backgroundColor
-          };
-    })
+            return {
+                label: menu.menu_name, // Assuming 'name' is the property containing the menu label
+                value: menu.value,
+                percentage: percentage,
+                backgroundColor: backgroundColor
+            };
+        })
 
         const demoGraphicsArray = [
             {
-              label: 'Male',
-              percentage: demoGraphicsMalePercentage,
-              color: '#FFA500'
+                label: 'Male',
+                percentage: demoGraphicsMalePercentage,
+                color: '#FFA500'
             },
             {
-              label: 'Female',
-              percentage: demoGraphicsFemalePercentage,
-              color: '#FF0000'
+                label: 'Female',
+                percentage: demoGraphicsFemalePercentage,
+                color: '#FF0000'
             }
-          ];
+        ];
         // const userAgeDistribution = {
         //     'Baby Boomers': 20,
         //     'GenX': 30,
@@ -2498,55 +2438,55 @@ const analyticsByBarId = async(req,res) =>
 
         const userAgeDistribution = {
             'Baby Boomers': {
-              percentage: 20,
-              color: '#FFA500'
+                percentage: 20,
+                color: '#FFA500'
             },
             'GenX': {
-              percentage: 30,
-              color: '#FF0000'
+                percentage: 30,
+                color: '#FF0000'
             },
             'GenY': {
-              percentage: 25,
-              color: '#87CEEB'
+                percentage: 25,
+                color: '#87CEEB'
             },
             'GenZ': {
-              percentage: 25,
-              color: '#008000'
+                percentage: 25,
+                color: '#008000'
             }
-          };
+        };
 
         const ageDistributionArray = Object.entries(userAgeDistribution).map(([ageGroup, data]) => ({
             ageGroup,
             percentage: data.percentage,
             color: data.color
-          }));
+        }));
 
         const colors = ['#FFA500', '#FF0000', '#87CEEB', '#008000'];
 
         const sortedAgeDistribution = Object.entries(userAgeDistribution).sort((a, b) => b[1] - a[1]);
 
-    
+
 
 
         sortedAgeDistribution.forEach((entry, index) => {
             const [ageGroup] = entry;
             userAgeDistribution[ageGroup] = {
-              percentage: entry[1],
-              color: colors[index] || '#808080' // Use gray for extra items
+                percentage: entry[1],
+                color: colors[index] || '#808080' // Use gray for extra items
             };
-          });
+        });
 
 
         //   get list of evetns
 
-        let events = await event.find({}).select({ name :1, picture : 1 }).limit(3).lean()
-        events = events.map((e) =>{
+        let events = await event.find({}).select({ name: 1, picture: 1 }).limit(3).lean()
+        events = events.map((e) => {
             e.totalAttendance = 10
             e.rating = 5
             return e;
         })
-        let menu = await menuCategory.find({}).select({ name :1, category_image : 1 }).limit(3).lean()
-        events = events.map((e) =>{
+        let menu = await menuCategory.find({}).select({ name: 1, category_image: 1 }).limit(3).lean()
+        events = events.map((e) => {
             e.totalAttendance = 10
             return e;
         })
@@ -2557,168 +2497,153 @@ const analyticsByBarId = async(req,res) =>
             totalTicketCounts,
             eventAttendanceCount,
             averagingEventRatingsCount,
-            bestSellingMenuPieChart : bestSellingMenuWithPercentageAndColor,
-            mostPopularMenuCategories  : menu,
+            bestSellingMenuPieChart: bestSellingMenuWithPercentageAndColor,
+            mostPopularMenuCategories: menu,
             bestSellingEvents: events,
             demoGraphics: demoGraphicsArray,
-            userAgeDistribution : ageDistributionArray
+            userAgeDistribution: ageDistributionArray
         };
 
         return res.json({
-            status : 200,
-            message : "success",
-            data : analyticsData
+            status: 200,
+            message: "success",
+            data: analyticsData
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
 
         })
     }
 }
 
-const suspendRespond = async(req,res) =>
-{
-    try
-    {
+const suspendRespond = async (req, res) => {
+    try {
         let data = await bar.findByIdAndUpdate({
-            _id : req.params.id
-        },{
-            $set : {
-                isSuspended : true
+            _id: req.params.id
+        }, {
+            $set: {
+                isSuspended: true
             }
         })
         return res.json({
-            status  : 200,
-            message : 'success',
+            status: 200,
+            message: 'success',
             data
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.status(200).json({
-            status  : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
-const getReviesForProduct = async(req,res) =>
-{
-    try
-    {
+const getReviesForProduct = async (req, res) => {
+    try {
         let review = await reviews.find({
-            bar : req.body.bar,
-            item : req.body.item
+            bar: req.body.bar,
+            item: req.body.item
         }).lean()
-        let totalRe = await helpers.paginate(review,req.query.page,req.query.limit);
-        let records = await Promise.all(totalRe.result.map((e) =>{
+        let totalRe = await helpers.paginate(review, req.query.page, req.query.limit);
+        let records = await Promise.all(totalRe.result.map((e) => {
             return helpers.getBasicReview(e);
         }))
         return res.json({
-            status : 200,
-            message : "success",
-            data : records,
-            paginate : totalRe.totalPages
+            status: 200,
+            message: "success",
+            data: records,
+            paginate: totalRe.totalPages
 
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.json({
-            status : 500,
-            message : error.message,
-            data : [],
+            status: 500,
+            message: error.message,
+            data: [],
         })
     }
 }
 
-const isBarHaveBartender = async(req,res) =>
-{
-    try
-    {
+const isBarHaveBartender = async (req, res) => {
+    try {
         var barId = req.params.id;
         const users = await User.find({
             related_bar: barId
         })
-        if(users.length){
+        if (users.length) {
             return res.json({
-                status : 200,
-                message : "This Bar have Bartenders",
-                data : true,
+                status: 200,
+                message: "This Bar have Bartenders",
+                data: true,
             })
-        }else{
+        } else {
             return res.json({
-                status : 200,
-                message : "This Bar does not have any Bartenders",
-                data : false,
+                status: 200,
+                message: "This Bar does not have any Bartenders",
+                data: false,
             })
         }
     }
-    catch(error)
-    {
+    catch (error) {
         return res.json({
-            status : 500,
-            message : error.message,
+            status: 500,
+            message: error.message,
         })
     }
 }
 
-const toggleUpdate = async(req,res) =>
-{
-    let {type,onSale,id} = req.body;
-    try
-    {   
+const toggleUpdate = async (req, res) => {
+    let { type, onSale, id } = req.body;
+    try {
         let data;
-        if(type == 'event')
-        {   
+        if (type == 'event') {
             data = await event.findByIdAndUpdate({
-                _id : id
-            },{
-                $set : {
+                _id: id
+            }, {
+                $set: {
                     onSale
                 }
-            },{
-                new :true
+            }, {
+                new: true
             })
 
             console.log(data);
-        }   
-        else
-        {
-          
+        }
+        else {
+
             data = await menu.findOneAndUpdate({
-                barId : req.user.barInfo,
-                item : id
-            },{
-                $set :{
+                barId: req.user.barInfo,
+                item: id
+            }, {
+                $set: {
                     onSale
                 }
-            },{
-                new:true
+            }, {
+                new: true
             })
             console.log(data);
 
         }
 
         return res.json({
-            status : 200,
-            message : "success",
-            data : {
+            status: 200,
+            message: "success",
+            data: {
                 onSale
             }
         })
     }
-    catch(error)
-    {
+    catch (error) {
         return res.json({
-            status : 500,
-            message : error.message,
-            data : {}
+            status: 500,
+            message: error.message,
+            data: {}
         })
     }
 }
