@@ -558,6 +558,89 @@ const getCategoryBasedItems = async (req, res) => {
         })
     }
 }
+
+const getSearchableProducts = async(req,res) =>
+{
+    let {id,bar} = req.params
+    let  {page,limit,query,category} = req.query;
+    try
+    {
+
+
+        let child , data , newData = [];
+        let categoryQuery  = {}
+        let productQuery = {}
+
+
+        categoryQuery.name = { $regex: new RegExp(query, 'i') }
+        productQuery.menu_name =  { $regex: new RegExp(query, 'i') }
+
+        if(category)
+        {
+            categoryQuery.name = { $regex: new RegExp(query, 'i') }
+            categoryQuery.parent = mongoose.Types.ObjectId(category)
+
+            productQuery = {
+                barId :  mongoose.Types.ObjectId(bar),
+                menu_name : { $regex: new RegExp(query, 'i') },
+
+                "categories.category": category
+            }
+
+            // productQuery.menu_name =  { $regex: new RegExp(query, 'i') }
+            // productQuery.categories =  { "category" : query }
+            // productQuery.categories.category =  mongoose.Types.ObjectId(category)
+        }
+
+        // console.log(categoryQuery);
+
+        child = await menuCategory.findOne(categoryQuery).select({name:1,description:1,category_image:1})
+        let products = await menu.findOne(productQuery).select({name:1,description:1,category_image:1 , category :1 , subCategory : 1})
+        let childrens = [];
+        
+        if(child)
+        {
+            // get child Categoryies
+            childrens = await menuCategory.find({parent : child._id}).select({name:1,description:1,category_image:1})
+            data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : child._id  }).lean();
+
+        }
+        else if(products)
+        {
+            // childrens = await menuCategory.find({parent : products.subCategory}).select({name:1,description:1,category_image:1})
+            data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : category  }).lean();
+
+        }
+
+        
+        
+
+        // newData = helpers.paginate(data,page,limit)
+            
+        //     data = await Promise.all(newData.result.map((e) => {
+        //         return helpers.getItemById(e.item,e.barId)
+        //     }))
+
+        
+        return res.json({
+            status : 200,
+            message : "success",
+            data : {child:childrens,products:data },
+            pagination : newData.totalPages
+        })
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.json({
+            status : 500,
+            message : error.message,
+            data : {}
+        })
+    }
+}
+
+
 const show = async (req, res) => {
     let { _id } = req.params;
     try {
@@ -842,5 +925,7 @@ export default {
     parentCategory2,
     getProductCategories,
     getSingleCategory,
-    getAllCategories
+    getAllCategories,
+    getSearchableProducts
+    
 }

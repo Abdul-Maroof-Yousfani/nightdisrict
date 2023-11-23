@@ -47,7 +47,6 @@ const index = async(req,res) =>
             if(promo)
             {   
                 e.promotions = await Promise.all(promo.map( async (code) =>{
-                    console.log(code);
                     e.promotions = await helpers.getPromotionById(code,e._id)
                     newData.push(e)
                     return e.promotions

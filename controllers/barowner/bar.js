@@ -484,7 +484,7 @@ const getBarGeometry = async(req,res) =>
 // Adding items to a Bar Menu
 
 const addItem = async (req, res) => {
-    let { title, description, type, category, subcategory, variation , superItem , menu } = req.body;
+    let { title, description, type, category, subcategory, variation , superItem , menu , parent,child,subType , tertiary } = req.body;
     let totalCategories = [];
 
     try {
@@ -496,7 +496,13 @@ const addItem = async (req, res) => {
             type: Joi.string(),
             category: Joi.any(),
             subcategory: Joi.any(),
-            variation: Joi.array()
+            variation: Joi.array(),
+            picture : Joi.any(),
+            parent : Joi.any(),
+            child : Joi.any(),
+            tertiary : Joi.any(),
+            subType : Joi.any(),
+
         });
         
      
@@ -607,6 +613,69 @@ const addItem = async (req, res) => {
             return res.json({ status: 200, message: "success", data : mainMenu })
 
         }
+        else if(subType)
+        {
+            let findCategories = [];
+            if(req.body.tertiary)
+            {
+                req.body.subCategory = req.body.tertiary
+                findCategories.push(req.body.tertiary)
+                findCategories.push(req.body.child)
+                findCategories.push(req.body.parent)
+            }
+
+            else if(req.body.child)
+            {
+                req.body.subCategory = req.body.child
+                findCategories.push(req.body.child)
+                findCategories.push(req.body.parent)
+            }
+            else
+            {
+                req.body.subCategory = req.body.parent
+                findCategories.push(req.body.parent)
+            }
+        
+
+            let superData = new superMenu({
+                bar: req.user.barInfo,
+                user: req.user._id,
+                menu_name: req.body.title,
+                description: req.body.description,
+                category: req.body.parent,
+                subCategory: req.body.subCategory,
+                categories:findCategories,
+                subCategories: findCategories,
+                pictures: []
+            })
+            superData = await superData.save();
+
+            // get categories
+
+            let allCats = [];
+            superData.categories.map((e) =>{
+                allCats.push({
+                    category : e
+                })
+            })
+
+            let data = new localMenu(
+                {
+                    "barId": req.user.barInfo,
+                    menu_name: req.body.title,
+                    description : req.body.description,
+                    "item": superData._id,
+                    "category": superData.category,
+                    "subCategory": superData.subCategory,
+                    variation : req.body.variation,
+                    categories : allCats
+
+                }
+            )
+            data = await data.save();
+
+            return res.json({status: 200 , message: "success", data })
+        }
 
         if (!menu) {
 
@@ -623,9 +692,6 @@ const addItem = async (req, res) => {
 
             mainMenu.category?totalCategories.push({ category : mainMenu.category }):"";
             e.category = mainMenu.category
-
-
-
 
 
 
