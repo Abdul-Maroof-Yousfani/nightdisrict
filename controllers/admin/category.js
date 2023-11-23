@@ -577,7 +577,7 @@ const getSearchableProducts = async(req,res) =>
 
         if(category)
         {
-            categoryQuery.name = { $regex: new RegExp(query, 'i') }
+            categoryQuery.name = { $regex: new RegExp(query, 'i') };
             categoryQuery.parent = mongoose.Types.ObjectId(category)
 
             productQuery = {
@@ -592,12 +592,14 @@ const getSearchableProducts = async(req,res) =>
             // productQuery.categories.category =  mongoose.Types.ObjectId(category)
         }
 
+        console.log(productQuery);
+
         // console.log(categoryQuery);
 
         child = await menuCategory.findOne(categoryQuery).select({name:1,description:1,category_image:1})
-        let products = await menu.findOne(productQuery).select({name:1,description:1,category_image:1 , category :1 , subCategory : 1})
+        let products = await menu.findOne({productQuery}).select({name:1,description:1,category_image:1 , category :1 , subCategory : 1})
         let childrens = [];
-        
+        console.log(products);
         if(child)
         {
             // get child Categoryies
@@ -608,18 +610,18 @@ const getSearchableProducts = async(req,res) =>
         else if(products)
         {
             // childrens = await menuCategory.find({parent : products.subCategory}).select({name:1,description:1,category_image:1})
-            data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : category  }).lean();
+            data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : products.subCategory  }).lean();
 
         }
 
         
         
 
-        // newData = helpers.paginate(data,page,limit)
+        newData = helpers.paginate(data,page,limit)
             
-        //     data = await Promise.all(newData.result.map((e) => {
-        //         return helpers.getItemById(e.item,e.barId)
-        //     }))
+            data = await Promise.all(newData.result.map((e) => {
+                return helpers.getItemById(e.item,e.barId)
+            }))
 
         
         return res.json({
