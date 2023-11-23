@@ -1298,48 +1298,19 @@ const  getSuperItem = async(id) => {
     }
 }
 
-const getMenuByBarId = async(bar) =>{
+const getMenuByBarId = async(bar,limit=1,page=1) =>{
     try
     {
         // get data based on bar
 
         let data = await menu.find({
             barId : bar 
-        }).lean()
-        data = await Promise.all(data.map( async (mainCategory) =>{
-            mainCategory.category = await menuCategory.find({
-                _id : mainCategory.category
-            }).limit(4).lean();
+        }).limit(10).lean();
 
-            // get sub categories
-
-            mainCategory.category = await Promise.all(mainCategory.category.map(async(subCategory) =>{
-                 let newSub = await menuCategory.find({parent : subCategory._id , _id : mainCategory.subCategory}).lean();
-                 subCategory.subcategories = newSub
-
-                 if(newSub)
-                 {
-                    subCategory.subcategories = await Promise.all(subCategory.subcategories.map( async (item) =>{
-                        let newItems = await superMenu.find({
-                            category : mainCategory.category,
-                            subCategory : mainCategory.subCategory
-                        })
-                        newItems =  await Promise.all(newItems.map( async (itemData) =>{
-                            return await getItemById(itemData._id);
-                        }))
-                        return newItems;
-                    }))
-                 }
-
-
-
-                 return subCategory
-                
-            }))
-            
-
-            return mainCategory;
+        data = await Promise.all(data.map( async (e) =>{
+            return await getItemById(e.item,bar)
         }))
+
 
 
         // console.log(data);
@@ -1517,20 +1488,20 @@ const getBarById = async(id,loggedInUser="") =>{
         // favDrinks =   await favouriteDrinks(data._id);
         // data.favDrinks = favDrinks
 
-        houseOfFav = []
+        // houseOfFav = []
 
 
-        houseOfFav =   await houseOffavourites(id);
-        data.houseOfFav = houseOfFav
+        // houseOfFav =   await houseOffavourites(id);
+        // data.houseOfFav = houseOfFav
 
             
 
 
 
-        // category wise items
+        // // category wise items
 
-        let categorizedMenus = await categoryWiseItems(id)
-        data.categorizedMenus = categorizedMenus
+        // let categorizedMenus = await categoryWiseItems(id)
+        // data.categorizedMenus = categorizedMenus
 
     
 
@@ -1553,6 +1524,11 @@ const getBarById = async(id,loggedInUser="") =>{
 
 
 
+        
+
+
+
+
 
 
 
@@ -1564,6 +1540,8 @@ const getBarById = async(id,loggedInUser="") =>{
             return await getPromotionById(e,id)
         }))
         data.promotions = promos
+
+        data.drinks = await getMenuByBarId(id)
 
 
 
@@ -1767,7 +1745,8 @@ export default {
     createNotification,
     getBartenders,
     getLatestOrder,
-    getLastOrder
+    getLastOrder,
+    getMenuByBarId
 
 }
 
