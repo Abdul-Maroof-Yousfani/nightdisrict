@@ -1107,10 +1107,10 @@ const  getItemById = async(id,bar,bought='',totalQuantity = 0,orderId='') => {
             data.category = category
 
 
-            // if(category.name == 'Spirits')
-            // {
-            //     data.mixers = await getMixers(bar);
-            // }
+            if(category.name == 'Spirits')
+            {
+                data.mixers = await getMixers(bar);
+            }
 
         }
         
