@@ -1240,22 +1240,22 @@ const  getSuperItem = async(id) => {
         {
             console.log(data.categories);
         }
-        categories = await Promise.all(data.categories.map(async(cat) =>{
-            return await menuCategory.findById({ _id :cat });
-        }))
+        // categories = await Promise.all(data.categories.map(async(cat) =>{
+        //     return await menuCategory.findById({ _id :cat });
+        // }))
         data.categories = categories;
 
         let subCategories = [];
         let subData = [];
-        subCategories = await Promise.all(data.subCategories.map(async(cat) =>{
+        // subCategories = await Promise.all(data.subCategories.map(async(cat) =>{
 
-            if(cat)
-            {
-                subData.push(await menuCategory.findById({ _id :cat }));
-            }
-            return cat;
+        //     if(cat)
+        //     {
+        //         subData.push(await menuCategory.findById({ _id :cat }));
+        //     }
+        //     return cat;
             
-        }))
+        // }))
         data.subCategories = subData
 
     
@@ -1294,6 +1294,7 @@ const  getSuperItem = async(id) => {
     }
     catch(error)
     {
+        console.log(error);
         return error.message
     }
 }
