@@ -32,6 +32,7 @@ router.post('/bar/menu/review',helpers.verifyAuthToken, bar.getReviesForProduct)
 
 
 router.get('/category/:id/bar/:bar',category.getProductCategories);
+router.get('/categories',category.getAllCategories);
 
 
 

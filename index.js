@@ -93,42 +93,38 @@ app.use('/remove-items', async(req,res) =>{
 
     // the query is going to remove items that are not is supermenu
 
-    let data = await Menu.find({});
-    data = await Promise.all(data.map(async(e) =>{
-        if(e.item)
-        {
-            let chekMenu = await superMenu.findById({
-                _id : e.item
-            });
-            if(chekMenu)
-            {
-                console.log("menu is there")
+    try {
+        // Find and group superMenus by menu_name
+        const superMenus = await superMenu.aggregate([
+          {
+            $group: {
+              _id: "$menu_name",
+              duplicates: { $push: "$_id" },
+              count: { $sum: 1 }
             }
-            else
-            {
-                await Menu.findByIdAndDelete({
-                    _id : e._id
-                })
-
-                console.log("NO MENU DELETED");
+          },
+          {
+            $match: {
+              count: { $gt: 1 } // Filter groups with more than one record (duplicates)
             }
-        }
-        else
+          }
+        ]);
+    
+        // Extract duplicate superMenu IDs
+        const duplicateSuperMenuIds = superMenus.flatMap(group => group.duplicates.slice(1));
+    
+        // Delete duplicate superMenus
+        await superMenu.deleteMany({ _id: { $in: duplicateSuperMenuIds } });
+    
+        return res.json({ message: 'Duplicate SuperMenus removed successfully.' });
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    })
 
-        {
-            await Menu.findByIdAndDelete({
-                _id : e._id
-            })
-            console.log("NO ITEM DELETED");
-        }
-        
-    }))
 
-    return res.json({
 
-    });
-
-}) 
 
 app.use('/updateImages', async(req,res) => {
 

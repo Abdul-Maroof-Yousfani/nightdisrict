@@ -793,6 +793,42 @@ const getProductCategories = async(req,res) =>
 }
 
 
+const getAllCategories = async(req,res) =>
+{
+    try
+    {
+        let data = await menuCategory.find({
+            parent : null
+        }).lean()
+        data  = await Promise.all(data.map(async(e) =>{
+            e.child = await menuCategory.find({
+                parent : e._id
+            }).lean();
+            e.child = await Promise.all(e.child.map( async (children) =>{
+                children.child = await menuCategory.find({
+                    parent : children._id
+                })
+                return children;
+            }))
+            return e;
+        }))
+        return res.json({
+            status : 200,
+            message : 'success',
+            data 
+        });
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data :{}
+        });
+    }
+}
+
+
 
 export default {
     category,
@@ -805,5 +841,6 @@ export default {
     getCategoryBasedItems,
     parentCategory2,
     getProductCategories,
-    getSingleCategory
+    getSingleCategory,
+    getAllCategories
 }
