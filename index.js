@@ -56,6 +56,7 @@ mongoose.connect(DB_URL, (err, db) => {
 })
 
 const app = express();
+app.use(express.json({ limit: '10000mb' }));
 
 app.use(cors());
 app.set('view engine', 'ejs');
@@ -64,6 +65,10 @@ app.use(fileUpload());
 app.use(express.static("public"));
 app.use(express.static(path.join(__dirname, 'web')));
 app.use(express.static(path.join(__dirname, 'pdf')));
+
+
+
+
 
 
 app.use("/api/users", users);
