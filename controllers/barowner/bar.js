@@ -509,7 +509,7 @@ const addItem = async (req, res) => {
         const { error, value } = schema.validate(req.body);
         if (error) return res.status(200).json({ status : 400, message: error.message, data: {} })
 
-        if (type) {
+        if (type == 'bar') {
            
 
             let mainMenu = await superMenu.findOne({ _id: superItem }).lean()
@@ -613,7 +613,7 @@ const addItem = async (req, res) => {
             return res.json({ status: 200, message: "success", data : mainMenu })
 
         }
-        else if(subType)
+        else if(type == 'own')
         {
             let findCategories = [];
             if(req.body.tertiary)
