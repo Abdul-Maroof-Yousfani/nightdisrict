@@ -75,6 +75,18 @@ const orderSchema = new mongoose.Schema({
             }
         }
     ],
+
+    mixers : [{
+        item : {
+            type : mongoose.Types.ObjectId,
+            default  : null,
+            ref : "menuCategories"
+        },
+        qty : {
+            type : Number,
+            default : 0
+        }
+    }],
     
     tip : {
         type:Number,

@@ -56,7 +56,7 @@ const createNewOrder = async (bar, sequence) => {
 
 
 const store = async (req, res) => {
-    let { subscriptionType, items, transactionId, paymentStatus, invoice_url, customer, paymentMethod, cardDetail, tip, type, bar, amount  , instruction} = req.body;
+    let { subscriptionType, items, transactionId, paymentStatus, invoice_url, customer, paymentMethod, cardDetail, tip, type, bar, amount  , instruction , mixers} = req.body;
     let paymentCode, cardId;
     let orderNo = Math.floor(Math.random() * 10000000);
     let isSwap = false;
@@ -76,6 +76,7 @@ const store = async (req, res) => {
             paymentMethod: Joi.string(),
             tip: Joi.number(),
             instruction : Joi.string().allow(''),
+            mixers : Joi.any()
             // cardDetail : Joi.object().unknown(true).required(),
         });
 
@@ -248,7 +249,8 @@ const store = async (req, res) => {
                 instruction,
                 nextBartender : nextBartender,
                 bartender : assignedBartender,
-                sequence : nextSequence
+                sequence : nextSequence,
+                mixers
 
             }
         );
