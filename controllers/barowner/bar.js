@@ -696,16 +696,23 @@ const addItem = async (req, res) => {
 
 
 
+
             e.subCategory = mainMenu.subCategory ? totalCategories.push({ category: mainMenu.subCategory }) : "";
 
             e.subCategory = mainMenu.subCategory
+
+            // create totalCategories
+            mainMenu.totalCategories = mainMenu.categories.map((category) => {
+                return { category: category }; // Assuming your category object has a property named "category"
+            });
+
 
 
             e.barId = req.user.barInfo;
             e.menu_name = e.title;
             e.item = e.superItem;
             e.description = e.description;
-            e.categories = myCategories;
+            e.categories = mainMenu.totalCategories;
             e.variation = e.variation
 
             let findMenu = await localMenu.findOne({
@@ -730,6 +737,7 @@ const addItem = async (req, res) => {
 
             return e
         }))
+        // return res.json(finalMenu);
 
 
 

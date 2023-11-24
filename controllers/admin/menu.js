@@ -518,7 +518,7 @@ const importProduct = async (req, res) => {
     await workbook.xlsx.read(stream);
 
     const worksheet = workbook.getWorksheet(1); // Assuming the data is in the first sheet
-
+    let allCats = [];
     for (let rowNumber = 2; rowNumber <= worksheet.rowCount; rowNumber++) {
       const row = worksheet.getRow(rowNumber);
       const colB = row.getCell(2).value; // Get the value of cell B
@@ -537,13 +537,14 @@ const importProduct = async (req, res) => {
         if(colG)
         {
           subcategory1Id = await createOrUpdateCategory(colG, categoryId,colJ);
+          allCats.push(subcategory1Id)
         }
 
         if(colI)
         {
           subcategory2Id = await createOrUpdateCategory(colI, subcategory1Id,colJ);
         }
-
+        // console.log(subcategory2Id);
         let parent = categoryId;
         let finalCategory;
         if(colI)
@@ -578,10 +579,17 @@ const importProduct = async (req, res) => {
                 description: colC,
                 category: parent, // Use the category ID obtained above
                 subCategory: finalCategory, // Use the subcategory1 ID obtained above
-                categories: [categoryId,subcategory1Id,subcategory2Id], // Include parent and subcategories
-                subCategories: [subcategory1Id, subcategory2Id], // No need to include subcategories here
+                categories: [categoryId, subcategory1Id, subcategory2Id].filter(id => id !== undefined),
+                subCategories: [subcategory1Id, subcategory2Id].filter(id => id !== undefined),// No need to include subcategories here
             }; 
         }
+
+        console.log("Update Menu")
+        console.log(superMenuData);
+        console.log("Menu Updated")
+
+
+        allCats = []
 
         // update Menu
 
@@ -592,9 +600,7 @@ const importProduct = async (req, res) => {
         },{
           new :true
         })
-        console.log("Update Menu")
-        console.log(update);
-        console.log("Menu Updated")
+ 
        
         // if(!checkSuperMenu)
         // {
