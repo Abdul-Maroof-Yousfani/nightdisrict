@@ -27,6 +27,19 @@ const menuCategory = new mongoose.Schema({
             }
         }
     ],
+    aliases: [
+        {
+            type: String,
+        },
+    ],
+    mixture_name: {
+        type: String,
+    },
+    mixture_aliases: [
+        {
+            type: String,
+        },
+    ],
 
 },{timestamps:true});
 export default mongoose.model('menuCategory', menuCategory);

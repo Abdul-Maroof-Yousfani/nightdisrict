@@ -42,6 +42,10 @@ const orderSchema = new mongoose.Schema({
                 price : {
                     type : Number,
                     default : 0
+                },
+                qty : {
+                    type : Number,
+                    default : 0
                 }
             }],
 
@@ -75,18 +79,6 @@ const orderSchema = new mongoose.Schema({
             }
         }
     ],
-
-    mixers : [{
-        item : {
-            type : mongoose.Types.ObjectId,
-            default  : null,
-            ref : "menuCategories"
-        },
-        qty : {
-            type : Number,
-            default : 0
-        }
-    }],
     
     tip : {
         type:Number,

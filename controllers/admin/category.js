@@ -563,83 +563,77 @@ const getSearchableProducts = async(req,res) =>
 {
     let {id,bar} = req.params
     let  {page,limit,query,category} = req.query;
-    try
-    {
+    try {
+        // Split the query into words
+        const keywords = query.split(' ');
 
+        // Perform a recursive search for each keyword and its combinations
+        for (let i = 0; i < keywords.length; i++) {
+            for (let j = i + 1; j <= keywords.length; j++) {
+                const currentKeywords = keywords.slice(i, j);
+                const searchString = currentKeywords.join(' ');
 
-        let child , data , newData = [];
-        let categoryQuery  = {}
-        let productQuery = {}
+                // Check if the current search string matches any category names
+                const categoryResults = await menuCategory.find({ name: { $regex: searchString, $options: 'i' } });
 
+                if (categoryResults.length > 0) {
+                    console.log(`Category Results for "${searchString}":`);
+                    console.log(categoryResults);
 
-        categoryQuery.name = { $regex: new RegExp(query, 'i') }
-        productQuery.menu_name =  { $regex: new RegExp(query, 'i') }
+                    // If there are category results, fetch associated products
+                    for (const category of categoryResults) {
+                        const products = await menu.find({ category: category._id });
+                        console.log(`Products in category ${category.name}:`);
+                        console.log(products);
+                    }
+                } else {
+                    // If no category matches, check for product names
+                    const productResults = await menu.find({
+                        menu_name: { $regex: searchString, $options: 'i' }
+                    });
 
-        if(category)
-        {
-            categoryQuery.name = { $regex: new RegExp(query, 'i') };
-            categoryQuery.parent = mongoose.Types.ObjectId(category)
-
-            productQuery = {
-                barId :  mongoose.Types.ObjectId(bar),
-                menu_name : { $regex: new RegExp(query, 'i') },
-
-                "categories.category": category
+                    if (productResults.length > 0) {
+                        console.log(`Product Results for "${searchString}":`);
+                        console.log(productResults);
+                    } else {
+                        console.log(`No results found for "${searchString}".`);
+                    }
+                }
             }
-
-            // productQuery.menu_name =  { $regex: new RegExp(query, 'i') }
-            // productQuery.categories =  { "category" : query }
-            // productQuery.categories.category =  mongoose.Types.ObjectId(category)
         }
-
-        console.log(productQuery);
-
-        // console.log(categoryQuery);
-
-        child = await menuCategory.findOne(categoryQuery).select({name:1,description:1,category_image:1})
-        let products = await menu.findOne({productQuery}).select({name:1,description:1,category_image:1 , category :1 , subCategory : 1})
-        let childrens = [];
-        console.log(products);
-        if(child)
-        {
-            // get child Categoryies
-            childrens = await menuCategory.find({parent : child._id}).select({name:1,description:1,category_image:1})
-            data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : child._id  }).lean();
-
-        }
-        else if(products)
-        {
-            // childrens = await menuCategory.find({parent : products.subCategory}).select({name:1,description:1,category_image:1})
-            data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : products.subCategory  }).lean();
-
-        }
-
-        
-        
-
-        newData = helpers.paginate(data,page,limit)
-            
-            data = await Promise.all(newData.result.map((e) => {
-                return helpers.getItemById(e.item,e.barId)
-            }))
-
-        
-        return res.json({
-            status : 200,
-            message : "success",
-            data : {child:childrens,products:data },
-            pagination : newData.totalPages
-        })
+    } catch (error) {
+        console.error('Error searching:', error);
     }
-    catch(error)
-    {
-        console.log(error);
-        return res.json({
-            status : 500,
-            message : error.message,
-            data : {}
-        })
-    }
+}
+
+const searchNewProducts = async(req,res) =>
+{
+    let {term} = req.query;
+    try {
+        // Check if the term matches any category names
+        const categoryResults = await menuCategory.find({ name: { $regex: term, $options: 'i' } });
+    
+        if (categoryResults.length > 0) {
+          // Display category results
+          console.log('Category Results:');
+          console.log(categoryResults);
+        } else {
+          // If no category matches, check for product names
+          const productResults = await menu.find({ menu_name: { $regex: term, $options: 'i' } });
+    
+          if (productResults.length > 0) {
+            // Display product results
+            console.log('Product Results:');
+            console.log(productResults);
+          } else {
+            // If no matches found
+            console.log('No results found.');
+          }
+        }
+        return res.json({})
+      } catch (error) {
+        console.error('Error searching:', error);
+      }
 }
 
 
@@ -929,6 +923,7 @@ export default {
     getProductCategories,
     getSingleCategory,
     getAllCategories,
-    getSearchableProducts
+    getSearchableProducts,
+    searchNewProducts
     
 }

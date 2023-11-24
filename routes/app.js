@@ -37,6 +37,11 @@ router.get('/categories',category.getAllCategories);
 
 
 
+router.get('/products',category.searchNewProducts);
+
+
+
+
 
 
 
