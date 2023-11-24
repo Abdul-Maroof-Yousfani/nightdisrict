@@ -5,6 +5,7 @@ import User from "../models/users.js";
 import Menu from '../models/menu.js';
 import helpers from '../utils/helpers.js';
 import reviews from '../models/reviews.js';
+import menu from '../models/menu.js';
 
 const createMenuCat = async (req, res) => {
     try {
@@ -124,8 +125,42 @@ const getReviewById = async(req,res) =>
     }
 }
 
+const relatedProducts = async(req,res) =>
+{
+    let {id} = req.params;
+    let {page,limit} = req.query;
+    try
+    {
+        let data = await menu.findById({_id: id});
+        let allMenus = await menu.find({
+            "categories.category" :  data.subCategory
+        }).lean()
+        allMenus = await helpers.paginate(allMenus,page,limit)
+
+        let newData = await Promise.all(allMenus.result.map( async (e) =>{
+            return await helpers.getItemById(e.item,e.barId)
+        }))
+        return res.json({
+            status : 200,
+            message : "success",
+            data: newData,
+            paginate : allMenus.totalPages
+        })
+
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message : error.message,
+            data: []
+        })
+    }
+}
+
 export default {
     createMenuCat,
     createMenu,
     getReviewById,
+    relatedProducts
 }

@@ -27,13 +27,15 @@ router.get('/bar/:id',helpers.verifyAuthToken, bar.show)
 router.get('/bar/:id/search/:q',bar.searchByBar)
 router.post('/bar/menu',helpers.verifyAuthToken, bar.Menu)
 router.post('/bar/menu/review',helpers.verifyAuthToken, bar.getReviesForProduct)
-
 // Adding new Categories
 
 
 router.get('/category/:id/bar/:bar',category.getProductCategories);
 router.get('/category/:bar',category.getSearchableProducts);
 router.get('/categories',category.getAllCategories);
+
+
+
 
 
 
@@ -83,6 +85,8 @@ router.post('/favourite/drinks',helpers.verifyAuthToken, users.favouriteDrinks)
 // get menu and Reviews
 
 router.post('/menu/review',helpers.verifyAuthToken, menu.getReviewById);
+
+router.get('/menu/:id',menu.relatedProducts);
 
 
 
