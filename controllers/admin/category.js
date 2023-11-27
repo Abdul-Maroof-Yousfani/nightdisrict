@@ -594,7 +594,8 @@ const getSearchableProducts = async(req,res) =>
         // let data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : id  }).lean();
 
         let child = await menuCategory.find(categoryQuery)
-        if(child)
+        console.log(child)
+        if(child.length)
         {
             productQuery = {
                 "categories.category" : child[0]._id
