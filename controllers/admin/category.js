@@ -563,45 +563,104 @@ const getSearchableProducts = async(req,res) =>
 {
     let {id,bar} = req.params
     let  {page,limit,query,category} = req.query;
+   
+    let child , data , newData = [];
+    let categoryQuery  = {}
+    let productQuery = {}
+
+    categoryQuery.name = { $regex: new RegExp(query, 'i') }
+    productQuery.menu_name =  { $regex: new RegExp(query, 'i') }
+
+
     try {
-        // Split the query into words
-        const keywords = query.split(' ');
 
-        // Perform a recursive search for each keyword and its combinations
-        for (let i = 0; i < keywords.length; i++) {
-            for (let j = i + 1; j <= keywords.length; j++) {
-                const currentKeywords = keywords.slice(i, j);
-                const searchString = currentKeywords.join(' ');
-
-                // Check if the current search string matches any category names
-                const categoryResults = await menuCategory.find({ name: { $regex: searchString, $options: 'i' } });
-
-                if (categoryResults.length > 0) {
-                    console.log(`Category Results for "${searchString}":`);
-                    console.log(categoryResults);
-
-                    // If there are category results, fetch associated products
-                    for (const category of categoryResults) {
-                        const products = await menu.find({ category: category._id });
-                        console.log(`Products in category ${category.name}:`);
-                        console.log(products);
-                    }
-                } else {
-                    // If no category matches, check for product names
-                    const productResults = await menu.find({
-                        menu_name: { $regex: searchString, $options: 'i' }
-                    });
-
-                    if (productResults.length > 0) {
-                        console.log(`Product Results for "${searchString}":`);
-                        console.log(productResults);
-                    } else {
-                        console.log(`No results found for "${searchString}".`);
-                    }
-                }
+        if(category)
+        {
+            categoryQuery.parent = mongoose.Types.ObjectId(category)
+            productQuery = {
+                barId :  mongoose.Types.ObjectId(bar),
+                menu_name : { $regex: new RegExp(query, 'i') },
             }
         }
+
+
+
+        // categoryQuery.name = { $regex: new RegExp(query, 'i') }
+        // productQuery.menu_name =  { $regex: new RegExp(query, 'i') }
+
+
+        // Split the query into words
+        // let child = await menuCategory.find({parent : mongoose.Types.ObjectId(id)}).select({name:1,description:1,category_image:1})
+        // let data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : id  }).lean();
+
+        let child = await menuCategory.find(categoryQuery)
+        if(child)
+        {
+            productQuery = {
+                "categories.category" : child[0]._id
+            }
+        }
+        let products = await menu.find(productQuery).select({name:1,description:1,category_image:1 , category :1 , subCategory : 1,item:1}).lean()
+        // // let childrens = [];
+
+        let newData = helpers.paginate(products,page,limit)
+        
+        let data = await Promise.all(newData.result.map((e) => {
+            return helpers.getItemById(e.item,bar)
+        }))
+        return res.json({
+            status : 200,
+            message : "success",
+            data : {child,products:data },
+            pagination : newData.totalPages
+        })
+
+        // Perform a recursive search for each keyword and its combinations
+        // for (let i = 0; i < keywords.length; i++) { 
+        //     for (let j = i + 1; j <= keywords.length; j++) {
+        //         const currentKeywords = keywords.slice(i, j);
+        //         const searchString = currentKeywords.join(' ');
+
+        //         // Check if the current search string matches any category names
+        //         const categoryResults = await menuCategory.find({ name: { $regex: searchString, $options: 'i' } });
+
+        //         if (categoryResults.length > 0) {
+        //             console.log(`Category Results for "${searchString}":`);
+        //             console.log(categoryResults);
+
+        //             // If there are category results, fetch associated products
+        //             for (const category of categoryResults) {
+        //                 const products = await menu.find({ category: category._id });
+        //                 console.log(`Products in category ${category.name}:`);
+        //                 console.log(products);
+        //             }
+        //         } else {
+        //             // If no category matches, check for product names
+        //             const productResults = await menu.find({
+        //                 menu_name: { $regex: searchString, $options: 'i' }
+        //             });
+
+        //             if (productResults.length > 0) {
+        //                 console.log(`Product Results for "${searchString}":`);
+        //                 console.log(productResults);
+        //             } else {
+        //                 console.log(`No results found for "${searchString}".`);
+        //             }
+        //         }
+        //     }
+        // }
+        return res.json({
+            status : 200,
+            message : 'success',
+            data : {}
+        })
     } catch (error) {
+        console.log(error);
+        return res.json({
+            status : 500,
+            message : 'success',
+            data : {}
+        })
         console.error('Error searching:', error);
     }
 }
