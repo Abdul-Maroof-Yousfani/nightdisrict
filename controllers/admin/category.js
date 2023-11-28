@@ -594,7 +594,6 @@ const getSearchableProducts = async(req,res) =>
         // let data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : id  }).lean();
 
         let child = await menuCategory.find(categoryQuery)
-        console.log(child)
         if(child.length)
         {
             productQuery = {
@@ -609,10 +608,16 @@ const getSearchableProducts = async(req,res) =>
         let data = await Promise.all(newData.result.map((e) => {
             return helpers.getItemById(e.item,bar)
         }))
+        // get single Product
+        let product = {};
+        if(products.length)
+        {
+            product = await helpers.getItemById(products[0].item,bar)
+        }
         return res.json({
             status : 200,
             message : "success",
-            data : {child,products:data },
+            data : {child,products:data , product},
             pagination : newData.totalPages
         })
 
