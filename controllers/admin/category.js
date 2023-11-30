@@ -796,7 +796,7 @@ const categoryWiseData = async(req,res) =>
                     e.child = await Promise.all(data.map(async(childData) =>{
           
                         childData.items = await superMenu.find({
-                            parent : childData._id
+                            subCategory : childData._id
                         }).limit(5).lean()
                         childData.items = await Promise.all(childData.items.map( async (productData) =>{
                             return await helpers.getSuperItem(productData._id)
