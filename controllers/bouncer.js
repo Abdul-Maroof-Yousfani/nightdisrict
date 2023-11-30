@@ -82,7 +82,9 @@ const attendance = async(req,res) =>
             username : 1,
             email : 1,
             address : 1,
-            fcm : 1
+            fcm : 1,
+            firstname : 1,
+            lastname : 1
 
         })
 
