@@ -787,7 +787,7 @@ const categoryWiseData = async(req,res) =>
             checkCategory.child = await Promise.all(child.map( async (e) =>{
                 // get categories having which is parent of All
                 let data = await menuCategory.find({
-                    "parent2.category" : e._id
+                    "parent" : e._id
                 }).lean()
                 e.child = [];
                 e.items = [];
@@ -799,7 +799,6 @@ const categoryWiseData = async(req,res) =>
                             parent : childData._id
                         }).limit(5).lean()
                         childData.items = await Promise.all(childData.items.map( async (productData) =>{
-                            console.log(productData);
                             return await helpers.getSuperItem(productData._id)
                         }))
                         // childData.products = await helpers.getSuperItem(newProduct._id)

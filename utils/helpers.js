@@ -124,29 +124,32 @@ async function verifyAuthToken(req, res, next) {
 
         // Validating Token
         let invalidToken = false;
-        jwt.verify(req.token, process.env.JWT_SECRET, (err, authData) => {
+        jwt.verify(req.token, process.env.JWT_SECRET,async (err, authData) => {
+
             if (err) {
                 invalidToken = true;
                 return res.status(401).json({ status: "error", message: "Malformed sign-in token! Please use a valid sign-in token to continue.", data: null });
+            }else{
+                req.user = await User.findOne({ username: authData.username }).lean();
+                
+                if (!req.user) return res.status(403).json({
+                    status: "error",
+                    message: "Invalid sign-in token! Please log-in again to continue.",
+                    data: null
+                });
+                next();
             }
         });
         if (invalidToken) return;
-
         // Checking and Adding user to req object.
-        req.user = await User.findOne({ verificationToken: req.token }).lean();
         // if (!req.isActive) return res.status(403).json({
         //     status: "error",
         //     message: "Your Account has been Deleted",
         //     data: null
         // });
-        if (!req.user) return res.status(403).json({
-            status: "error",
-            message: "Invalid sign-in token! Please log-in again to continue.",
-            data: null
-        });
         // req.user.preferences = await preferredTags(req.user._id);
         // req.user.followedChannels = await followedChannels(req.user._id);
-        next();
+
     } else {
         return res.status(401).json({ status: "error", message: "Please use a sign-in token to access this request.", data: null });
     }
