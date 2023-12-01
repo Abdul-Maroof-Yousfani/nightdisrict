@@ -23,7 +23,7 @@ const store = async(req,res) =>
             hashtags: Joi.string(),
             repeat: Joi.boolean(),
             stock :Joi.number().required(),
-            dj : Joi.string(),
+            dj : Joi.any(),
             category : Joi.string(),
             venue : Joi.string().required(),
             date : Joi.string().required(),
@@ -234,7 +234,7 @@ const index = async(req,res) =>
         }).lean()
         live = await Promise.all(live.map( async (e) => {
 
-            e.djDetail = await users.findOne({_id : e.dj}).select('username').lean()
+            e.djDetail = {}
             e.hashtagsdetail = await Promise.all(e.hashtags.map( async (hash) =>{
                 return await hashtag.findOne({_id  : hash._id}).lean()
             }))
@@ -242,7 +242,7 @@ const index = async(req,res) =>
         }))
         today = await Promise.all(today.map( async (e) => {
 
-            e.djDetail = await users.findOne({_id : e.dj}).select('username').lean()
+            e.djDetail = {}
             e.hashtagsdetail = await Promise.all(e.hashtags.map( async (hash) =>{
                     return await hashtag.findOne({_id  : hash._id}).lean()
             }))
@@ -250,7 +250,7 @@ const index = async(req,res) =>
         }))
         upcomming = await Promise.all(upcomming.map( async (e) => {
 
-            e.djDetail = await users.findOne({_id : e.dj})?await users.findOne({_id : e.dj}).select('username').lean():""
+            e.djDetail = {}
             e.hashtagsdetail = await Promise.all(e.hashtags.map( async (hash) =>{
                     return await hashtag.findOne({_id  : hash._id}).lean()
             }))

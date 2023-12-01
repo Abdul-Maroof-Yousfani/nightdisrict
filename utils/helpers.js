@@ -847,7 +847,7 @@ const getEventById = async(id) =>{
         }))
         // get dj
 
-        data.dj = await getUserById(data.dj);
+        data.dj = {}
 
         // get bar details
 
