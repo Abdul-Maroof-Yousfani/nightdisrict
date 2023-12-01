@@ -336,7 +336,7 @@ const view = async(req,res) =>
     try
     {
         let data = await event.findOne({_id}).lean()
-        data.djDetail = await users.findOne({_id : data.dj}).select('username').lean()
+        data.djDetail = {}
         data.hashtagsdetail = await Promise.all(data.hashtags.map( async (e) =>{
                 return await hashtag.findOne({_id  : e}).lean()
         }))
