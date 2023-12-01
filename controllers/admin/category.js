@@ -376,7 +376,7 @@ const parentCategory = async (req, res) => {
             else
             {
                 let servings = await pourtype.find({
-                    name : "default"
+                    name : "Pour"
                 })
                 e.servings = servings
 
@@ -870,8 +870,7 @@ const getSingleCategory = async(req,res)=> {
         if(category.name == 'Spirits')
         {
             servings =  await pourtype.find({
-                name : 
-                { $ne: 'Pour' }
+                
             }).lean()
 
         }
