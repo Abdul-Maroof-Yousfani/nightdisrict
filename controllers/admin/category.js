@@ -975,7 +975,7 @@ const allDrinks = async(req,res) =>
     let {page,limit} = req.query;
     try
     {
-        let data = await superMenu.find({}).limit(5).lean();
+        let data = await superMenu.find({}).lean();
         let newData = helpers.paginate(data,page,limit);
         data = await Promise.all( newData.result.map(async(e) =>{
             e.category = await menuCategory.findById({_id : e.category});

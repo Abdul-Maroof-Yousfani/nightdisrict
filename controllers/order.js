@@ -147,10 +147,7 @@ const store = async (req, res) => {
 
             let deliveredOrders = await allOrders.deliveredOrders(bar);
 
-            console.log(deliveredOrders);
-            return res.json(deliveredOrders)
-
-
+         
             // return res.json(deliveredOrders)
         
             if (deliveredOrders.length > 0) {

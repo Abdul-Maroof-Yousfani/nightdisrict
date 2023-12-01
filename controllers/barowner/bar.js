@@ -1942,13 +1942,13 @@ const app = async (req, res) => {
 
         const hourlySales = await order.aggregate([
             {
-                $match: {
-                    bar: req.user.barInfo,
-                    createdAt: {
-                        $gte: startOfDay,
-                        $lt: endOfDay
-                    }
-                }
+                // $match: {
+                //     bar: req.user.barInfo,
+                //     createdAt: {
+                //         $gte: startOfDay,
+                //         $lt: endOfDay
+                //     }
+                // }
             },
             {
                 $group: {
