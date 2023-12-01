@@ -796,7 +796,7 @@ const categoryWiseData = async(req,res) =>
           
                         childData.items = await superMenu.find({
                             subCategory : childData._id
-                        }).limit(5).lean()
+                        });
                         childData.items = await Promise.all(childData.items.map( async (productData) =>{
                             return await helpers.getSuperItem(productData._id)
                         }))
@@ -809,7 +809,7 @@ const categoryWiseData = async(req,res) =>
                   {
                     e.items = await superMenu.find({
                         subCategories : e._id
-                    }).limit(5).lean()
+                    });
                     e.items = await Promise.all(e.items.map(async(childProducts) =>{
                         return await helpers.getSuperItem(childProducts._id)
                     }))
