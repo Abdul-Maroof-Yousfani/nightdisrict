@@ -165,6 +165,7 @@ app.post('/remove-variant', async(req,res) =>{
 app.use('/updateImages', async(req,res) => {
 
     // the query is going to remove items that are not is supermenu
+    //  
 
     let data = await menuCategory.find({});
     await Promise.all(data.map( async (e) =>{
