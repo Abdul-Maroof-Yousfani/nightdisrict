@@ -800,7 +800,7 @@ const categoryWiseData = async(req,res) =>
                         childData.items = await Promise.all(childData.items.map( async (productData) =>{
                             return await helpers.getSuperItem(productData._id)
                         }))
-                        // childData.products = await helpers.getSuperItem(newProduct._id)
+                        /// childData.products = await helpers.getSuperItem(newProduct._id)
                         return childData
                         
                     }))
