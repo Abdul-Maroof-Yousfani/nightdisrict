@@ -225,7 +225,7 @@ const parentCategory2 = async (req, res) => {
             else
             {
                 let servings = await pourtype.find({
-                    name : "default"
+                    name : "Pour"
                 })
                 e.servings = servings
 
