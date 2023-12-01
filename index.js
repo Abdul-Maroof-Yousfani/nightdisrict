@@ -129,6 +129,37 @@ app.use('/remove-items', async(req,res) =>{
     })
 
 
+app.post('/remove-variant', async(req,res) =>{
+
+    // the query is going to remove items that are not is supermenu
+
+    try {
+      // Find and update the document
+        let menu = await Menu.find({});
+        await Promise.all(menu.map( async ( e) =>{
+
+          const result = await Menu.findByIdAndUpdate(
+            {_id : e._id},
+            { $pull: { variation: { variant: req.body.variant } } },
+            { new: true }
+          );
+          if (result) {
+            console.log(`Variant ${req.body.variant} removed from document ${e._id} successfully.`);
+          } else {
+            console.log(`Document ${e._id} not found.`);
+          }
+
+        }))
+
+        return res.json({})
+        
+        
+    } catch (error) {
+        console.error('Error removing variant from document:', error);
+    } 
+  })
+
+
 
 
 app.use('/updateImages', async(req,res) => {

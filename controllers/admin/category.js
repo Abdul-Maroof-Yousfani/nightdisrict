@@ -767,8 +767,7 @@ const categoryWiseData = async(req,res) =>
         if(checkCategory.name == 'Spirits')
         {
             servings =  await pourtype.find({
-                name : 
-                { $ne: 'Pour' }
+               
             }).lean()
 
         }
