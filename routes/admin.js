@@ -32,6 +32,12 @@ router.post("/category/items",category.getCategoryBasedItems);
 router.get('/category/:_id',category.show);
 
 
+
+// get All Drinks
+
+router.get('/alldrinks',category.allDrinks);
+
+
 // new flow design
 router.get('/parent-categories',)
 

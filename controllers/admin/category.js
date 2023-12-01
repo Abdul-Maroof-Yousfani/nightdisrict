@@ -892,7 +892,6 @@ const getSingleCategory = async(req,res)=> {
     }
     catch(error)
     {
-        console.log(error)
         return res.json({
             status  : 500,
             message : error.message,
@@ -971,6 +970,44 @@ const getAllCategories = async(req,res) =>
 }
 
 
+const allDrinks = async(req,res) =>
+{
+    let {page,limit} = req.query;
+    try
+    {
+        let data = await superMenu.find({}).limit(5).lean();
+        let newData = helpers.paginate(data,page,limit);
+        data = await Promise.all( newData.result.map(async(e) =>{
+            e.category = await menuCategory.findById({_id : e.category});
+            e.tertiaryCategory = await menuCategory.findById({_id : e.subCategory});
+            e.subCategory = await menuCategory.findById({_id : e.subCategory});
+            // e.tertiaryCategory = await menuCategory.findById({_id : e.subCategory});
+
+            delete e.categories;
+            delete e.subCategories;
+            return e;
+        }))
+        
+
+        return res.json({
+            status : 200,
+            message : "success",
+            data,
+            paginate  : newData.totalPages
+        })
+    }
+    catch(error)
+    {
+        console.log(error);
+        return res.json({
+            status : 500,
+            message : "error",
+            data : []
+        })
+    }
+   
+}
+
 
 export default {
     category,
@@ -986,6 +1023,7 @@ export default {
     getSingleCategory,
     getAllCategories,
     getSearchableProducts,
-    searchNewProducts
+    searchNewProducts,
+    allDrinks,
     
 }
