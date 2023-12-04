@@ -90,6 +90,11 @@ router.put('/bar/inquiries/:_id',helpers.verifyAuthToken,admin.updateInquiry)
 router.get('/bar/details/:id',helpers.verifyAuthToken,bar.getBarStats);
 
 
+
+
+
+
+
 //user activities
 
 
