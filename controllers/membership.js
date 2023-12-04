@@ -28,7 +28,6 @@ const userMembership = async (req, res) => {
     try {
         let data = await Membership.find().lean();
         data = data.map((e) => {
-            console.log(req.user.membership)
             if (e._id.toString() == req.user.membership.toString()) {
                 e.active = true
             }

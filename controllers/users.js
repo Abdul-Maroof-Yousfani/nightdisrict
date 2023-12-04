@@ -384,7 +384,7 @@ const selectMembership = async (req,res) =>{
         }).save()
 
         // update the bar Report
-        await bar.findByIdAndUpdate({
+        let bardata = await bar.findByIdAndUpdate({
             _id : barID._id
         },{
             $set : {
@@ -400,7 +400,8 @@ const selectMembership = async (req,res) =>{
         return res.status(200).json({
             status: 200,
             message: "Membership assigned to User Successfully",
-            data: subscription
+            data: subscription,
+            barInfo : bardata._id
         })
     } catch (error) {
         return res.status(200).json({
