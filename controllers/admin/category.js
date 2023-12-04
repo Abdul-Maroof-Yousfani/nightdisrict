@@ -234,7 +234,7 @@ const parentCategory2 = async (req, res) => {
                 e.servings = servings
 
             }
-            e.items = await menu.find({ category: e._id , barId : req.query.barId , onSale : true }).lean()
+            e.items = await menu.find({ category: e._id , barId : req.query.barId}).lean()
             if(e.items.length)
             {
                 // e.items = await helpers.getItemById()
