@@ -117,7 +117,7 @@ const index = async (req, res) => {
                 // add tertiary categories into It
                 item.tertiary = await menuCategory.find({parent: item._id})
 
-                item.items = await superMenu.find({ categories: e._id , bar: null })
+                item.items = await superMenu.find({ categories: item._id , bar: null })
                 item.items = item.items ? item.items : []
                 return item
             }));
