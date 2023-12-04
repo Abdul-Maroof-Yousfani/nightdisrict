@@ -133,7 +133,8 @@ const relatedProducts = async(req,res) =>
     {
         let data = await menu.findById({_id: id});
         let allMenus = await menu.find({
-            "categories.category" :  data.subCategory
+            "categories.category" :  data.subCategory,
+            onSale : true
         }).lean()
         allMenus = await helpers.paginate(allMenus,page,limit)
 

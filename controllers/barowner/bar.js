@@ -1046,7 +1046,8 @@ const searchByBar = async (req, res) => {
     try {
         let query = await menu.find({
             barId: req.params.id,
-            menu_name: { $regex: new RegExp(req.params.q, 'i') }
+            menu_name: { $regex: new RegExp(req.params.q, 'i') },
+            onSale : true
         }).lean()
         query = await Promise.all(query.map(async (e) => {
             return await helpers.getItemById(e.item, req.params.id);
@@ -1157,6 +1158,7 @@ const Menu = async (req, res) => {
         const filters = {};
 
         filters.barId = bar
+        filters.onSale = bar
 
         if (category) {
             filters.category = category;
@@ -2300,7 +2302,8 @@ const all = async (req, res) => {
         let newData = await Promise.all(results.result.map(async (e) => {
             e.owner = await helpers.getUserById(e.owner);
             let topMenus = await menu.find({
-                barId: e._id
+                barId: e._id,
+                onSale : true
             }).limit(3).lean()
             if (topMenus) {
                 topMenus = await Promise.all(topMenus.map(async (item) => {

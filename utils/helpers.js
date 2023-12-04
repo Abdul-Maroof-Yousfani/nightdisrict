@@ -1309,7 +1309,8 @@ const getMenuByBarId = async(bar,limit=1,page=1) =>{
         // get data based on bar
 
         let data = await menu.find({
-            barId : bar 
+            barId : bar ,
+            onSale : true
         }).limit(10).lean();
 
         data = await Promise.all(data.map( async (e) =>{
@@ -1388,7 +1389,8 @@ const categoryWiseItems = async(id) =>
         data = await Promise.all(data.map( async (e) =>{
             e.items = await menu.find({
                 barId : id,
-                subCategory : e._id
+                subCategory : e._id,
+                onSale : true
              }).limit(3).sort({ menu_name: 1 }).lean()
              e.items = await Promise.all(e.items.map( async (it) =>{
                     return await getItemById(it.item,id);
@@ -1408,7 +1410,8 @@ const houseOffavourites = async(bar) =>
     try
     {
        let data = await menu.find({
-        barId: bar
+        barId: bar,
+        onSale : true
     }).limit(5).sort({ menu_name: 1 }).lean();
         data = await Promise.all(data.map( async (e) =>
         {

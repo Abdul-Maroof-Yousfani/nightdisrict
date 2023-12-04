@@ -12,10 +12,10 @@ const router = express.Router();
 
 // Menus (Adding item to the Menu)
 
-router.post("/" ,[auth.verifyAuthToken,admin], event.store);
-router.put("/:id" ,[auth.verifyAuthToken,admin], event.update);
-router.get("/" ,[auth.verifyAuthToken,admin], event.index);
-router.get("/app" ,[auth.verifyAuthToken,admin], event.all);
+router.post("/" ,[auth.verifyAuthToken], event.store);
+router.put("/:id" ,[auth.verifyAuthToken], event.update);
+router.get("/" ,[auth.verifyAuthToken], event.index);
+router.get("/app" ,[auth.verifyAuthToken], event.all);
 router.get("/:_id" , event.view);
 router.get("/single/:_id" , event.single);
 

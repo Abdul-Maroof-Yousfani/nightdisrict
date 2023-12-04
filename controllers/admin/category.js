@@ -234,7 +234,7 @@ const parentCategory2 = async (req, res) => {
                 e.servings = servings
 
             }
-            e.items = await menu.find({ category: e._id , barId : req.query.barId }).lean()
+            e.items = await menu.find({ category: e._id , barId : req.query.barId , onSale : true }).lean()
             if(e.items.length)
             {
                 // e.items = await helpers.getItemById()
@@ -385,7 +385,7 @@ const parentCategory = async (req, res) => {
                 e.servings = servings
 
             }
-            e.items = await superMenu.find({ category: e._id }).lean()
+            e.items = await superMenu.find({ category: e._id , bar : null }).lean()
 
             // add a check here
 
@@ -545,7 +545,7 @@ const getCategoryBasedItems = async (req, res) => {
         })
 
 
-        let data = await superMenu.find({ categories: mongoose.Types.ObjectId(category) }).select({ "menu_name": 1, "description": 1, "picture": 1 })
+        let data = await superMenu.find({ categories: mongoose.Types.ObjectId(category) , bar : null }).select({ "menu_name": 1, "description": 1, "picture": 1 })
 
 
         return res.status(200).json({
@@ -584,6 +584,7 @@ const getSearchableProducts = async(req,res) =>
             productQuery = {
                 barId :  mongoose.Types.ObjectId(bar),
                 menu_name : { $regex: new RegExp(query, 'i') },
+                onSale : true
             }
         }
 
@@ -601,7 +602,8 @@ const getSearchableProducts = async(req,res) =>
         if(child.length)
         {
             productQuery = {
-                "categories.category" : child[0]._id
+                "categories.category" : child[0]._id,
+                "onSale" : true
             }
         }
         let products = await menu.find(productQuery).select({name:1,description:1,category_image:1 , category :1 , subCategory : 1,item:1}).lean()
@@ -813,7 +815,8 @@ const categoryWiseData = async(req,res) =>
                 else
                   {
                     e.items = await superMenu.find({
-                        subCategories : e._id
+                        subCategories : e._id,
+                        bar : null
                     });
                     e.items = await Promise.all(e.items.map(async(childProducts) =>{
                         return await helpers.getSuperItem(childProducts._id)
@@ -827,8 +830,9 @@ const categoryWiseData = async(req,res) =>
         else
         {
             checkCategory.items = await superMenu.find({
-                category : id
-            }).limit(5).lean()
+                category : id,
+                bar : null
+            }).lean()
             checkCategory.items = await Promise.all(checkCategory.items.map(async(childProducts) =>{
                 return await helpers.getSuperItem(childProducts._id)
             }))
@@ -913,7 +917,7 @@ const getProductCategories = async(req,res) =>
     {
         // check if category has any Child Categories
         let child = await menuCategory.find({parent : mongoose.Types.ObjectId(id)}).select({name:1,description:1,category_image:1})
-        let data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : id  }).lean();
+        let data = await menu.find({ barId: mongoose.Types.ObjectId(bar) , "categories.category" : id , onSale : true }).lean();
 
         let newData = helpers.paginate(data,page,limit)
         
