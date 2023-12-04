@@ -115,9 +115,7 @@ const index = async (req, res) => {
             e.subcategories = await Promise.all(e.subcategories.map(async (item) => {
 
                 // add tertiary categories into It
-                item.tertiary = await menuCategory.find({
-                    parent : item._id
-                })
+                item.tertiary = await menuCategory.find({parent: item_id})
 
                 item.items = await superMenu.find({ subCategories: item._id })
                 item.items = item.items ? item.items : []

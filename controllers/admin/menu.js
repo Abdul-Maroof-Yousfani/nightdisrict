@@ -23,7 +23,7 @@ import menu from '../../models/menu.js';
 const store = async(req,res) =>
 {
 
-    let {menu_name,description} = req.body;
+    let {menu_name,description,parent,subcategory,tertiary} = req.body;
     let imageNameOne , fileName = "";
     let category = [];
     let childCategory = [];
@@ -34,7 +34,10 @@ const store = async(req,res) =>
         const schema = Joi.object({
             menu_name: Joi.string().required(),
             description: Joi.string().required(),
-            categories: Joi.string().required(),
+            // categories: Joi.string().required(),
+            parent: Joi.string().required(),
+            subcategory : Joi.any(),
+            tertiary : Joi.any(),
             // subCategory: Joi.string().required(),
          });
         const { error, value } = schema.validate(req.body);
@@ -89,42 +92,30 @@ const store = async(req,res) =>
           }
 
         //  add categories
-
-        if(req.body.categories)
+        let finalCategory;
+        if(tertiary)
         {
-            req.body.categories = JSON.parse(req.body.categories);
-
-            // get categories
-
-            req.body.categories.map((e) =>{
-              category.push(e.parent)
-              e.child.map((ch) =>{
-                childCategory.push(ch)
-              })
-              
-            })
-
-
-
-
-
-            //  get sub categories
-
-            
-            
+          finalCategory =  req.body.tertiary;
         }
-
+        else if(subcategory)
+        {
+          finalCategory = subcategory;
+        }
+        else
+        {
+          finalCategory = parent;
+        }
         
 
         //  add sub categories
         let data = new superMenu({
-          menu_name,
-          description,
-          categories : category,
-          subCategories : childCategory,
-          pictures : menuPictures,
-          user:req.user._id
-
+            menu_name,
+            description,
+            category : parent,
+            subCategory : finalCategory,
+            categories : [parent, subcategory, tertiary].filter(id => id !== undefined),
+            subCategories: [parent, subcategory, tertiary].filter(id => id !== undefined),// No need to include subcategories here
+            user:req.user._id
         });
         await data.save();
 
