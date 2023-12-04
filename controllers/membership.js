@@ -82,7 +82,7 @@ const createMembership = async (req, res) => {
 
 const updateMembership = async (req, res) => {
     try {
-        const MembershipData = await Membership.findById(req.body.id).lean();
+        const MembershipData = await Membership.findById(req.params.id).lean();
         if (!MembershipData) {
             return res.status(200).json({
                 status: 404,
@@ -90,12 +90,11 @@ const updateMembership = async (req, res) => {
                 data: []
             });
         }
-        await Membership.updateOne({ _id: req.body.id }, { $set: req.body });
-        const updated = await Membership.find({ status: 1 }).lean();
+        let data = await Membership.updateOne({ _id: req.params.id }, { $set: req.body },{new:true});
         return res.status(200).json({
             status: 200,
             message: 'Membership successfully updated',
-            data: updated
+            data: data
         });
     } catch (error) {
         return res.status(200).json({

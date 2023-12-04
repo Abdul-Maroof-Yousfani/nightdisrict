@@ -113,6 +113,12 @@ const index = async (req, res) => {
             }
 
             e.subcategories = await Promise.all(e.subcategories.map(async (item) => {
+
+                // add tertiary categories into It
+                item.tertiary = await menuCategory.find({
+                    parent : item._id
+                })
+
                 item.items = await superMenu.find({ subCategories: item._id })
                 item.items = item.items ? item.items : []
                 return item
@@ -541,7 +547,7 @@ const getCategoryBasedItems = async (req, res) => {
         })
 
 
-        let data = await superMenu.find({ subCategory: mongoose.Types.ObjectId(category) }).select({ "menu_name": 1, "description": 1, "picture": 1 })
+        let data = await superMenu.find({ categories: mongoose.Types.ObjectId(category) }).select({ "menu_name": 1, "description": 1, "picture": 1 })
 
 
         return res.status(200).json({

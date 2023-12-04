@@ -14,6 +14,8 @@ router.get('/home/app', helper.verifyAuthToken , Bar.app)
 router.get('/home/web', helper.verifyAuthToken , Bar.web)
 
 
+router.post('/generateReport',Bar.createReport); 
+
 
 // Nightly Overview Report
 

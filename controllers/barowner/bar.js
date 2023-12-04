@@ -21,6 +21,8 @@ import ejs from 'ejs';
 import puppeteer from 'puppeteer';
 import axios from 'axios';
 import reviews from '../../models/reviews.js';
+import financial from '../../models/financials.js';
+import financials from '../../models/financials.js';
 
 
 
@@ -1807,6 +1809,26 @@ const home = async (req, res) => {
         let averageEventRating = 0;
         // const drinks = await Drink.find();
 
+
+        // const Events = await event.find({})
+        // const review = await reviews.find({})
+
+        // const pipeline = [
+        //     {
+        //       $group: {
+        //         _id: '$eventId', // Assuming 'eventId' in reviews refers to the _id of events
+        //         averageRating: { $avg: '$rating' }
+        //       }
+        //     }
+        //   ];
+      
+        //   const result = await reviews.aggregate(pipeline);
+      
+        //   // Add the average ratings to the events
+        //   const eventsWithRatings = await Events.populate(result, { path: '_id', select: 'name' });
+      
+
+
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
         const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59);
 
@@ -1881,6 +1903,7 @@ const app = async (req, res) => {
     let graph = {}
     const currentDate = new Date();
 
+
     try {
         const orders = (await order.find({
             bar: req.user.barInfo,
@@ -1942,13 +1965,13 @@ const app = async (req, res) => {
 
         const hourlySales = await order.aggregate([
             {
-                // $match: {
-                //     bar: req.user.barInfo,
-                //     createdAt: {
-                //         $gte: startOfDay,
-                //         $lt: endOfDay
-                //     }
-                // }
+                $match: {
+                    bar: req.user.barInfo,
+                    createdAt: {
+                        $gte: startOfDay,
+                        $lt: endOfDay
+                    }
+                }
             },
             {
                 $group: {
@@ -1980,7 +2003,17 @@ const app = async (req, res) => {
 
             }
         });
-        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData } });
+
+        const newData = new Date();
+        const startOfMonth = new Date(newData.getFullYear(), newData.getMonth(), 1);
+
+        let reports  = await financials.find({
+            createdAt: { $gte: startOfMonth, $lte: newData }
+        }).lean()
+
+       
+
+        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData , reports} });
 
 
     }
@@ -2022,6 +2055,11 @@ const web = async (req, res) => {
         let averageDrinkRating = 0;
         let averageEventRating = 0;
         // const drinks = await Drink.find();
+
+
+        // data updated
+
+        
 
         const currentDate = new Date();
         const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0);
@@ -2656,6 +2694,29 @@ const toggleUpdate = async (req, res) => {
     }
 }
 
+
+const createReport = async(req,res) =>
+{
+    try
+    {
+        let data = new financial(req.body);
+        data = await data.save();
+        return res.json({
+            status : 200,
+            message : "success",
+            data
+        })
+    }
+    catch(error)
+    {
+        return res.json({
+            status : 500,
+            message :error.message,
+            data : []
+        })
+    }
+}
+
 export default {
     nearby,
     items,
@@ -2689,5 +2750,6 @@ export default {
     pdfReport,
     searchByBar,
     getReviesForProduct,
-    toggleUpdate
+    toggleUpdate,
+    createReport
 }

@@ -109,7 +109,7 @@ const bar = new mongoose.Schema({
     fbUrl:{
         type : String,
         default : 'https://www.facebook.com/'
-    },
+},
     isSuspended : {
         type : Boolean,
         default : true

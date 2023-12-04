@@ -39,8 +39,7 @@ router.get('/alldrinks',category.allDrinks);
 
 
 // new flow design
-router.get('/parent-categories',)
-
+// s
 
 // Import Menu From Excel
 
