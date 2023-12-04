@@ -1885,7 +1885,14 @@ const home = async (req, res) => {
             salesDataArray[hourIndex] = { [hour]: item.sales };
         });
 
-        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData } });
+        const newData = new Date();
+        const startOfMonth = new Date(newData.getFullYear(), newData.getMonth(), 1);
+
+        let reports  = await financials.find({
+            createdAt: { $gte: startOfMonth, $lte: newData }
+        }).lean()
+
+        res.json({ status: 200, message: "success", data: { orders, events, menuSales, attendence, averageDrinkRating: 4.5, averageEventRating: 4.5, graph: salesDataArray, salesData , reports } });
 
 
     }
