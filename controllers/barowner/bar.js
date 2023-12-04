@@ -2572,8 +2572,10 @@ const suspendRespond = async (req, res) => {
             _id: req.params.id
         }, {
             $set: {
-                isSuspended: true
+                isSuspended: req.body.suspend
             }
+        },{
+            new:true
         })
         return res.json({
             status: 200,

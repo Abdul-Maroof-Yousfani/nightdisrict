@@ -115,7 +115,9 @@ const store = async(req,res) =>
             subCategory : finalCategory,
             categories : [parent, subcategory, tertiary].filter(id => id !== undefined),
             subCategories: [parent, subcategory, tertiary].filter(id => id !== undefined),// No need to include subcategories here
-            user:req.user._id
+            user:req.user._id,
+            pictures : menuPictures
+
         });
         await data.save();
 
@@ -138,120 +140,126 @@ const store = async(req,res) =>
 
 const update = async(req,res) =>
 {
-  let {menu_name,description} = req.body;
+  let {menu_name,description,parent,subcategory,tertiary} = req.body;
   let {_id} = req.params;
-  let imageNameOne , fileName = "";
-  let category = [];
-  let childCategory = [];
-  let menuPictures = [];
-  
-  try
-  {
-      const schema = Joi.object({
-          menu_name: Joi.string(),
-          description: Joi.string(),
-          categories: Joi.string(),
-          // subCategory: Joi.string().required(),
-       });
-      const { error, value } = schema.validate(req.body);
-      if(error) return res.status(200).json({
-            status: 403,
+    let imageNameOne , fileName = "";
+    let category = [];
+    let childCategory = [];
+    let menuPictures = [];
+    
+    try
+    {
+        const schema = Joi.object({
+            menu_name: Joi.string().required(),
+            description: Joi.any(),
+            // categories: Joi.string().required(),
+            parent: Joi.any(),
+            subcategory : Joi.any(),
+            tertiary : Joi.any(),
+            // subCategory: Joi.string().required(),
+         });
+        const { error, value } = schema.validate(req.body);
+        if(error) return res.status(200).json({
+              status: 403,
+              message: error.message,
+              data: {}
+        })
+        // check if parent category is there
+
+   
+        // if title already exists
+
+        let checkM = await superMenu.findById({_id});
+        if(!checkM) return res.status(200).json({ status:404, message : "Menu not found" , data : {}})
+
+        // let checkTitle = await superMenu.findOne({menu_name : menu_name});
+        // if(checkTitle) return res.status(200).json({ status:409, message : "Menu name can't be duplicate" , data : {}})
+
+
+
+        // add Images to Categories
+
+        if (req.files) {
+            let pictures = req.files.pictures;
+            if(pictures)
+            {
+              pictures.map((e) =>{
+
+        
+                let image = e;
+          
+                const dirOne = "public/menu";
+                  fileName = `${Date.now()}_` + image.name;
+                  imageNameOne = `${dirOne}/${fileName}`;
+                  if (!fs.existsSync(dirOne)) {
+                    fs.mkdirSync(dirOne, { recursive: true });
+                  }
+                image.mv(imageNameOne, error => {
+                    if (error) {
+                      return res.status(200).json({
+                        status: 400,
+                        error: error.message,
+                        data: ""
+                      });
+                    }
+                  });
+
+    
+                menuPictures.push(`/menu/${fileName}`)
+              })
+            }
+            
+            
+          }
+
+        //  add categories
+        let finalCategory;
+        if(tertiary)
+        {
+          finalCategory =  req.body.tertiary;
+        }
+        else if(subcategory)
+        {
+          finalCategory = subcategory;
+        }
+        else
+        {
+          finalCategory = parent;
+        }
+        
+
+        //  add sub categories
+        let data = await  superMenu.findByIdAndUpdate(
+          {
+            _id
+          },
+          {
+            menu_name,
+            description,
+            category : parent,
+            subCategory : finalCategory,
+            categories : [parent, subcategory, tertiary].filter(id => id !== undefined),
+            subCategories: [parent, subcategory, tertiary].filter(id => id !== undefined),// No need to include subcategories here
+            user:req.user._id,
+            pictures : menuPictures
+        },{
+          new:true
+        });
+
+        return res.json({
+            message : "success",
+            data
+        })
+           
+    }
+    catch(error)
+    {
+      res.status(200).json({
+            status : 500,
             message: error.message,
             data: {}
       })
-      // check if parent category is there
-
- 
-      // if title already exists
-
-      // let checkTitle = await superMenu.findOne({menu_name});
-      // if(checkTitle) return res.status(409).json({ status:409, message : "Title Already Exists" , data : {}})
-
-
-
-      // add Images to Categories
-
-      if (req.files) {
-          let pictures = req.files.pictures;
-    
-          if(pictures)
-          {
-            pictures.map((e) =>{
-
-      
-              let image = e;
-              const dirOne = "public/menu";
-                fileName = `${Date.now()}_` + image.name;
-                imageNameOne = `${dirOne}/${fileName}`;
-                if (!fs.existsSync(dirOne)) {
-                  fs.mkdirSync(dirOne, { recursive: true });
-                }
-                image.mv(imageNameOne, error => {
-                  if (error) {
-                    return res.status(200).json({
-                      status: 400,
-                      error: error.message,
-                      data: ""
-                    });
-                  }
-                });
-
-  
-                menuPictures.push(`/menu/${fileName}`)
-            })
-          }
-          
-          req.body.pictures = menuPictures;
-        }
-
-      //  add categories
-
-      if(req.body.categories)
-      {
-          req.body.categories = JSON.parse(req.body.categories);
-
-          // get categories
-
-          req.body.categories.map((e) =>{
-            category.push(e.parent)
-            e.child.map((ch) =>{
-              childCategory.push(ch)
-            })
-            
-          })
-
-          req.body.subCategories = childCategory
-
-
-          
-      }
-
-
-      // update data
-
-      req.body.user  = req.user._id;
-     
-      //  add sub categories
-      let data = await  superMenu.findByIdAndUpdate({_id : mongoose.Types.ObjectId(_id)},{
-        $set: req.body
-      },{new:true});
-      // await data.save();
-
-      return res.json({
-          status : 200,
-          message : "success",
-          data
-      })
-         
-  }
-  catch(error)
-  {
-      res.status(200).json({
-          status : 500,
-          message: error.message,
-          data: {}
-      })
-  }
+    }
 }
 
 
