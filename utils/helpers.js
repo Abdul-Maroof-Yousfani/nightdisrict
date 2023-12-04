@@ -19,6 +19,7 @@ import notification from '../models/notification.js';
 import serviceAccount from "../config/nd.js";
 import Admin from 'firebase-admin';
 import ordersequence from '../models/ordersequence.js';
+import moment from 'moment-timezone';
 
 
 
@@ -1458,6 +1459,8 @@ const getBarById = async(id,loggedInUser="") =>{
     let favDrinks = [];
     let promos = [];
     let houseOfFav = []
+    const currentTimeInEastern = moment().tz('America/New_York'); // Adjust the time zone accordingly
+    console.log(currentTimeInEastern.format('YYYY-MM-DDTHH:mm:ssZ'));
     try
     {
         // 
@@ -1478,7 +1481,7 @@ const getBarById = async(id,loggedInUser="") =>{
 
 
         // get events
-        events = await event.find({bar : data._id}).sort({ _id: -1 }).limit(4).lean()
+        events = await event.find({bar : data._id  , createdAt: { $gt: currentTimeInEastern } } ).sort({ _id: -1 }).limit(4).lean()
         events = await Promise.all(events.map(async(e) =>{
             return getEventById(e._id)
         }))
