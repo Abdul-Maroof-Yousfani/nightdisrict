@@ -1460,7 +1460,6 @@ const getBarById = async(id,loggedInUser="") =>{
     let promos = [];
     let houseOfFav = []
     const currentTimeInEastern = moment().tz('America/New_York'); // Adjust the time zone accordingly
-    console.log(currentTimeInEastern.format('YYYY-MM-DDTHH:mm:ssZ'));
     try
     {
         // 
@@ -1600,7 +1599,6 @@ let createNotification = async(req,user) =>
           };
 
         const response = await Admin.messaging().sendToDevice(user.fcm, payload);
-        console.log(response);
         return data;
     }
     catch(error)
