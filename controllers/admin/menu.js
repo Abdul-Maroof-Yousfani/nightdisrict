@@ -63,10 +63,9 @@ const store = async(req,res) =>
             let pictures = req.files.pictures;
             if(pictures)
             {
-              pictures.map((e) =>{
 
         
-                let image = e;
+                let image = pictures;
           
                 const dirOne = "public/menu";
                   fileName = `${Date.now()}_` + image.name;
@@ -86,12 +85,14 @@ const store = async(req,res) =>
 
     
                 menuPictures.push(`/menu/${fileName}`)
-              })
             }
             
             
           }
-
+        else
+        {
+          
+        }
         //  add categories
         let finalCategory;
         if(tertiary)
