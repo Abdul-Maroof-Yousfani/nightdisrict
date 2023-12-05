@@ -7,7 +7,7 @@ const admin = async(req,res,next) =>
  
     try
     {   
-        //dwdsd
+        //dwdsdss
         const user = await User.findOne({email:req.user.email});
         const checkRole = await helper.checkRole(user.role);
         if(!checkRole) return res.json({error:"Invalid Role"})
