@@ -38,6 +38,7 @@ const store = async(req,res) =>
             parent: Joi.string().required(),
             subcategory : Joi.any(),
             tertiary : Joi.any(),
+            pictures : Joi.any(),
             // subCategory: Joi.string().required(),
          });
         const { error, value } = schema.validate(req.body);
