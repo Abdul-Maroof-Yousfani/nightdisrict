@@ -24,6 +24,6 @@ jobs:
           cd ~/actions-runner/nightdisrict/nightdisrict/nightdisrict/web2
           npm install
           pm2 restart index
-          cd ~/actions-runner/nightdisrict/nightdisrict/web3
+          cd ~/actions-runner/nightdisrict/nightdisrict/nightdisrict/web3
           npm install
      
