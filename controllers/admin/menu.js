@@ -84,14 +84,14 @@ const store = async(req,res) =>
                   });
 
     
-                menuPictures.push(`/menu/${fileName}`)
+                menuPictures.push(`menu/${fileName}`)
             }
             
             
           }
         else
         {
-          
+            menuPictures.push(`menu/no_photo.png`)
         }
         //  add categories
         let finalCategory;
