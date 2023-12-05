@@ -156,11 +156,9 @@ const store = async (req, res) => {
                 // Find the order to swap (it should have the earliest timestamp)
                 const orderToSwap = deliveredOrders[0];
     
-
-
      
                 // Update the delivered order's status to "delivered = false"
-                await allOrders.updateOrderStatus(orderToSwap._id, false, latestOrder._id);
+                await allOrders.updateOrderStatus(orderToSwap._id, false);
         
                 // Assign the nextSequence from the order to swap
                 nextSequence = orderToSwap.sequence;

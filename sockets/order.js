@@ -663,7 +663,7 @@ function initOrder() {
 
 }
 
-const updateOrderStatus = async (orderId, isDelivered, latestOrderId) => {
+const updateOrderStatus = async (orderId, isDelivered) => {
     try {
         // Find the order by its ID and update its status and order ID
         let data = await ordersequence.findOneAndUpdate(
