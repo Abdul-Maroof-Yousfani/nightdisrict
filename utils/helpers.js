@@ -20,6 +20,7 @@ import serviceAccount from "../config/nd.js";
 import Admin from 'firebase-admin';
 import ordersequence from '../models/ordersequence.js';
 import moment from 'moment-timezone';
+import attendance from '../models/attendance.js';
 
 
 
@@ -839,13 +840,23 @@ const getEventById = async(id) =>{
             return  data?data:[]
             
         }))
-        data.participants  = await Promise.all(data.participants.map( async (e) =>{
+        // data.participants  = await Promise.all(data.participants.map( async (e) =>{
             
-            let data = await getUserById(e.user)
-            return  data?data:[]
+        //     let data = await getUserById(e.user)
+        //     return  data?data:[]
             
-        }))
+        // }))
         // get dj
+
+        data.participants = [];
+        // get attendances
+        let attendances = await attendance.find({
+            event : id
+        }).select({customer: 1})
+        data.participants = await Promise.all(attendances.map( async (e) =>{
+            return await getUserById(e.customer)
+        }))
+
 
         data.dj = {}
 
@@ -859,7 +870,6 @@ const getEventById = async(id) =>{
     catch(error)
     {
         return error.message;
-
     }
 
 }

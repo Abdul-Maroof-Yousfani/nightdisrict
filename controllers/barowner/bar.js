@@ -1421,10 +1421,10 @@ const report = async (req, res) => {
             {
                 $match: {
                     bar: mongoose.Types.ObjectId(barId),
-                    createdAt: {
-                        $gte: today,
-                        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-                    },
+                    // createdAt: {
+                    //     $gte: today,
+                    //     $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+                    // },
                 },
             },
             {
@@ -1618,8 +1618,6 @@ const report = async (req, res) => {
             },
         ]);
 
-        console.log(bestEvent);
-        return res.json(bestEvent)
 
         // let bestEvent = {
         //     title : "Friday Night",
