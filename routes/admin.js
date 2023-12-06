@@ -22,7 +22,7 @@ const upload = multer({ storage });
 
 const router = express.Router();
 router.get('/users/barOwnersDetails', helpers.verifyAuthToken, admin.barOwnersDetails)
-router.get("/category/new",category.index);
+router.get("/category-new",category.index);
 
 router.post("/category",category.store);
 router.put("/category/:_id",category.update);
