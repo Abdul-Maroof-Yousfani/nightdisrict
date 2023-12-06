@@ -18,6 +18,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: |
-          cd ~/actions-runner/nightdisrict/nightdisrict/nightdisrict
+          cd ~/actions-runner/nightdistrict
           npm install
          
