@@ -10,3 +10,4 @@ const automationlogs = new mongoose.Schema({
     timestamps :true
 });
 export default mongoose.model('automationlog', automationlogs);
+// sasa
