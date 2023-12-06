@@ -6,6 +6,11 @@ const ticket = new mongoose.Schema({
         ref : 'evemts',
         default : null
     },
+    bar : {
+        type : mongoose.Types.ObjectId,
+        default : null,
+        ref : "bars"
+    },
     user: {
         type: mongoose.Types.ObjectId,
         ref : 'users',

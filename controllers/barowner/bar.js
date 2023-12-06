@@ -2125,16 +2125,16 @@ const web = async (req, res) => {
 
 const analytics = async (req, res) => {
     try {
-        const totalMenuSalesCount = 1500;
-        const totalTicketCounts = 1200;
-        const eventAttendanceCount = 300;
-        const averagingEventRatingsCount = 4.5;
+        const totalMenuSalesCount = 0;
+        const totalTicketCounts = 0;
+        const eventAttendanceCount = 0;
+        const averagingEventRatingsCount = 0;
         const bestSellingMenuPieChart = []; // Data for pie chart
         // const mostPopularMenuCategories = ["Appetizers", "Main Course", "Desserts"];
         // const bestSellingEvents = ["Event A", "Event B", "Event C"];
 
-        const demoGraphicsMalePercentage = 60;
-        const demoGraphicsFemalePercentage = 40;
+        const demoGraphicsMalePercentage = 0;
+        const demoGraphicsFemalePercentage = 0;
 
         // get best selling menu
 
@@ -2257,13 +2257,29 @@ const analytics = async (req, res) => {
         })
 
 
+        // get total Menu Sales Count
+
+        let totalDrinksSales = await order.find({
+            barId : req.user.barInfo,
+            type : "642a6f6e17dc8bc505021545"
+        })
+        let totalTickets = await order.find({
+            barId : req.user.barInfo,
+            type : "642a7e9917dc8bc505021552"
+        })
+
+        let totalAttendances = await attendance.find({
+            barId : req.user.barInfo
+        })
+
+
 
 
 
         const analyticsData = {
-            totalMenuSalesCount,
-            totalTicketCounts,
-            eventAttendanceCount,
+            totalMenuSalesCount : totalDrinksSales.length,
+            totalTicketCounts:totalTickets.length,
+            eventAttendanceCount : totalAttendances.length,
             averagingEventRatingsCount,
             bestSellingMenuPieChart: bestSellingMenuWithPercentageAndColor,
             mostPopularMenuCategories: menu,
