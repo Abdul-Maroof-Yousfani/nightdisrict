@@ -27,6 +27,7 @@ router.put("/category/:_id",category.update);
 router.get("/category2/:id",category.getSingleCategory);
 router.get("/categoryWiseData/:id",category.categoryWiseData);
 router.get("/category",category.index);
+router.get("/category/new",category.index);
 router.get("/parentCategory",category.parentCategory);
 router.get("/parentCategory2",category.parentCategory2);
 router.post("/category/items",category.getCategoryBasedItems);
